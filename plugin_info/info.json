@@ -12,8 +12,8 @@
 	"hasDependency" : false,
 	"hasOwnDeamon" : false,
 	"maxDependancyInstallTime" : 0,
-	"changelog" : "https://jeedom.github.io/plugin-template/#language#/changelog",
-	"documentation" : "https://jeedom.github.io/plugin-template/#language#/",
+	"changelog" : "https://hbedek.github.io/Jeedom_docs/docs/sonarr/#language#/changelog",
+	"documentation" : "https://hbedek.github.io/Jeedom_docs/docs/sonarr/#language#/",
 	"language" : ["fr_FR","en_US","de_DE","sp_SP","ru_RU", "pt_PT"],
 	"compatibility" : ["miniplus","smart","rpi","docker","diy","mobile","v4"]
 }
