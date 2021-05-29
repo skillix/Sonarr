@@ -42,7 +42,7 @@ class sonarr extends eqLogic {
       $info = $this->getCmd(null, 'day_ddl_episodes');
 		if (!is_object($info)) {
 			$info = new sonarrCmd();
-			$info->setName(__('Episodes téléchargés du jour', __FILE__));
+			$info->setName(__('Episodes téléchargés', __FILE__));
 		}
 		$info->setLogicalId('day_ddl_episodes');
 		$info->setEqLogic_id($this->getId());
@@ -192,7 +192,7 @@ class sonarr extends eqLogic {
       $list_episodes = $this->getHistory();
       $list_episodes = array_reverse($list_episodes);
       log::add('scenario', 'info', "size array ".count($list_episodes));
-      if (array_search($last_episode, $list_episodes, true) == false) {
+      if (array_search($last_episode, $list_episodes, true) === false) {
          log::add('scenario', 'info', "No notification has been sent yet");
          foreach($list_episodes as $episode) {
             log::add('scenario', 'info', "send notif for ".$episode);
