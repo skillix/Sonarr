@@ -205,7 +205,7 @@ class sonarr extends eqLogic {
                }
             }
             $episode = $this->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber);
-            $episode = $urlImage."\n".$episode;
+            $episode = $episode."\n".$urlImage;
             array_push($liste_episode, $episode);
          }
       }
