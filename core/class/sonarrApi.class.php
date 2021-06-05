@@ -681,7 +681,6 @@ class sonarrApi
                     'code' => $e->getCode(),
                 ),
             ));
-
         }
 
         return $response->getBody()->getContents();
