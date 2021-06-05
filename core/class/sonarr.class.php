@@ -82,6 +82,17 @@ class sonarr extends eqLogic {
 		$info->setType('info');
 		$info->setSubType('string');
 		$info->save();	
+
+      $info = $this->getCmd(null, 'notification');
+		if (!is_object($info)) {
+			$info = new sonarrCmd();
+			$info->setName(__('Notification', __FILE__));
+		}
+		$info->setLogicalId('notification');
+		$info->setEqLogic_id($this->getId());
+		$info->setType('info');
+		$info->setSubType('string');
+		$info->save();	
 		
 		$refresh = $this->getCmd(null, 'refresh');
 		if (!is_object($refresh)) {
@@ -105,6 +116,7 @@ class sonarr extends eqLogic {
       $liste_episode_history = $this->getDownladedEpisodes();
       $this->checkAndUpdateCmd('day_ddl_episodes', $liste_episode_history); 
       $this->getLastDownloaded();
+      $this->getLastDownloadedImgs();
    }
    public function getNumber() {
       $number = $this->getConfiguration('numberEpisodes');
@@ -171,6 +183,34 @@ class sonarr extends eqLogic {
       }
       return $liste_episode;
     }
+
+    public function getHistoryImgs() {
+      $apiKey = $this->getConfiguration('apiKey');
+      $sonarrUrl = $this->getConfiguration('sonarrUrl');
+      $number = $this->getNumber();
+      $numberMax = $number * 4;
+      $liste_episode = [];
+      $sonarrApi = new sonarrApi($sonarrUrl, $apiKey);
+      $historyJSON = $sonarrApi->getHistory(1, $numberMax, 'date', 'desc');
+      $history = json_decode($historyJSON, true);
+      foreach($history['records'] as $serie) {
+         if (count($liste_episode) < $number && strcmp($serie["eventType"] , "downloadFolderImported") == 0) {
+            $episodeTitle = $serie["series"]["title"];
+            $seasonNumber = $serie["episode"]["seasonNumber"];
+            $episodeNumber = $serie["episode"]["episodeNumber"];
+            $images = $serie["series"]["images"];
+            foreach($images as $image) {
+               if ($image["coverType"] == "poster") {
+                  $urlImage =  $image["url"];
+               }
+            }
+            $episode = $this->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber);
+            $episode = $urlImage."\n".$episode;
+            array_push($liste_episode, $episode);
+         }
+      }
+      return $liste_episode;
+    }
     public function getDownladedEpisodes() {
        $list_episodes = $this->getHistory();
        return implode(", ",$list_episodes);
@@ -191,21 +231,33 @@ class sonarr extends eqLogic {
       $last_episode = $this->getCmd(null, 'last_episode')->execCmd();
       $list_episodes = $this->getHistory();
       $list_episodes = array_reverse($list_episodes);
-      log::add('scenario', 'info', "size array ".count($list_episodes));
       if (array_search($last_episode, $list_episodes, true) === false) {
-         log::add('scenario', 'info', "No notification has been sent yet");
          foreach($list_episodes as $episode) {
-            log::add('scenario', 'info', "send notif for ".$episode);
             $this->getCmd(null, 'last_episode')->event($episode);
          }
       } else {
-         log::add('scenario', 'info', "check if need notification");
          $position = array_search($last_episode, $list_episodes, true);
          if ($position != (count($list_episodes) - 1)) {
-            log::add('scenario', 'info', "need notification");
             for ($i = $position; $i < count($list_episodes); $i++) {
-               log::add('scenario', 'info', "send notif for ".$list_episodes[$i]);
                $this->getCmd(null, 'last_episode')->event($list_episodes[$i]);
+           }
+         }
+      }
+    }
+
+    public function getLastDownloadedImgs() {
+      $last_episode = $this->getCmd(null, 'notification')->execCmd();
+      $list_episodes = $this->getHistoryImgs();
+      $list_episodes = array_reverse($list_episodes);
+      if (array_search($last_episode, $list_episodes, true) === false) {
+         foreach($list_episodes as $episode) {
+            $this->getCmd(null, 'notification')->event($episode);
+         }
+      } else {
+         $position = array_search($last_episode, $list_episodes, true);
+         if ($position != (count($list_episodes) - 1)) {
+            for ($i = $position; $i < count($list_episodes); $i++) {
+               $this->getCmd(null, 'notification')->event($list_episodes[$i]);
            }
          }
       }
