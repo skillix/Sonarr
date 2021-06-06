@@ -147,6 +147,14 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="numberEpisodes" placeholder="5"/>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label"> {{Séparateur à utiliser}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez sélectionner ici un séparateur à utiliser pour le retour des épisodes}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="separator" placeholder=", "/>
+								</div>
+							</div>
 							<!-- Champ de saisie du cron d'auto-actualisation + assistant cron -->
 							<!-- La fonction cron de la classe du plugin doit contenir le code prévu pour que ce champ soit fonctionnel -->
 							<div class="form-group">
