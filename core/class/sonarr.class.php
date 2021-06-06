@@ -75,7 +75,7 @@ class sonarr extends eqLogic {
       $info = $this->getCmd(null, 'last_episode');
 		if (!is_object($info)) {
 			$info = new sonarrCmd();
-			$info->setName(__('Dernier épisode', __FILE__));
+			$info->setName(__('Dernier épisode téléchargé', __FILE__));
 		}
 		$info->setLogicalId('last_episode');
 		$info->setEqLogic_id($this->getId());
