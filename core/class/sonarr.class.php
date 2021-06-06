@@ -18,7 +18,7 @@
 
 /* * ***************************Includes********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
-require_once __DIR__  . '/sonarrApi.class.php';
+require_once __DIR__  . '/sonarrApiWrapper.class.php';
 
 class sonarr extends eqLogic {
         
@@ -38,7 +38,7 @@ class sonarr extends eqLogic {
       }
    }
 
-    public function postSave() {
+   public function postSave() {
       $info = $this->getCmd(null, 'day_ddl_episodes');
 		if (!is_object($info)) {
 			$info = new sonarrCmd();
@@ -105,18 +105,41 @@ class sonarr extends eqLogic {
 		$refresh->setSubType('other');
 		$refresh->save(); 
     }
+
    public function refresh() {
-      // Get Calendar
-      $calendar = $this->getCalendar();
-      // Get all episode for the day
-      $liste_episode_day = $this->getEpisodes($calendar); 	
-		$this->checkAndUpdateCmd('day_episodes', $liste_episode_day); 
-      $liste_episode_missing = $this->getMissing();
-      $this->checkAndUpdateCmd('day_missing_episodes', $liste_episode_missing); 
-      $liste_episode_history = $this->getDownladedEpisodes();
-      $this->checkAndUpdateCmd('day_ddl_episodes', $liste_episode_history); 
-      $this->getLastDownloaded();
-      $this->getLastDownloadedImgs();
+      log::add('sonarr', 'info', 'start REFRESH');
+      $apiKey = $this->getConfiguration('apiKey');
+      $url = $this->getConfiguration('sonarrUrl');
+      $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
+      log::add('sonarr', 'info', 'getting futures episodes');
+      $separator = $this->getSeparator();
+      $futures_episodes = $sonarrApiWrapper->getFutureEpisodes($separator);
+      if ($futures_episodes == "") {
+         log::add('sonarr', 'info', 'no future episodes');
+      } else {
+         $this->checkAndUpdateCmd('day_episodes', $futures_episodes); 
+      }
+      log::add('sonarr', 'info', 'getting missings episodes');
+      $number = $this->getNumber();
+      $liste_episode_missing = $sonarrApiWrapper->getMissingEpisodes($number, $separator);
+      if ($liste_episode_missing == "") {
+         log::add('sonarr', 'info', 'no missing episodes');
+      } else {
+         $this->checkAndUpdateCmd('day_missing_episodes', $liste_episode_missing); 
+      }
+      log::add('sonarr', 'info', 'getting last downloaded episodes');
+      $liste_episode_history = $sonarrApiWrapper->getDownladedEpisodes($number, $separator);
+      if ($liste_episode_history == "") {
+         log::add('sonarr', 'info', 'no downloaded episodes');
+      } else {
+         $this->checkAndUpdateCmd('day_ddl_episodes', $liste_episode_history); 
+      }
+      log::add('sonarr', 'info', 'getting the last downloaded episode');
+      $last_episode = $this->getCmd(null, 'last_episode')->execCmd();
+      $sonarrApiWrapper->getLastDownloaded($last_episode, $number, $this);
+      log::add('sonarr', 'info', 'getting the last downloaded episode with poster');
+      $sonarrApiWrapper->getLastDownloadedImgs($last_episode, $number, $this);
+      log::add('sonarr', 'info', 'stop REFRESH');
    }
    public function getNumber() {
       $number = $this->getConfiguration('numberEpisodes');
@@ -126,142 +149,14 @@ class sonarr extends eqLogic {
          return 5;
       }
    }
-    public function getCalendar() {
-      $apiKey = $this->getConfiguration('apiKey');
-      $sonarrUrl = $this->getConfiguration('sonarrUrl');
-      $liste_episode = "";
-      $sonarrApi = new sonarrApi($sonarrUrl, $apiKey);
-      $calendar = $sonarrApi->getCalendar();
-
-      return json_decode($calendar, true);
-    }
-    public function getEpisodes($calendar) {
-      $liste_episode = "";
-      foreach($calendar as $serie) {
-         $episodeTitle = $serie["series"]["title"];
-         $seasonNumber = $serie["seasonNumber"];
-         $episodeNumber = $serie["episodeNumber"];
-         $episode = $this->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber);
-         $liste_episode = $this->formatList($liste_episode, $episode);
-      }
-      return $liste_episode;
-    }
-    public function getMissing() {
-      $apiKey = $this->getConfiguration('apiKey');
-      $sonarrUrl = $this->getConfiguration('sonarrUrl');
-      $number = $this->getNumber();
-      $liste_episode = "";
-      $sonarrApi = new sonarrApi($sonarrUrl, $apiKey);
-      $missingEpisodesJSON = $sonarrApi->getWantedMissing(1, $number, 'airDateUtc', 'desc');
-      $missingEpisodes = json_decode($missingEpisodesJSON, true);
-      foreach($missingEpisodes['records'] as $serie) {
-         $episodeTitle = $serie["series"]["title"];
-         $seasonNumber = $serie["seasonNumber"];
-         $episodeNumber = $serie["episodeNumber"];
-         $episode = $this->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber);
-         $liste_episode = $this->formatList($liste_episode, $episode);
-      }
-      return $liste_episode;
-    }
-    public function getHistory() {
-      $apiKey = $this->getConfiguration('apiKey');
-      $sonarrUrl = $this->getConfiguration('sonarrUrl');
-      $number = $this->getNumber();
-      $numberMax = $number * 4;
-      $liste_episode = [];
-      $sonarrApi = new sonarrApi($sonarrUrl, $apiKey);
-      $historyJSON = $sonarrApi->getHistory(1, $numberMax, 'date', 'desc');
-      $history = json_decode($historyJSON, true);
-      foreach($history['records'] as $serie) {
-         if (count($liste_episode) < $number && strcmp($serie["eventType"] , "downloadFolderImported") == 0) {
-            $episodeTitle = $serie["series"]["title"];
-            $seasonNumber = $serie["episode"]["seasonNumber"];
-            $episodeNumber = $serie["episode"]["episodeNumber"];
-            $episode = $this->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber);
-            array_push($liste_episode, $episode);
-         }
-      }
-      return $liste_episode;
-    }
-
-    public function getHistoryImgs() {
-      $apiKey = $this->getConfiguration('apiKey');
-      $sonarrUrl = $this->getConfiguration('sonarrUrl');
-      $number = $this->getNumber();
-      $numberMax = $number * 4;
-      $liste_episode = [];
-      $sonarrApi = new sonarrApi($sonarrUrl, $apiKey);
-      $historyJSON = $sonarrApi->getHistory(1, $numberMax, 'date', 'desc');
-      $history = json_decode($historyJSON, true);
-      foreach($history['records'] as $serie) {
-         if (count($liste_episode) < $number && strcmp($serie["eventType"] , "downloadFolderImported") == 0) {
-            $episodeTitle = $serie["series"]["title"];
-            $seasonNumber = $serie["episode"]["seasonNumber"];
-            $episodeNumber = $serie["episode"]["episodeNumber"];
-            $images = $serie["series"]["images"];
-            foreach($images as $image) {
-               if ($image["coverType"] == "poster") {
-                  $urlImage =  $image["url"];
-               }
-            }
-            $episode = $this->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber);
-            $episode = $episode."\n".$urlImage;
-            array_push($liste_episode, $episode);
-         }
-      }
-      return $liste_episode;
-    }
-    public function getDownladedEpisodes() {
-       $list_episodes = $this->getHistory();
-       return implode(", ",$list_episodes);
-    }
-    public function formatEpisode($episodeTitle, $seasonNumber, $episodeNumber) {   
-      $formatted = $episodeTitle." S".$seasonNumber."E".$episodeNumber;
-      return $formatted;
-    }
-    public function formatList($list, $episode) {
-      if ($list == "") {
-         $list = $episode;
+   public function getSeparator() {
+      $separator = $this->getConfiguration('separator');
+      if ($separator != NULL) {
+         return $separator;
       } else {
-         $list = $list.", ".$episode;
+         return ", ";
       }
-      return $list;
-    }
-    public function getLastDownloaded() {
-      $last_episode = $this->getCmd(null, 'last_episode')->execCmd();
-      $list_episodes = $this->getHistory();
-      $list_episodes = array_reverse($list_episodes);
-      if (array_search($last_episode, $list_episodes, true) === false) {
-         foreach($list_episodes as $episode) {
-            $this->getCmd(null, 'last_episode')->event($episode);
-         }
-      } else {
-         $position = array_search($last_episode, $list_episodes, true);
-         if ($position != (count($list_episodes) - 1)) {
-            for ($i = $position; $i < count($list_episodes); $i++) {
-               $this->getCmd(null, 'last_episode')->event($list_episodes[$i]);
-           }
-         }
-      }
-    }
-
-    public function getLastDownloadedImgs() {
-      $last_episode = $this->getCmd(null, 'notification')->execCmd();
-      $list_episodes = $this->getHistoryImgs();
-      $list_episodes = array_reverse($list_episodes);
-      if (array_search($last_episode, $list_episodes, true) === false) {
-         foreach($list_episodes as $episode) {
-            $this->getCmd(null, 'notification')->event($episode);
-         }
-      } else {
-         $position = array_search($last_episode, $list_episodes, true);
-         if ($position != (count($list_episodes) - 1)) {
-            for ($i = $position; $i < count($list_episodes); $i++) {
-               $this->getCmd(null, 'notification')->event($list_episodes[$i]);
-           }
-         }
-      }
-    }
+   }
 }
 
 class sonarrCmd extends cmd {

@@ -22,7 +22,3 @@ if (!isConnect()) {
   die();
 }
 ?>
-<form class="form-horizontal">
-  <fieldset>
-  </fieldset>
-</form>
