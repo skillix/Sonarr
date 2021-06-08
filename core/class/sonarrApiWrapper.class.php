@@ -18,10 +18,17 @@ class sonarrApiWrapper {
         $this->utils = new sonarrUtils();
     }
 
-    public function getFutureEpisodes($separator) {
+    public function getFutureEpisodes($separator, $dayFutures) {
         $liste_episode = "";
+        $currentDate = new DateTime();
+        $futureDate = new DateTime();
+        $futureDate->add(new DateInterval('P'.$dayFutures.'D'));
+        $currentDate = $currentDate->format('Y-m-d');
+        $futureDate = $futureDate->format('Y-m-d');
         // Server call
-        $calendar = $this->sonarrApi->getCalendar();
+        log::add('sonarr', 'debug', 'fetching futures episodes between '.$currentDate.' and '.$futureDate);
+        $calendar = $this->sonarrApi->getCalendar($currentDate, $futureDate);
+        log::add('sonarr', 'debug', 'JSON FOR CALENDAR'.$calendar);
         // return error if needed
         $calendar = $this->utils->verifyJson($calendar);
         if ($calendar == NULL) {

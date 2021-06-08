@@ -140,11 +140,19 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label"> {{Nombre d'épisode à remonter (hors épisode du jour)}}
+								<label class="col-sm-3 control-label"> {{Nombre d'épisode à remonter pour la liste des épisodes manquants et téléchargés}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le nombre d'épisodes que vous souhaitez voir remonter. Agit sur les épisodes téléchargés et les épisodes manquant}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="numberEpisodes" placeholder="5"/>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label"> {{Nombre de jours pour les épisodes futures}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre de jours pour lequel le plugin va récupérer les épisodes futures. Par défaut le plugin récupère la liste des épisodes sortant ce jour}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayFutureEpisodes" placeholder="1"/>
 								</div>
 							</div>
 							<div class="form-group">

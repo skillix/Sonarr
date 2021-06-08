@@ -111,9 +111,10 @@ class sonarr extends eqLogic {
       $apiKey = $this->getConfiguration('apiKey');
       $url = $this->getConfiguration('sonarrUrl');
       $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
-      log::add('sonarr', 'info', 'getting futures episodes');
+      $dayFutures = $this->getDayForFutures();
+      log::add('sonarr', 'info', 'getting futures episodes for the the next '.$dayFutures.' days');
       $separator = $this->getSeparator();
-      $futures_episodes = $sonarrApiWrapper->getFutureEpisodes($separator);
+      $futures_episodes = $sonarrApiWrapper->getFutureEpisodes($separator, $dayFutures);
       if ($futures_episodes == "") {
          log::add('sonarr', 'info', 'no future episodes');
       } else {
@@ -155,6 +156,14 @@ class sonarr extends eqLogic {
          return $separator;
       } else {
          return ", ";
+      }
+   }
+   public function getDayForFutures() {
+      $dayFutures = $this->getConfiguration('dayFutureEpisodes');
+      if ($dayFutures != NULL && is_numeric($dayFutures)) {
+         return $dayFutures;
+      } else {
+         return 1;
       }
    }
 }
