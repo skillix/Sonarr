@@ -93,6 +93,17 @@ class sonarr extends eqLogic {
 		$info->setType('info');
 		$info->setSubType('string');
 		$info->save();	
+
+      $info = $this->getCmd(null, 'monitoredSeries');
+		if (!is_object($info)) {
+			$info = new sonarrCmd();
+			$info->setName(__('Séries monitorées', __FILE__));
+		}
+		$info->setLogicalId('monitoredSeries');
+		$info->setEqLogic_id($this->getId());
+		$info->setType('info');
+		$info->setSubType('string');
+		$info->save();	
 		
 		$refresh = $this->getCmd(null, 'refresh');
 		if (!is_object($refresh)) {
@@ -140,6 +151,13 @@ class sonarr extends eqLogic {
       $sonarrApiWrapper->getLastDownloaded($last_episode, $number, $this);
       log::add('sonarr', 'info', 'getting the last downloaded episode with poster');
       $sonarrApiWrapper->getLastDownloadedImgs($last_episode, $number, $this);
+      log::add('sonarr', 'info', 'getting all the monitored series');
+      $liste_monitored_series = $sonarrApiWrapper->getMonitoredSeries($separator);
+      if ($liste_monitored_series == "") {
+         log::add('sonarr', 'info', 'no monitored series');
+      } else {
+         $this->checkAndUpdateCmd('monitoredSeries', $liste_monitored_series); 
+      }
       log::add('sonarr', 'info', 'stop REFRESH');
    }
    public function getNumber() {

@@ -133,4 +133,21 @@ class sonarrApiWrapper {
         }
         return $liste_episode;
     }
+
+    public function getMonitoredSeries($separator) {
+        $listSeriesJSON = $this->sonarrApi->getSeries();
+        log::add('sonarr', 'debug', 'JSON FOR SERIES '.$listSeriesJSON);
+        $listSeries = $this->utils->verifyJson($listSeriesJSON);
+        if ($listSeries == NULL) {
+            log::add('sonarr', 'info', 'There are nos series in your sonarr');
+            return "";
+        }
+        $liste_series = "";
+        foreach($listSeries as $serie) {
+            if ($serie["monitored"] == true) {
+                $liste_series = $this->utils->formatList($liste_series, $serie["title"], $separator);
+            }
+        }
+        return $liste_series;
+    }
 }
