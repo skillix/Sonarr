@@ -66,43 +66,71 @@ class sonarrApiWrapper {
         return implode($separator, $list_episodes);
     }
 
-    public function getLastDownloaded($last_episode, $numberToFetch, $context) {
-        $list_episodesImgs = $this->getHistory($numberToFetch);
+    public function notifyEpisode($last_refresh_date, $context) {
+        log::add('sonarr', 'info', 'date du dernier refresh : '.$last_refresh_date);
+        $last_refresh_date = strtotime($last_refresh_date_str);
+        $list_episodesImgs = $this->getHistoryForDate($last_refresh_date);
         $list_episodesImgs = array_reverse($list_episodesImgs);
-        $list_episodes = $this->utils->getEpisodesList($list_episodesImgs);
-        if (array_search($last_episode, $list_episodes, true) === false) {
-            foreach($list_episodes as $episode) {
-                $context->getCmd(null, 'last_episode')->event($episode);
-            }
-        } else {
-            $position = array_search($last_episode, $list_episodes, true);
-            if ($position != (count($list_episodes) - 1)) {
-                for ($i = $position; $i < count($list_episodes); $i++) {
-                    $context->getCmd(null, 'last_episode')->event($list_episodes[$i]);
-                }
-            }
+        log::add('sonarr', 'info', "will send notification for ".count($list_episodesImgs)." episodes");
+        foreach($list_episodesImgs as $episode) {
+            $formattedEpisode = $this->utils->formatEpisodeImg($episode);
+            log::add('sonarr', 'info', "send notification for ".count($formattedEpisode));
+            $context->getCmd(null, 'notification')->event($formattedEpisode);
+            $context->getCmd(null, 'last_episode')->event($episode["episode"]);
+            sleep(1);
         }
     }
-  
-    public function getLastDownloadedImgs($last_episode, $numberToFetch, $context) {
-        $list_episodesImgs = $this->getHistory($numberToFetch);
-        $list_episodesImgs = array_reverse($list_episodesImgs);
-        $list_episodes = $this->utils->getEpisodesList($list_episodesImgs);
-        if (array_search($last_episode, $list_episodes, true) === false) {
-            for ($i = 0; $i < count($list_episodes); $i++) {
-                $formattedEpisode = $this->utils->formatEpisodeImg($list_episodesImgs[$i]);
-                $context->getCmd(null, 'notification')->event($formattedEpisode);
+    private function getHistoryForDate($last_refresh_date_str) {
+        $liste_episode = [];
+        $stopSearch = false;
+        $pageToSearch = 1;
+        while ($stopSearch == false) {
+            $historyJSON = $this->sonarrApi->getHistory(1, 10, 'date', 'desc');
+            $history = $this->utils->verifyJson($historyJSON);
+            if ($history == NULL || empty($history['records'])) { 
+                log::add('sonarr', 'info', "stop searching for new episode to notify empty history page");
+                $stopSearch = true;
             }
-        } else {
-            $position = array_search($last_episode, $list_episodes, true);
-            if ($position != (count($list_episodes) - 1)) {
-                for ($i = $position; $i < count($list_episodes); $i++) {
-                    $formattedEpisode = $this->utils->formatEpisodeImg($list_episodesImgs[$i]);
-                    $context->getCmd(null, 'notification')->event($formattedEpisode);
+            foreach($history['records'] as $serie) {
+                if ($stopSearch == false && $serie["eventType"] == "downloadFolderImported") {
+                    $ddl_date_str = $serie["date"];
+                    $ddl_date = strtotime($ddl_date_str);
+                    if ($ddl_date > $last_refresh_date || $last_refresh_date == NULL) {
+                        if ($last_refresh_date == NULL) {
+                            log::add('sonarr', 'info', 'first run for notification');
+                            $stopSearch = true;
+                        }
+                        $episodeTitle = $serie["series"]["title"];
+                        $seasonNumber = $serie["episode"]["seasonNumber"];
+                        $episodeNumber = $serie["episode"]["episodeNumber"];
+                        $episode = $this->utils->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber);
+                        $images = $serie["series"]["images"];
+                        $urlImage = "";
+                        foreach($images as $image) {
+                            if ($image["coverType"] == "poster") {
+                                $urlImage =  $image["url"];
+                            }
+                        }
+                        $episodeImage = array(
+                            'episode' => $episode,
+                            'image' => $urlImage,
+                        );
+                        array_push($liste_episode, $episodeImage);
+                        log::add('sonarr', 'info', "found new episode downladed :".$serie["series"]["title"]);
+                    } else {
+                        log::add('sonarr', 'info', "stop searching for new episode to notify");
+                        $stopSearch = true;
+                    }
                 }
             }
+            $pageToSearch++;
         }
+        return $liste_episode;
     }
+    private function sendNotification() {
+
+    }
+
     private function getHistory($numberToFetch) {
         $numberMax = $numberToFetch * 4;
         $liste_episode = [];

@@ -146,12 +146,10 @@ class sonarr extends eqLogic {
       } else {
          $this->checkAndUpdateCmd('day_ddl_episodes', $liste_episode_history); 
       }
-      log::add('sonarr', 'info', 'getting the last downloaded episode');
-      $last_episode = $this->getCmd(null, 'last_episode')->execCmd();
-      $sonarrApiWrapper->getLastDownloaded($last_episode, $number, $this);
-      log::add('sonarr', 'info', 'getting the last downloaded episode with poster');
-      $sonarrApiWrapper->getLastDownloadedImgs($last_episode, $number, $this);
-      log::add('sonarr', 'info', 'getting all the monitored series');
+      log::add('sonarr', 'info', 'notify for last downloaded episodes');
+      $last_refresh_date = $this->getCmd(null, 'last_episode')->getValueDate();
+      $sonarrApiWrapper->notifyEpisode($last_refresh_date, $this);
+      log::add('sonarr', 'info', 'getting the monitored series');
       $liste_monitored_series = $sonarrApiWrapper->getMonitoredSeries($separator);
       if ($liste_monitored_series == "") {
          log::add('sonarr', 'info', 'no monitored series');

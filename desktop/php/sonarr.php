@@ -124,6 +124,16 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 							<legend><i class="fas fa-cogs"></i> {{Paramètres spécifiques}}</legend>
 							<div class="form-group">
+                                <label class="col-sm-3 control-label">{{Sonar/Radarr}}</label>
+                                <div class="col-sm-3">
+                                    <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="application">
+                                        <option value="">{{Sélectionner}}</option>
+                                        <option value="sonarr">Sonarr</option>
+                                        <option value="radarr">Radarr</option>
+                                    </select>
+                                </div>
+                            </div>
+							<div class="form-group">
 								<label class="col-sm-3 control-label">{{Url de Sonarr}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez l'url de Sonarr de type http://127.0.0.1:8989}}"></i></sup>
 								</label>
