@@ -88,3 +88,9 @@ function addCmdToTable(_cmd) {
      }
    });
  }
+ 
+ $(".eqLogicAttr[data-l1key='configuration'][data-l2key='application']").change(function () {
+  $('.sonarr-function-config').hide();
+  $('.sonarr-' + $(this).value()).show();
+});
+

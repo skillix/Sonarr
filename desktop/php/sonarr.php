@@ -124,32 +124,39 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 							<legend><i class="fas fa-cogs"></i> {{Paramètres spécifiques}}</legend>
 							<div class="form-group">
-                                <label class="col-sm-3 control-label">{{Sonar/Radarr}}</label>
-                                <div class="col-sm-3">
-                                    <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="application">
-                                        <option value="">{{Sélectionner}}</option>
-                                        <option value="sonarr">Sonarr</option>
-                                        <option value="radarr">Radarr</option>
-                                    </select>
+                                    <label class="col-sm-3 control-label">{{Sonarr/Radarr}}</label>
+                                    <div class="col-sm-3">
+                                        <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="application">
+                                            <option value="">{{Sélectionner}}</option>
+                                            <?php
+                                            foreach (sonarr::getApplications() as $key => $description) {
+                                                echo "<option value='{$key}'>{$description}</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                            </div>
+                            <div class="form-group sonarr-function-config sonarr-sonarr">
+                                <label class="col-sm-3 control-label">{{Url de Sonarr}}</label>
+                                <div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="sonarrUrl" placeholder="{{http://127.0.0.1:8989}}"/>
+                                </div>
+                            </div>
+							<div class="form-group sonarr-function-config sonarr-radarr">
+                                <label class="col-sm-3 control-label">{{Url de Radarr}}</label>
+                                <div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="radarrUrl" placeholder="{{http://127.0.0.1:8989}}"/>
                                 </div>
                             </div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label">{{Url de Sonarr}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez l'url de Sonarr de type http://127.0.0.1:8989}}"></i></sup>
-								</label>
-								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="sonarrUrl" placeholder="{{http://127.0.0.1:8989}}"/>
-								</div>
-							</div>
-							<div class="form-group">
 								<label class="col-sm-3 control-label"> {{API KEY}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez l'api Key de votre Sonarr'}}"></i></sup>
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez l'api Key de votre application'}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control inputPassword" data-l1key="configuration" data-l2key="apiKey"/>
 								</div>
 							</div>
-							<div class="form-group">
+							<div class="form-group sonarr-function-config sonarr-sonarr">
 								<label class="col-sm-3 control-label"> {{Nombre d'épisode à remonter pour la liste des épisodes manquants et téléchargés}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le nombre d'épisodes que vous souhaitez voir remonter. Agit sur les épisodes téléchargés et les épisodes manquant}}"></i></sup>
 								</label>
@@ -157,12 +164,20 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="numberEpisodes" placeholder="5"/>
 								</div>
 							</div>
-							<div class="form-group">
-								<label class="col-sm-3 control-label"> {{Nombre de jours pour les épisodes futures}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre de jours pour lequel le plugin va récupérer les épisodes futures. Par défaut le plugin récupère la liste des épisodes sortant ce jour}}"></i></sup>
+							<div class="form-group sonarr-function-config sonarr-radarr">
+								<label class="col-sm-3 control-label"> {{Nombre de films à remonter pour la liste des films manquants et téléchargés}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le nombre de films que vous souhaitez voir remonter. Agit sur les films téléchargés et les films manquant}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayFutureEpisodes" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="numberMovies" placeholder="5"/>
+								</div>
+							</div>
+							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<label class="col-sm-3 control-label"> {{Nombre de jours pour les films futures}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre de jours pour lequel le plugin va récupérer les films futures. Par défaut le plugin récupère la liste des films sortant ce jour}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayFutureMovies" placeholder="1"/>
 								</div>
 							</div>
 							<div class="form-group">

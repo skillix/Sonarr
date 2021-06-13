@@ -21,7 +21,15 @@ require_once __DIR__  . '/../../../../core/php/core.inc.php';
 require_once __DIR__  . '/sonarrApiWrapper.class.php';
 
 class sonarr extends eqLogic {
-        
+
+   public static function getApplications() {
+      $return = array(
+          'sonarr' => 'Sonarr',
+          'radarr' => 'Radarr'
+      );
+      return $return;
+  }
+
    public static function cron() {
       foreach (self::byType('sonarr', true) as $sonarr) {
           if ($sonarr->getIsEnable() != 1) continue;
