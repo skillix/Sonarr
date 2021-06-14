@@ -42,7 +42,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 			foreach ($eqLogics as $eqLogic) {
 				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
 				echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
-				echo '<img src="' . $plugin->getPathImgIcon() . '"/>';
+				echo '<img src="' . $eqLogic->getImage() . '"/>';
 				echo '<br>';
 				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
 				echo '</div>';
@@ -145,7 +145,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							<div class="form-group sonarr-function-config sonarr-radarr">
                                 <label class="col-sm-3 control-label">{{Url de Radarr}}</label>
                                 <div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="radarrUrl" placeholder="{{http://127.0.0.1:8989}}"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="radarrUrl" placeholder="{{http://127.0.0.1:8310}}"/>
                                 </div>
                             </div>
 							<div class="form-group">
@@ -165,14 +165,22 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-radarr">
-								<label class="col-sm-3 control-label"> {{Nombre de films à remonter pour la liste des films manquants et téléchargés}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le nombre de films que vous souhaitez voir remonter. Agit sur les films téléchargés et les films manquant}}"></i></sup>
+								<label class="col-sm-3 control-label"> {{Nombre de films à remonter pour la liste des films téléchargés}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le nombre de films que vous souhaitez voir remonter. Agit sur les films téléchargés}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="numberMovies" placeholder="5"/>
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<label class="col-sm-3 control-label"> {{Nombre de jours pour les épisodes futures}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre de jours pour lequel le plugin va récupérer les épisodes futures. Par défaut le plugin récupère la liste des épisodes sortant ce jour}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayFutureEpisodes" placeholder="1"/>
+								</div>
+							</div>
+							<div class="form-group sonarr-function-config sonarr-radarr">
 								<label class="col-sm-3 control-label"> {{Nombre de jours pour les films futures}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre de jours pour lequel le plugin va récupérer les films futures. Par défaut le plugin récupère la liste des films sortant ce jour}}"></i></sup>
 								</label>
@@ -203,17 +211,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
 											</a>
 										</span>
 									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Partie droite de l'onglet "Équipement" -->
-						<!-- Affiche l'icône du plugin par défaut mais vous pouvez y afficher les informations de votre choix -->
-						<div class="col-lg-6">
-							<legend><i class="fas fa-info"></i> {{Informations}}</legend>
-							<div class="form-group">
-								<div class="text-center">
-									<img name="icon_visu" src="<?= $plugin->getPathImgIcon(); ?>" style="max-width:160px;"/>
 								</div>
 							</div>
 						</div>

@@ -2,7 +2,7 @@
 
 use GuzzleHttp\Client;
 
-class Radarr
+class radarrApi
 {
     protected $url;
     protected $apiKey;

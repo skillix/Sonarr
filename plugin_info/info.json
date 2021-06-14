@@ -1,12 +1,12 @@
 {
 	"id" : "sonarr",
-	"name" : "Sonarr",
+	"name" : "Sonarr & Radarr",
 	"description" : {
-		"fr_FR": "Plugin permettant d'interconnecter Jeedom et Sonarr",
+		"fr_FR": "Plugin permettant d'interconnecter Jeedom, Sonarr et Radarr",
 		"en_US": "Template plugin"
 	},
 	"licence" : "AGPL",
-	"author" : "henriBesses",
+	"author" : "hbedek",
 	"require" : "3.3.39",
 	"category" : "multimedia",
 	"hasDependency" : false,

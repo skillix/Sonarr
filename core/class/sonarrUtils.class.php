@@ -31,7 +31,19 @@ class sonarrUtils {
         }
         return $list;
     }
-    public function formatEpisodeImg($episodeImg) {
-        return $episodeImg["episode"]."\n".$episodeImg["image"];
+    public function sendNotificationForTitleImgArray($titleImgArray, $context) {
+        // Reverse Array to be asc
+        $titleImgArray = array_reverse($titleImgArray);
+        log::add('sonarr', 'info', "will send notification for ".count($titleImgArray)." movies/series");
+        foreach($titleImgArray as $titleImg) {
+            $formattedTitle = $this->formatTitleImg($titleImg);
+            log::add('sonarr', 'info', "send notification for ".count($formattedTitle));
+            $context->getCmd(null, 'notification')->event($formattedTitle);
+            $context->getCmd(null, 'last_episode')->event($titleImg["title"]);
+            sleep(1);
+        }
+    }
+    public function formatTitleImg($titleImg) {
+        return $titleImg["title"]."\n".$titleImg["image"];
     }
 }

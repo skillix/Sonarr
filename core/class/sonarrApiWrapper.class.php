@@ -68,24 +68,16 @@ class sonarrApiWrapper {
 
     public function notifyEpisode($last_refresh_date, $context) {
         log::add('sonarr', 'info', 'date du dernier refresh : '.$last_refresh_date);
-        $last_refresh_date = strtotime($last_refresh_date_str);
         $list_episodesImgs = $this->getHistoryForDate($last_refresh_date);
-        $list_episodesImgs = array_reverse($list_episodesImgs);
-        log::add('sonarr', 'info', "will send notification for ".count($list_episodesImgs)." episodes");
-        foreach($list_episodesImgs as $episode) {
-            $formattedEpisode = $this->utils->formatEpisodeImg($episode);
-            log::add('sonarr', 'info', "send notification for ".count($formattedEpisode));
-            $context->getCmd(null, 'notification')->event($formattedEpisode);
-            $context->getCmd(null, 'last_episode')->event($episode["episode"]);
-            sleep(1);
-        }
+        $this->utils->sendNotificationForTitleImgArray($list_episodesImgs, $context);
     }
     private function getHistoryForDate($last_refresh_date_str) {
         $liste_episode = [];
+        $last_refresh_date = strtotime($last_refresh_date_str);
         $stopSearch = false;
         $pageToSearch = 1;
         while ($stopSearch == false) {
-            $historyJSON = $this->sonarrApi->getHistory(1, 10, 'date', 'desc');
+            $historyJSON = $this->sonarrApi->getHistory($pageToSearch, 10, 'date', 'desc');
             $history = $this->utils->verifyJson($historyJSON);
             if ($history == NULL || empty($history['records'])) { 
                 log::add('sonarr', 'info', "stop searching for new episode to notify empty history page");
@@ -112,7 +104,7 @@ class sonarrApiWrapper {
                             }
                         }
                         $episodeImage = array(
-                            'episode' => $episode,
+                            'title' => $episode,
                             'image' => $urlImage,
                         );
                         array_push($liste_episode, $episodeImage);
@@ -127,10 +119,6 @@ class sonarrApiWrapper {
         }
         return $liste_episode;
     }
-    private function sendNotification() {
-
-    }
-
     private function getHistory($numberToFetch) {
         $numberMax = $numberToFetch * 4;
         $liste_episode = [];

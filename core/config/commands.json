@@ -1,0 +1,108 @@
+{
+    "sonarr": [
+        {
+            "logicalId": "refresh",
+            "name": "Rafraichir",
+            "type": "action",
+            "subtype": "other",
+            "isVisible": 1
+        },
+        {
+            "logicalId": "monitoredSeries",
+            "name": "Liste des séries monitorées",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "day_ddl_episodes",
+            "name": "Episodes téléchargés",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "day_episodes",
+            "name": "Episodes à venir",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "day_missing_episodes",
+            "name": "Episodes manquants",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "last_episode",
+            "name": "Dernier épisode téléchargé",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "notification",
+            "name": "Notification",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        }
+    ],
+    "radarr": [
+        {
+            "logicalId": "refresh",
+            "name": "Rafraichir",
+            "type": "action",
+            "subtype": "other",
+            "isVisible": 1
+        },
+        {
+            "logicalId": "day_ddl_movies",
+            "name": "Films téléchargés",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "day_movies",
+            "name": "Films à venir",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "day_missing_movies",
+            "name": "Films manquants",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "last_episode",
+            "name": "Dernier films téléchargé",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "notification",
+            "name": "Notification",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        }
+    ]
+}
