@@ -2,8 +2,8 @@
 	"id" : "sonarr",
 	"name" : "Sonarr & Radarr",
 	"description" : {
-		"fr_FR": "Plugin permettant d'interconnecter Jeedom, Sonarr et Radarr",
-		"en_US": "Template plugin"
+		"fr_FR": "Plugin permettant d'interconnecter Jeedom, Sonarr et Radarr. Le plugin permet de récupérer les épisodes / films téléchargés, les épisodes / films manquant, les épisodes / films à venir et enfin un système de notification pour les épisodes et films venant d'être téléchargés",
+		"en_US": "This plugin allows the interaction between Sonarr, Radarr and Jeedom. This plugins retrieves the missing episodes / movies, the downloaded episodes / movies, the future releases and has it's own notification system when a movie or episode has been downloaded."
 	},
 	"licence" : "AGPL",
 	"author" : "hbedek",
@@ -14,6 +14,6 @@
 	"maxDependancyInstallTime" : 0,
 	"changelog" : "https://hbedek.github.io/Jeedom_docs/docs/sonarr/#language#/changelog",
 	"documentation" : "https://hbedek.github.io/Jeedom_docs/docs/sonarr/#language#/",
-	"language" : ["fr_FR","en_US","de_DE","sp_SP","ru_RU", "pt_PT"],
+	"language" : ["fr_FR","en_US"],
 	"compatibility" : ["miniplus","smart","rpi","docker","diy","mobile","v4"]
 }
