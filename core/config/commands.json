@@ -54,6 +54,14 @@
             "subtype": "string",
             "isVisible": 1,
             "isHistorized": 0
+        },
+        {
+            "logicalId": "notificationHTML",
+            "name": "Notification HTML",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
         }
     ],
     "radarr": [
@@ -99,6 +107,14 @@
         {
             "logicalId": "notification",
             "name": "Notification",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "notificationHTML",
+            "name": "Notification HTML",
             "type": "info",
             "subtype": "string",
             "isVisible": 1,

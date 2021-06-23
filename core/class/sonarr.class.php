@@ -20,10 +20,12 @@
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 require_once __DIR__  . '/sonarrApiWrapper.class.php';
 require_once __DIR__  . '/radarrApiWrapper.class.php';
+require_once __DIR__  . '/sonarrUtils.class.php';
 require_once __DIR__ . '/../../vendor/mips/jeedom-tools/src/MipsTrait.php';
 
 class sonarr extends eqLogic {
    use MipsTrait;
+   protected $utils;
 
    public function getImage() {
       $application = $this->getConfiguration('application', '');
@@ -80,49 +82,53 @@ class sonarr extends eqLogic {
     }
 
    public function refresh() {
+      // Init variables
+      $this->utils = new sonarrUtils();
+      // Refresh datas
       $application = $this->getConfiguration('application', '');
       if ($application == '') {
          log::add('sonarr', 'info', 'impossible to refresh no application set. You have to set Sonarr or Radarr');
       } else {
          if ($application == 'sonarr') {
-            $this->refreshSonarr();
+            $this->refreshSonarr($application);
          } else if ($application == 'radarr') {
-            $this->refreshRadarr();
+            $this->refreshRadarr($application);
          }
       }
    }
-   private function refreshSonarr() {
+   private function refreshSonarr($application) {
       log::add('sonarr', 'info', 'start REFRESH SONARR');
       $apiKey = $this->getConfiguration('apiKey');
       $url = $this->getConfiguration('sonarrUrl');
       $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
-      $dayFutures = $this->getDayForFuturesEpisode();
-      log::add('sonarr', 'info', 'getting futures episodes for the the next '.$dayFutures.' days');
       $separator = $this->getSeparator();
-      $futures_episodes = $sonarrApiWrapper->getFutureEpisodes($separator, $dayFutures);
-      if ($futures_episodes == "") {
+      log::add('sonarr', 'info', 'selected separator: '.$separator);
+      $formattor = $this->getConfiguration('formattorEpisode');
+      log::add('sonarr', 'info', 'selected formattor: '.$formattor);
+      log::add('sonarr', 'info', 'getting futures episodes, will look for selected rule');
+      $futurEpisodesRules = $this->utils->getConfigurationFor($this, "dayFutureEpisodes", "maxFutureEpisodes");
+      $futurEpisodeList = $sonarrApiWrapper->getFutureEpisodes($separator, $futurEpisodesRules, $formattor);
+      if ($futurEpisodeList == "") {
          log::add('sonarr', 'info', 'no future episodes');
-      } else {
-         $this->checkAndUpdateCmd('day_episodes', $futures_episodes); 
       }
-      log::add('sonarr', 'info', 'getting missings episodes');
-      $number = $this->getNumberEpisode();
-      $liste_episode_missing = $sonarrApiWrapper->getMissingEpisodes($number, $separator);
-      if ($liste_episode_missing == "") {
+      $this->checkAndUpdateCmd('day_episodes', $futurEpisodeList); 
+      log::add('sonarr', 'info', 'getting missings episodes, will look for selected rule');
+      $missingEpisodesRules = $this->utils->getConfigurationFor($this, "dayMissingEpisodes", "maxMissingEpisodes");
+      $missingEpisodesList = $sonarrApiWrapper->getMissingEpisodes($missingEpisodesRules, $separator, $formattor);
+      if ($missingEpisodesList == "") {
          log::add('sonarr', 'info', 'no missing episodes');
-      } else {
-         $this->checkAndUpdateCmd('day_missing_episodes', $liste_episode_missing); 
       }
-      log::add('sonarr', 'info', 'getting last downloaded episodes');
-      $liste_episode_history = $sonarrApiWrapper->getDownladedEpisodes($number, $separator);
-      if ($liste_episode_history == "") {
+      $this->checkAndUpdateCmd('day_missing_episodes', $missingEpisodesList); 
+      log::add('sonarr', 'info', 'getting last downloaded episodes, will look for specific rules');
+      $downloadedEpisodesRules = $this->utils->getConfigurationFor($this, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
+      $dowloadedEpisodesList = $sonarrApiWrapper->getDownladedEpisodes($downloadedEpisodesRules, $separator, $formattor);
+      if ($dowloadedEpisodesList == "") {
          log::add('sonarr', 'info', 'no downloaded episodes');
-      } else {
-         $this->checkAndUpdateCmd('day_ddl_episodes', $liste_episode_history); 
       }
+      $this->checkAndUpdateCmd('day_ddl_episodes', $dowloadedEpisodesList);
       log::add('sonarr', 'info', 'notify for last downloaded episodes');
       $last_refresh_date = $this->getCmd(null, 'last_episode')->getValueDate();
-      $sonarrApiWrapper->notifyEpisode($last_refresh_date, $this);
+      $sonarrApiWrapper->notifyEpisode($application, $last_refresh_date, $this, $formattor);
       log::add('sonarr', 'info', 'getting the monitored series');
       $liste_monitored_series = $sonarrApiWrapper->getMonitoredSeries($separator);
       if ($liste_monitored_series == "") {
@@ -132,72 +138,40 @@ class sonarr extends eqLogic {
       }
       log::add('sonarr', 'info', 'stop REFRESH SONARR');
    }
-   private function getNumberEpisode() {
-      $number = $this->getConfiguration('numberEpisodes');
-      if (is_numeric($number) == true) {
-         return $number;
-      } else {
-         return 5;
-      }
-   }
-   private function getDayForFuturesEpisode() {
-      $dayFutures = $this->getConfiguration('dayFutureEpisodes');
-      if ($dayFutures != NULL && is_numeric($dayFutures)) {
-         return $dayFutures;
-      } else {
-         return 1;
-      }
-   }
-   private function refreshRadarr() {
+
+   private function refreshRadarr($application) {
       log::add('sonarr', 'info', 'start REFRESH RADARR');
       $apiKey = $this->getConfiguration('apiKey');
       $url = $this->getConfiguration('radarrUrl');
       $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
-      $dayFutures = $this->getDayForFuturesMovie();
-      log::add('sonarr', 'info', 'getting futures movies for the the next '.$dayFutures.' days');
       $separator = $this->getSeparator();
-      $futures_movies = $radarrApiWrapper->getFutureMovies($separator, $dayFutures);
-      if ($futures_movies == "") {
+      log::add('sonarr', 'info', 'selected separator: '.$separator);
+      log::add('sonarr', 'info', 'getting futures movies, will look for selected rule');
+      $futurMoviesRules = $this->utils->getConfigurationFor($this, "dayFutureMovies", "maxFutureMovies");
+      $futurMovieList = $radarrApiWrapper->getFutureMovies($separator, $futurMoviesRules);
+      if ($futurMovieList == "") {
          log::add('sonarr', 'info', 'no future movies');
-      } else {
-         $this->checkAndUpdateCmd('day_movies', $futures_movies); 
       }
-      log::add('sonarr', 'info', 'getting all the missings movies');
-      $liste_movies_missing = $radarrApiWrapper->getMissingMovies($separator);
-      if ($liste_movies_missing == "") {
+      $this->checkAndUpdateCmd('day_movies', $futurMovieList); 
+      log::add('sonarr', 'info', 'getting missings movies');
+      $missingMoviesList = $radarrApiWrapper->getMissingMovies($separator);
+      if ($missingMoviesList == "") {
          log::add('sonarr', 'info', 'no missing movies');
-      } else {
-         $this->checkAndUpdateCmd('day_missing_movies', $liste_movies_missing); 
       }
-      $number = $this->getNumberEpisode();
-      log::add('sonarr', 'info', 'getting last downloaded movies');
-      $liste_movies_history = $radarrApiWrapper->getDownladedMovies($number, $separator);
-      if ($liste_movies_history == "") {
+      $this->checkAndUpdateCmd('day_missing_movies', $missingMoviesList); 
+      log::add('sonarr', 'info', 'getting last downloaded movies, will look for selected rules');
+      $downloadMoviesRules = $this->utils->getConfigurationFor($this, "dayDownloadedMovies", "maxDownloadedMovies");
+      $downloadMoviesList = $radarrApiWrapper->getDownladedMovies($downloadMoviesRules, $separator);
+      if ($downloadMoviesList == "") {
          log::add('sonarr', 'info', 'no downloaded movies');
-      } else {
-         $this->checkAndUpdateCmd('day_ddl_movies', $liste_movies_history); 
       }
+      $this->checkAndUpdateCmd('day_ddl_movies', $downloadMoviesList); 
       log::add('sonarr', 'info', 'notify for last downloaded movies');
       $last_refresh_date = $this->getCmd(null, 'last_episode')->getValueDate();
-      $radarrApiWrapper->notifyMovie($last_refresh_date, $this);
+      $radarrApiWrapper->notifyMovie($application, $last_refresh_date, $this);
       log::add('sonarr', 'info', 'stop REFRESH RADARR');
    }
-   private function getDayForFuturesMovie() {
-      $dayFutures = $this->getConfiguration('dayFutureMovies');
-      if ($dayFutures != NULL && is_numeric($dayFutures)) {
-         return $dayFutures;
-      } else {
-         return 1;
-      }
-   }
-   private function getNumberMovies() {
-      $number = $this->getConfiguration('numberMovies');
-      if (is_numeric($number) == true) {
-         return $number;
-      } else {
-         return 5;
-      }
-   }
+
    public function getSeparator() {
       $separator = $this->getConfiguration('separator');
       if ($separator != NULL) {

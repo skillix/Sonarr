@@ -18,8 +18,9 @@ class radarrApiWrapper {
         $this->utils = new sonarrUtils();
     }
 
-    public function getFutureMovies($separator, $dayFutures) {
-        $liste_movies = "";
+    public function getFutureMovies($separator, $rules) {
+        $movieList = "";
+        $dayFutures = $rules["numberDays"];
         $currentDate = new DateTime();
         $futureDate = new DateTime();
         $futureDate->add(new DateInterval('P'.$dayFutures.'D'));
@@ -34,12 +35,13 @@ class radarrApiWrapper {
         if ($calendar == NULL) {
            return "";
         }
+        $calendar = $this->utils->applyMaxRulesToArray($calendar, $rules);
         // Analyze datas
         foreach($calendar as $movie) {
            $movieTitle = $movie["title"];
-           $liste_movies = $this->utils->formatList($liste_movies, $movieTitle, $separator);
+           $movieList = $this->utils->formatList($movieList, $movieTitle, $separator);
         }
-        return $liste_movies;
+        return $movieList;
     }
     public function getMissingMovies($separator) {
         $liste_movies = "";
@@ -73,45 +75,23 @@ class radarrApiWrapper {
         return $liste_movies;
     }
 
-    public function getDownladedMovies($number, $separator) {
-        $ddlMoviesList = [];
-        $stopSearch = false;
-        $pageToSearch = 1;
-        while ($stopSearch == false) {
-            $historyJSON = $this->radarrApi->getHistory($pageToSearch, $number, 'date', 'desc');
-            log::add('sonarr', 'debug', 'JSON FOR HISTORY'.$historyJSON);
-            $history = $this->utils->verifyJson($historyJSON);
-            if ($history == NULL || empty($history['records'])) { 
-                log::add('sonarr', 'info', "stop searching for movies");
-                $stopSearch = true;
-            }
-            foreach($history['records'] as $movie) {
-                if ($stopSearch == false && $movie["eventType"] == "downloadFolderImported") {
-                    array_push($ddlMoviesList, $movie);
-                    if (count($ddlMoviesList) == $number) {
-                        $stopSearch = true;
-                    }
-                }
-            }
-            $pageToSearch++;
-        }
-        $liste_movies = "";
-        foreach($ddlMoviesList as $movie) {
-            $movieTitle = $movie["movie"]["title"];
-            $liste_movies = $this->utils->formatList($liste_movies, $movieTitle, $separator);
-        }
-        return $liste_movies;
+    public function getDownladedMovies($rules, $separator) {
+        $anteriorDate = $this->utils->getAnteriorDateForNumberDay($rules["numberDays"]);
+        $ddlMoviesList = $this->getHistoryForDate($anteriorDate);
+        $ddlMoviesList = $this->utils->applyMaxRulesToArray($ddlMoviesList, $rules);
+        $ddlMoviesList = $this->utils->getEpisodesMoviesList($ddlMoviesList);
+        return implode($separator, $ddlMoviesList);
     }
 
-    public function notifyMovie($last_refresh_date, $context) {
+    public function notifyMovie($caller, $last_refresh_date, $context) {
         log::add('sonarr', 'info', 'date last refresh : '.$last_refresh_date);
+        $last_refresh_date = strtotime($last_refresh_date);
         $list_moviesImgs = $this->getHistoryForDate($last_refresh_date);
-        $this->utils->sendNotificationForTitleImgArray($list_moviesImgs, $context);
+        $this->utils->sendNotificationForTitleImgArray($caller, $list_moviesImgs, $context);
     }
     
-    private function getHistoryForDate($last_refresh_date_str) {
+    private function getHistoryForDate($last_refresh_date) {
         $liste_movies = [];
-        $last_refresh_date = strtotime($last_refresh_date_str);
         $stopSearch = false;
         $pageToSearch = 1;
         while ($stopSearch == false) {
@@ -133,6 +113,8 @@ class radarrApiWrapper {
                         }
                         $movieToNotify = $movie["movie"]["title"];
                         $images = $movie["movie"]["images"];
+                        $quality = $movie["quality"]["quality"]["resolution"];
+                        $size = $this->retrieveSizeForMovies($movie);
                         $urlImage = "";
                         foreach($images as $image) {
                             if ($image["coverType"] == "poster") {
@@ -141,6 +123,8 @@ class radarrApiWrapper {
                         }
                         $movieImage = array(
                             'title' => $movieToNotify,
+                            'quality' => $quality,
+                            'size' => $size,
                             'image' => $urlImage,
                         );
                         array_push($liste_movies, $movieImage);
@@ -154,5 +138,18 @@ class radarrApiWrapper {
             $pageToSearch++;
         }
         return $liste_movies;
+    }
+    private function retrieveSizeForMovies($informationsEpisode) {
+        $convertGib = 1073741824;
+        $convertMib = 1048576;
+        $sizeByte = $informationsEpisode["movie"]["sizeOnDisk"];
+        $sizeGib = $sizeByte % $convertGib;
+        if ($sizeGib >= 1) {
+            // Convert to GigaByte
+            return round(($sizeByte / $convertGib), 2)."GB";
+        } else {
+            // Convert to MegaByte
+            return round(($sizeByte / $convertMib), 2)."MB";
+        }
     }
 }

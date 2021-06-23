@@ -156,22 +156,22 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<input type="text" class="eqLogicAttr form-control inputPassword" data-l1key="configuration" data-l2key="apiKey"/>
 								</div>
 							</div>
-							<div class="form-group sonarr-function-config sonarr-sonarr">
-								<label class="col-sm-3 control-label"> {{Nombre d'épisode à remonter pour la liste des épisodes manquants et téléchargés}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le nombre d'épisodes que vous souhaitez voir remonter. Agit sur les épisodes téléchargés et les épisodes manquant}}"></i></sup>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">{{Auto-actualisation}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Fréquence de rafraîchissement de l'équipement}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="numberEpisodes" placeholder="5"/>
+									<div class="input-group">
+										<input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="autorefresh" placeholder="{{Cliquer sur ? pour afficher l'assistant cron}}"/>
+										<span class="input-group-btn">
+											<a class="btn btn-default cursor jeeHelper roundedRight" data-helper="cron" title="Assistant cron">
+												<i class="fas fa-question-circle"></i>
+											</a>
+										</span>
+									</div>
 								</div>
 							</div>
-							<div class="form-group sonarr-function-config sonarr-radarr">
-								<label class="col-sm-3 control-label"> {{Nombre de films à remonter pour la liste des films téléchargés}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez le nombre de films que vous souhaitez voir remonter. Agit sur les films téléchargés}}"></i></sup>
-								</label>
-								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="numberMovies" placeholder="5"/>
-								</div>
-							</div>
+							<legend><i class="fas fa-cogs"></i> {{Configuration épisodes / films à venir}}</legend>
 							<div class="form-group sonarr-function-config sonarr-sonarr">
 								<label class="col-sm-3 control-label"> {{Nombre de jours pour les épisodes futures}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre de jours pour lequel le plugin va récupérer les épisodes futures. Par défaut le plugin récupère la liste des épisodes sortant ce jour}}"></i></sup>
@@ -188,6 +188,73 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayFutureMovies" placeholder="1"/>
 								</div>
 							</div>
+							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<label class="col-sm-3 control-label"> {{Nombre d'épisode maximum pour les épisodes à venir}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre maximum que Sonarr va récupérer pour les épisodes à venir. Si non renseigné, seule la règle du nombre de jours compte}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxFutureEpisodes" placeholder="1"/>
+								</div>
+							</div>
+							<div class="form-group sonarr-function-config sonarr-radarr">
+								<label class="col-sm-3 control-label"> {{Nombre de films maximum pour les films à venir}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre maximum que Radarr va récupérer pour les films à venir. Si non renseigné, seule la règle du nombre de jours compte}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxFutureMovies" placeholder="1"/>
+								</div>
+							</div>
+							<legend><i class="fas fa-cogs"></i> {{Configuration épisodes / films manquants}}</legend>
+							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<label class="col-sm-3 control-label"> {{Nombre de jours pour les épisodes manquants}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre de jours pour lequel le plugin va récupérer les épisodes manquants. Par défaut le plugin récupère la liste des épisodes manquants de ce jour}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayMissingEpisodes" placeholder="1"/>
+								</div>
+							</div>
+							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<label class="col-sm-3 control-label"> {{Nombre d'épisode maximum pour les épisodes manquants}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre maximum que Sonarr va récupérer pour les épisodes manquants. Si non renseigné, seule la règle du nombre de jours compte}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxMissingEpisodes" placeholder="1"/>
+								</div>
+							</div>
+							<legend><i class="fas fa-cogs"></i> {{Configuration épisodes / films téléchargés}}</legend>
+							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<label class="col-sm-3 control-label"> {{Nombre de jours pour les épisodes téléchargés}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre de jours pour lequel le plugin va récupérer les épisodes téléchargés. Par défaut le plugin récupère la liste des épisodes téléchargés de ce jour}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayDownloadedEpisodes" placeholder="1"/>
+								</div>
+							</div>
+							<div class="form-group sonarr-function-config sonarr-radarr">
+								<label class="col-sm-3 control-label"> {{Nombre de jours pour les films téléchargés}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre de jours pour lequel le plugin va récupérer les films téléchargés. Par défaut le plugin récupère la liste des films téléchargés de ce jour}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayDownloadedMovies" placeholder="1"/>
+								</div>
+							</div>
+							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<label class="col-sm-3 control-label"> {{Nombre d'épisode maximum pour les épisodes téléchargés'}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre maximum que Sonarr va récupérer pour les épisodes téléchargés. Si non renseigné, seule la règle du nombre de jours compte}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxDownloadedEpisodes" placeholder="1"/>
+								</div>
+							</div>
+							<div class="form-group sonarr-function-config sonarr-radarr">
+								<label class="col-sm-3 control-label"> {{Nombre de films maximum pour les films téléchargés'}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseigez le nombre maximum que Radarr va récupérer pour les films téléchargés. Si non renseigné, seule la règle du nombre de jours compte}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxDownloadedMovies" placeholder="1"/>
+								</div>
+							</div>
+							<legend><i class="fas fa-cogs"></i> {{Configuration supplémentaire}}</legend>
 							<div class="form-group">
 								<label class="col-sm-3 control-label"> {{Séparateur à utiliser}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez sélectionner ici un séparateur à utiliser pour le retour des épisodes}}"></i></sup>
@@ -195,24 +262,15 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="separator" placeholder=", "/>
 								</div>
-							</div>
-							<!-- Champ de saisie du cron d'auto-actualisation + assistant cron -->
-							<!-- La fonction cron de la classe du plugin doit contenir le code prévu pour que ce champ soit fonctionnel -->
-							<div class="form-group">
-								<label class="col-sm-3 control-label">{{Auto-actualisation}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Fréquence de rafraîchissement de l'équipement}}"></i></sup>
+							</div>	
+							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<label class="col-sm-3 control-label"> {{Formatage du nom des épisodes}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Ici, vous pouvez configurer le formatage du nom des épisodes. Le chiffre de la saison est représenté par %s, le chiffre de l'épisode est représenté par %e. Si vous souhaitez que l'équipement retourne l'épisode sous la forme saison 2 épisode 4, Il faut alors renseigner saison %s épisode %e dans le champ}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<div class="input-group">
-										<input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="autorefresh" placeholder="{{Cliquer sur ? pour afficher l'assistant cron}}"/>
-										<span class="input-group-btn">
-											<a class="btn btn-default cursor jeeHelper roundedRight" data-helper="cron" title="Assistant cron">
-												<i class="fas fa-question-circle"></i>
-											</a>
-										</span>
-									</div>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="formattorEpisode" placeholder="S%sE%e"/>
 								</div>
-							</div>
+							</div>							
 						</div>
 					</fieldset>
 				</form>
