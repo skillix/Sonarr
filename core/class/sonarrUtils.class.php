@@ -120,7 +120,7 @@ class sonarrUtils {
         $ddlObjDateFmatted = strtotime($ddlObjDate);
         $date = new DateTime();
         $date->setTimestamp($ddlObjDateFmatted);
-        $ddlObjDateFmatted = $date->format('U = Y-m-d H:i:s');
+        $ddlObjDateFmatted = $date->format('Y-m-d H:i:s');
         if ($caller == 'sonarr') {
             $application = "Sonarr";
             $type = "nouvel épisode";
