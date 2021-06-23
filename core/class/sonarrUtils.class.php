@@ -51,8 +51,8 @@ class sonarrUtils {
         return $anteriorDate;
     }
     public function formatEpisode($episodeTitle, $seasonNumber, $episodeNumber, $formattor) { 
-        $posSeason = strpos(utf8_encode($formattor), utf8_encode("%s"));
-        $posEpisode = strpos(utf8_encode($formattor), utf8_encode("%e"));
+        $posSeason = mb_strpos($formattor, "%s", 0, "UTF-8");
+        $posEpisode = mb_strpos($formattor, "%e", 0, "UTF-8");
         log::add('sonarr', 'debug', 'selected formattor '.$formattor);
         if ($posSeason !== false && $posEpisode !== false) {
             log::add('sonarr', 'debug', 'found %s and %e in formattor');
@@ -60,24 +60,24 @@ class sonarrUtils {
             if ($posSeason < $posEpisode) {
                 log::add('sonarr', 'debug', '%s is before %e');
                 // Season is before episode
-                $seasonStr = substr($formattor, 0, strpos(utf8_encode($formattor), utf8_encode("%s")));
-                $episodeStr = substr($formattor, (strlen($seasonStr) + 2), (strlen($formattor) - strlen($seasonStr) - 4));
+                $seasonStr = mb_substr($formattor, 0, mb_strpos($formattor, "%s", 0, "UTF-8"), "UTF-8");
+                $episodeStr = mb_substr($formattor, (mb_strlen($seasonStr, "UTF-8") + 2), (mb_strlen($formattor, "UTF-8") - mb_strlen($seasonStr, "UTF-8") - 4), "UTF-8");
                 return $episodeTitle." ".$seasonStr.$seasonNumber.$episodeStr.$episodeNumber;
             } else {
                 log::add('sonarr', 'debug', '%s is after %e');
                 // Episode is before season
-                $episodeStr = substr($formattor, 0, strpos(utf8_encode($formattor), utf8_encode("%e")));
-                $seasonStr = substr($formattor, (strlen($episodeStr) + 2), (strlen($formattor) - strlen($episodeStr) - 4));
+                $episodeStr = mb_substr($formattor, 0, mb_strpos($formattor, "%e", 0, "UTF-8"), "UTF-8");
+                $seasonStr = mb_substr($formattor, (mb_strlen($episodeStr, "UTF-8") + 2), (mb_strlen($formattor, "UTF-8") - mb_strlen($episodeStr, "UTF-8") - 4), "UTF-8");
                 return $episodeTitle." ".$episodeStr.$episodeNumber.$seasonStr.$seasonNumber;
             }
         } else {
             if ($posSeason !== false) {
                 log::add('sonarr', 'debug', 'only %s is present in: '.$posSeason);
-                $seasonStr = substr($formattor, 0, strpos(utf8_encode($formattor), utf8_encode("%s")));
+                $seasonStr = mb_substr($formattor, 0, mb_strpos($formattor, "%s", 0, "UTF-8"), "UTF-8");
                 return $episodeTitle." ".$seasonStr.$seasonNumber;
             } else if ($posEpisode !== false) {
                 log::add('sonarr', 'debug', 'only %e is present in: '.$posEpisode);
-                $episodeStr = substr($formattor, 0, strpos(utf8_encode($formattor), utf8_encode("%e")));
+                $episodeStr = mb_substr($formattor, 0, mb_strpos($formattor, "%e", 0, "UTF-8"), "UTF-8");
                 return $episodeTitle." ".$episodeStr.$episodeNumber;
             } else {
                 log::add('sonarr', 'debug', 'no formattor');
