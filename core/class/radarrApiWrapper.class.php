@@ -143,7 +143,7 @@ class radarrApiWrapper {
         $convertGib = 1073741824;
         $convertMib = 1048576;
         $sizeByte = $informationsEpisode["movie"]["sizeOnDisk"];
-        $sizeGib = $sizeByte % $convertGib;
+        $sizeGib = intdiv($sizeByte, $convertGib);
         if ($sizeGib >= 1) {
             // Convert to GigaByte
             return round(($sizeByte / $convertGib), 2)."GB";

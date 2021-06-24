@@ -180,7 +180,7 @@ class sonarrApiWrapper {
         $convertMib = 1048576;
         $informationsEpisode = $this->getInformationsEpisodes($episodeId);
         $sizeByte = $informationsEpisode["episodeFile"]["size"];
-        $sizeGib = $sizeByte % $convertGib;
+        $sizeGib = intdiv($sizeByte, $convertGib);
         if ($sizeGib >= 1) {
             // Convert to GigaByte
             return round(($sizeByte / $convertGib), 2)."GB";
