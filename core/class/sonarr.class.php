@@ -20,12 +20,10 @@
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 require_once __DIR__  . '/sonarrApiWrapper.class.php';
 require_once __DIR__  . '/radarrApiWrapper.class.php';
-require_once __DIR__  . '/sonarrUtils.class.php';
 require_once __DIR__ . '/../../vendor/mips/jeedom-tools/src/MipsTrait.php';
 
 class sonarr extends eqLogic {
    use MipsTrait;
-   protected $utils;
 
    public function getImage() {
       $application = $this->getConfiguration('application', '');
@@ -82,8 +80,6 @@ class sonarr extends eqLogic {
     }
 
    public function refresh() {
-      // Init variables
-      $this->utils = new sonarrUtils();
       // Refresh datas
       $application = $this->getConfiguration('application', '');
       if ($application == '') {
@@ -106,21 +102,21 @@ class sonarr extends eqLogic {
       $formattor = $this->getConfiguration('formattorEpisode');
       log::add('sonarr', 'info', 'selected formattor: '.$formattor);
       log::add('sonarr', 'info', 'getting futures episodes, will look for selected rule');
-      $futurEpisodesRules = $this->utils->getConfigurationFor($this, "dayFutureEpisodes", "maxFutureEpisodes");
+      $futurEpisodesRules = $this->getConfigurationFor($this, "dayFutureEpisodes", "maxFutureEpisodes");
       $futurEpisodeList = $sonarrApiWrapper->getFutureEpisodes($separator, $futurEpisodesRules, $formattor);
       if ($futurEpisodeList == "") {
          log::add('sonarr', 'info', 'no future episodes');
       }
       $this->checkAndUpdateCmd('day_episodes', $futurEpisodeList); 
       log::add('sonarr', 'info', 'getting missings episodes, will look for selected rule');
-      $missingEpisodesRules = $this->utils->getConfigurationFor($this, "dayMissingEpisodes", "maxMissingEpisodes");
+      $missingEpisodesRules = $this->getConfigurationFor($this, "dayMissingEpisodes", "maxMissingEpisodes");
       $missingEpisodesList = $sonarrApiWrapper->getMissingEpisodes($missingEpisodesRules, $separator, $formattor);
       if ($missingEpisodesList == "") {
          log::add('sonarr', 'info', 'no missing episodes');
       }
       $this->checkAndUpdateCmd('day_missing_episodes', $missingEpisodesList); 
       log::add('sonarr', 'info', 'getting last downloaded episodes, will look for specific rules');
-      $downloadedEpisodesRules = $this->utils->getConfigurationFor($this, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
+      $downloadedEpisodesRules = $this->getConfigurationFor($this, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
       $dowloadedEpisodesList = $sonarrApiWrapper->getDownladedEpisodes($downloadedEpisodesRules, $separator, $formattor);
       if ($dowloadedEpisodesList == "") {
          log::add('sonarr', 'info', 'no downloaded episodes');
@@ -147,7 +143,7 @@ class sonarr extends eqLogic {
       $separator = $this->getSeparator();
       log::add('sonarr', 'info', 'selected separator: '.$separator);
       log::add('sonarr', 'info', 'getting futures movies, will look for selected rule');
-      $futurMoviesRules = $this->utils->getConfigurationFor($this, "dayFutureMovies", "maxFutureMovies");
+      $futurMoviesRules = $this->getConfigurationFor($this, "dayFutureMovies", "maxFutureMovies");
       $futurMovieList = $radarrApiWrapper->getFutureMovies($separator, $futurMoviesRules);
       if ($futurMovieList == "") {
          log::add('sonarr', 'info', 'no future movies');
@@ -160,7 +156,7 @@ class sonarr extends eqLogic {
       }
       $this->checkAndUpdateCmd('day_missing_movies', $missingMoviesList); 
       log::add('sonarr', 'info', 'getting last downloaded movies, will look for selected rules');
-      $downloadMoviesRules = $this->utils->getConfigurationFor($this, "dayDownloadedMovies", "maxDownloadedMovies");
+      $downloadMoviesRules = $this->getConfigurationFor($this, "dayDownloadedMovies", "maxDownloadedMovies");
       $downloadMoviesList = $radarrApiWrapper->getDownladedMovies($downloadMoviesRules, $separator);
       if ($downloadMoviesList == "") {
          log::add('sonarr', 'info', 'no downloaded movies');
@@ -180,6 +176,26 @@ class sonarr extends eqLogic {
          return ", ";
       }
    }
+
+   public function getConfigurationFor($context, $numberDaysConfig, $numberMaxConfig) {
+      $numberDays = $context->getConfiguration($numberDaysConfig);
+      if ($numberDays == NULL || !is_numeric($numberDays)) {
+          $numberDays = 1;
+      }
+      log::add('sonarr', 'info', 'Configuration for '.$numberDaysConfig.' is set to '.$numberDays);
+      $numberMax = $context->getConfiguration($numberMaxConfig);
+      if ($numberMax == NULL && !is_numeric($numberMax)) {
+          $numberMax = NULL;
+          log::add('sonarr', 'info', 'Configuration for '.$numberMaxConfig.' not set, will use only day rule');
+      } else {
+          log::add('sonarr', 'info', 'Configuration for '.$numberMaxConfig.' is set to '.$numberMax);
+      }
+      $rules = array(
+          'numberDays' => $numberDays,
+          'numberMax' => $numberMax,
+      );
+      return $rules;
+  }
 }
 
 class sonarrCmd extends cmd {
