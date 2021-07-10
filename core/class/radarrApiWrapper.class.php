@@ -113,7 +113,7 @@ class radarrApiWrapper {
                         }
                         $movieToNotify = $movie["movie"]["title"];
                         $images = $movie["movie"]["images"];
-                        $quality = $movie["quality"]["quality"]["resolution"];
+                        $quality = $movie["quality"]["quality"]["resolution"]."p";
                         $size = $this->retrieveSizeForMovies($movie);
                         $urlImage = "";
                         foreach($images as $image) {
@@ -121,10 +121,12 @@ class radarrApiWrapper {
                                 $urlImage =  $image["url"];
                             }
                         }
+                        $ddl_date_str = $this->utils->formatDate($ddl_date_str);
                         $movieImage = array(
                             'title' => $movieToNotify,
                             'quality' => $quality,
                             'size' => $size,
+                            'date' => $ddl_date_str,
                             'image' => $urlImage,
                         );
                         array_push($liste_movies, $movieImage);

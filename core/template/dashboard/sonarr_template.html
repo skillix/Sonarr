@@ -1,0 +1,129 @@
+<div id="plugin_container" class="eqLogic-widget eqLogic allowResize" style="width:#width#;height:#height#;border:#border#;border-radius:#border-radius#;background-color: #background-color#;color: #color#; #style#" data-translate-category="#translate_category#" data-category="#category#" data-eqLogic_id="#id#" data-version="#version#" >
+<link rel="stylesheet" href="plugins/sonarr/core/template/dashboard/css/style.css"/>
+<div class="text-center widget-name">
+    <span class="warning" title="#alert_name#">
+      <i class='#alert_icon#'></i>
+    </span>
+    <span class="cmd refresh pull-right cursor" data-cmd_id="#refresh_id#">
+      <i class="fas fa-sync"></i>
+    </span>
+    <span class="reportModeVisible">#name_display# <span class="object_name">#object_name#</span></span>
+    <a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
+  </div>
+<div>
+    <legend id="title_futur" style="color : white;margin-bottom:2px;"><b>Episodes à venir:</b></legend>
+    <div id="div_futur" style="display:flex; flex-direction: row; justify-content: center; align-items: center;">
+        <div id="div_futur_0" width='120' style="margin:auto; align-items: center;">
+            <img width='100' src=#futur_img_0# style="margin:auto; display: block;"><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#futur_title_0#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#futur_date_0#</a><br>
+        </div>
+        <div id="div_futur_1" width='120' style="margin:auto; align-items: center;">
+            <img width='100' src=#futur_img_1# style="margin:auto; display: block;"><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#futur_title_1#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#futur_date_1#</a><br>
+        </div>
+        <div id="div_futur_2" width='120' style="margin:auto; align-items: center;">
+            <img width='100' src=#futur_img_2# style="margin:auto; display: block;"><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#futur_title_2#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#futur_date_2#</a><br>
+        </div>
+    </div>
+    <legend id="title_ddl" style="color : white;margin-bottom:2px;"><b>Episodes téléchargés:</b></legend>
+    <div id="div_ddl" style="display:flex; flex-direction: row; justify-content: center; align-items: center;">
+        <div id="div_ddl_0" width='120' style="margin:auto; align-items: center;">
+            <img width='100' src=#ddl_img_0# style="margin:auto; display: block;"><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#ddl_title_0#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#ddl_date_0#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default;">#ddl_quality_0#</a><a> </a><a class="info_data" style="text-decoration: none; cursor:default;">#ddl_size_1#</a><br>
+        </div>
+        <div id="div_ddl_1" width='120' style="margin:auto; align-items: center;">
+            <img width='100' src=#ddl_img_1# style="margin:auto; display: block;"><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#ddl_title_1#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#ddl_date_1#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default;">#ddl_quality_1#</a><a> </a><a class="info_data" style="text-decoration: none; cursor:default;">#ddl_size_1#</a><br>
+        </div>
+        <div id="div_ddl_2" width='120' style="margin:auto; align-items: center;">
+            <img width='100' src=#ddl_img_2# style="margin:auto; display: block;"><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#ddl_title_2#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#ddl_date_2#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default;">#ddl_quality_2#</a><a> </a><a class="info_data" style="text-decoration: none; cursor:default;">#ddl_size_2#</a><br>
+        </div>
+    </div>
+    <legend id="title_missing" style="color : white;margin-bottom:2px;"><b>Episodes manquants:</b></legend>
+    <div id="div_missing" style="display:flex; flex-direction: row; justify-content: center; align-items: center;">
+        <div id="div_missing_0" width='120' style="margin:auto; align-items: center;">
+            <img width='100' src=#missing_img_0# style="margin:auto; display: block;"><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#missing_title_0#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#missing_date_0#</a><br>
+        </div>
+        <div id="div_missing_1" width='120' style="margin:auto; align-items: center;">
+            <img width='100' src=#missing_img_1# style="margin:auto; display: block;"><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#missing_title_1#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default; text-align: center;">#missing_date_1#</a><br>
+        </div>
+        <div id="div_missing_2" width='120' style="margin:auto; align-items: center;">
+            <img width='100' src=#missing_img_2# style="margin:auto; display: block;"><br>
+            <a class="info_data" style="text-decoration: none; cursor:default;">#missing_title_2#</a><br>
+            <a class="info_data" style="text-decoration: none; cursor:default;">#missing_date_2#</a><br>
+        </div>
+    </div>
+</div>
+<script>
+    var visibility_missing = "#visibility_missing#";
+    if (visibility_missing == 0) {
+        document.getElementById('title_missing').style.display = 'none';
+        document.getElementById('div_missing').style.display = 'none';
+    } else {
+        if ("#missing_img_0#" == "") {
+            document.getElementById('div_missing_0').style.display = 'none';
+        }
+        if ("#missing_img_1#" == "") {
+            document.getElementById('div_missing_1').style.display = 'none';
+        }
+        if ("#missing_img_2#" == "") {
+            document.getElementById('div_missing_2').style.display = 'none';
+        }
+    }
+    var visibility_missing = "#visibility_ddl#";
+    if (visibility_missing == 0) {
+        document.getElementById('title_ddl').style.display = 'none';
+        document.getElementById('div_ddl').style.display = 'none';
+    } else {
+        if ("#ddl_img_0#" == "") {
+            document.getElementById('div_ddl_0').style.display = 'none';
+        }
+        if ("#ddl_img_1#" == "") {
+            document.getElementById('div_ddl_1').style.display = 'none';
+        }
+        if ("#ddl_img_2#" == "") {
+            document.getElementById('div_ddl_2').style.display = 'none';
+        }
+    }
+    var visibility_missing = "#visibility_futur#";
+    if (visibility_missing == 0) {
+        document.getElementById('title_futur').style.display = 'none';
+        document.getElementById('div_futur').style.display = 'none';
+    } else {
+        if ("#futur_img_0#" == "") {
+            document.getElementById('div_futur_0').style.display = 'none';
+        }
+        if ("#futur_img_1#" == "") {
+            document.getElementById('div_futur_1').style.display = 'none';
+        }
+        if ("#futur_img_2#" == "") {
+            document.getElementById('div_futur_2').style.display = 'none';
+        }
+    }
+    if ('#refresh_id#' != ''){
+      $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
+        jeedom.cmd.execute({id: '#refresh_id#'});
+      });
+    }else{
+      $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
+    }
+</script>
+
+
+<span class="statusCmd" style="position : absolute;left : 5px;bottom : 0px;width : 30px;height : 30px;z-index: 1030;"></span>
+</div>

@@ -103,21 +103,21 @@ class sonarr extends eqLogic {
       log::add('sonarr', 'info', 'selected formattor: '.$formattor);
       log::add('sonarr', 'info', 'getting futures episodes, will look for selected rule');
       $futurEpisodesRules = $this->getConfigurationFor($this, "dayFutureEpisodes", "maxFutureEpisodes");
-      $futurEpisodeList = $sonarrApiWrapper->getFutureEpisodes($separator, $futurEpisodesRules, $formattor);
+      $futurEpisodeList = $sonarrApiWrapper->getFutureEpisodesFormattedList($separator, $futurEpisodesRules, $formattor);
       if ($futurEpisodeList == "") {
          log::add('sonarr', 'info', 'no future episodes');
       }
       $this->checkAndUpdateCmd('day_episodes', $futurEpisodeList); 
       log::add('sonarr', 'info', 'getting missings episodes, will look for selected rule');
       $missingEpisodesRules = $this->getConfigurationFor($this, "dayMissingEpisodes", "maxMissingEpisodes");
-      $missingEpisodesList = $sonarrApiWrapper->getMissingEpisodes($missingEpisodesRules, $separator, $formattor);
+      $missingEpisodesList = $sonarrApiWrapper->getMissingEpisodesFormattedList($missingEpisodesRules, $separator, $formattor);
       if ($missingEpisodesList == "") {
          log::add('sonarr', 'info', 'no missing episodes');
       }
       $this->checkAndUpdateCmd('day_missing_episodes', $missingEpisodesList); 
       log::add('sonarr', 'info', 'getting last downloaded episodes, will look for specific rules');
       $downloadedEpisodesRules = $this->getConfigurationFor($this, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
-      $dowloadedEpisodesList = $sonarrApiWrapper->getDownladedEpisodes($downloadedEpisodesRules, $separator, $formattor);
+      $dowloadedEpisodesList = $sonarrApiWrapper->getDownladedEpisodesFormattedList($downloadedEpisodesRules, $separator, $formattor);
       if ($dowloadedEpisodesList == "") {
          log::add('sonarr', 'info', 'no downloaded episodes');
       }
@@ -176,7 +176,6 @@ class sonarr extends eqLogic {
          return ", ";
       }
    }
-
    public function getConfigurationFor($context, $numberDaysConfig, $numberMaxConfig) {
       $numberDays = $context->getConfiguration($numberDaysConfig);
       if ($numberDays == NULL || !is_numeric($numberDays)) {
@@ -196,6 +195,68 @@ class sonarr extends eqLogic {
       );
       return $rules;
   }
+   public function toHtml($_version = 'dashboard') {
+		$replace = $this->preToHtml($_version);
+		if (!is_array($replace)) {
+			return $replace;
+		}
+		$version = jeedom::versionAlias($_version);
+      $application = $this->getConfiguration('application', '');
+      if ($application == 'sonarr') {
+         $replace['#visibility_missing#'] = $this->getCmd(null, 'day_missing_episodes')->getIsVisible();
+         $replace['#visibility_ddl#'] = $this->getCmd(null, 'day_ddl_episodes')->getIsVisible();
+         $replace['#visibility_futur#'] = $this->getCmd(null, 'day_episodes')->getIsVisible();
+         // get DDL Episodes
+         $apiKey = $this->getConfiguration('apiKey');
+         $url = $this->getConfiguration('sonarrUrl');
+         $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
+         $formattor = $this->getConfiguration('formattorEpisode');
+         
+         $futurEpisodesRules = $this->getConfigurationFor($this, "dayFutureEpisodes", "maxFutureEpisodes");
+         $futurEpisodesRules["numberMax"] = 3;
+         $futurEpisodeList = $sonarrApiWrapper->getFutureEpisodesArray($futurEpisodesRules, $formattor);
+      
+         $downloadedEpisodesRules = $this->getConfigurationFor($this, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
+         $downloadedEpisodesRules["numberMax"] = 3;
+         $ddlEpisodesList = $sonarrApiWrapper->getDownloadedEpisodesArray($downloadedEpisodesRules, $formattor);
+         
+         $missingEpisodesRules = $this->getConfigurationFor($this, "dayMissingEpisodes", "maxMissingEpisodes");
+         $missingEpisodesRules["numberMax"] = 3;
+         $missingEpisodesList = $sonarrApiWrapper->getMissingEpisodesArray($missingEpisodesRules, $formattor);
+         
+         $dataToUpdate = array(
+            'futur' => $futurEpisodeList,
+            'ddl' => $ddlEpisodesList,
+            'missing' => $missingEpisodesList,
+         );
+         $toUpdateList = ['futur', 'ddl', 'missing'];
+         foreach($toUpdateList as $toUpdate) {
+            $correctDataToUpdate = $dataToUpdate[$toUpdate];
+            for ($i = 0; $i < 3; $i++) {
+               if ($i < count($correctDataToUpdate)) {
+                  $replace['#'.$toUpdate.'_img_'.$i.'#'] = 'plugins/sonarr/core/template/dashboard/imgs/sonarr_'.$correctDataToUpdate[$i]['seriesId'].'.jpg';
+                  $replace['#'.$toUpdate.'_title_'.$i.'#'] = $correctDataToUpdate[$i]['title'];
+                  $replace['#'.$toUpdate.'_date_'.$i.'#'] = $correctDataToUpdate[$i]['date'];
+                  if ($toUpdate == 'ddl') {
+                     $replace['#'.$toUpdate.'_quality_'.$i.'#'] = $correctDataToUpdate[$i]['quality'];
+                     $replace['#'.$toUpdate.'_size_'.$i.'#'] = $correctDataToUpdate[$i]['size'];
+                  } else {
+                     $replace['#'.$toUpdate.'_quality_'.$i.'#'] = '';
+                     $replace['#'.$toUpdate.'_size_'.$i.'#'] = '';
+                  }
+               } else {
+                  $replace['#'.$toUpdate.'_img_'.$i.'#'] = '';
+                  $replace['#'.$toUpdate.'_title_'.$i.'#'] = '';
+                  $replace['#'.$toUpdate.'_date_'.$i.'#'] = '';
+                  $replace['#'.$toUpdate.'_quality_'.$i.'#'] = '';
+                  $replace['#'.$toUpdate.'_size_'.$i.'#'] = '';
+               }
+            }
+         }
+         return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'sonarr_template', 'sonarr')));
+      }
+		return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'sonarr_template', 'sonarr')));
+	}
 }
 
 class sonarrCmd extends cmd {

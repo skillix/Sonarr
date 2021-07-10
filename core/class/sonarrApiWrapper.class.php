@@ -18,8 +18,15 @@ class sonarrApiWrapper {
         $this->utils = new sonarrUtils();
     }
 
-    public function getFutureEpisodes($separator, $rules, $formattor) {
-        $liste_episode = "";
+    public function getFutureEpisodesFormattedList($separator, $rules, $formattor) {
+        $futurEpisodesListStr = '';
+        $futurEpisodesList = $this->getFutureEpisodesArray($rules, $formattor);
+        foreach($futurEpisodesList as $futurEpisode) {
+            $futurEpisodesListStr = $this->utils->formatList($futurEpisodesListStr, $futurEpisode["title"], $separator);
+        }
+    }
+    public function getFutureEpisodesArray($rules, $formattor) {
+        $liste_episode = [];
         $dayFutures = $rules["numberDays"];
         $currentDate = new DateTime();
         $futureDate = new DateTime();
@@ -38,17 +45,43 @@ class sonarrApiWrapper {
         $calendar = $this->utils->applyMaxRulesToArray($calendar, $rules);
         // Analyze datas
         foreach($calendar as $serie) {
-           $episodeTitle = $serie["series"]["title"];
-           $seasonNumber = $serie["seasonNumber"];
-           $episodeNumber = $serie["episodeNumber"];
-           $episode = $this->utils->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber, $formattor);
-           $liste_episode = $this->utils->formatList($liste_episode, $episode, $separator);
+            $episodeTitle = $serie["series"]["title"];
+            $seasonNumber = $serie["seasonNumber"];
+            $episodeNumber = $serie["episodeNumber"];
+            $episode = $this->utils->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber, $formattor);
+            $seriesId = $serie["seriesId"];
+            $ddl_date_str = $serie["airDateUtc"];
+            $ddl_date_str = $this->utils->formatDate($ddl_date_str);
+            $images = $serie["series"]["images"];
+            $urlImage = "";
+            foreach($images as $image) {
+                if ($image["coverType"] == "poster") {
+                    $urlImage =  $image["url"];
+                }
+            }
+            //Save image
+            $this->utils->saveImage($urlImage, $seriesId);
+            $episodeImage = array(
+                'title' => $episode,
+                'serie' => $episodeTitle,
+                'image' => $urlImage,
+                'seriesId' => $seriesId,
+                'date' => $ddl_date_str,
+            );
+            array_push($liste_episode, $episodeImage);
         }
         return $liste_episode;
     }
-    public function getMissingEpisodes($rules, $separator, $formattor) {
-        $missingEpisodesList = [];
+    public function getMissingEpisodesFormattedList($rules, $separator, $formattor) {
         $missingEpisodesListStr = "";
+        $missingEpisodesList = $this->getMissingEpisodesArray($rules, $formattor);
+        foreach($missingEpisodesList as $missingEpisode) {
+            $missingEpisodesListStr = $this->utils->formatList($missingEpisodesListStr, $missingEpisode["title"], $separator);
+        }
+        return $missingEpisodesListStr;
+    }
+    public function getMissingEpisodesArray($rules, $formattor) {
+        $missingEpisodesList = [];
         $stopSearch = false;
         $pageToSearch = 1;
         while ($stopSearch == false) {
@@ -70,9 +103,12 @@ class sonarrApiWrapper {
                 if ($stopSearch == false && $airDateEpisode > $anteriorDate) {
                     log::add('sonarr', 'debug', "airDate for ".$episodeTitle." is after the anterior date");
                     // We can add the episode
+                    $seriesId = $serie["seriesId"];
                     $seasonNumber = $serie["seasonNumber"];
                     $episodeNumber = $serie["episodeNumber"];
                     $episode = $this->utils->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber, $formattor);
+                    $ddl_date_str = $serie["airDateUtc"];
+                    $ddl_date_str = $this->utils->formatDate($ddl_date_str);
                     $images = $serie["series"]["images"];
                     $urlImage = "";
                     foreach($images as $image) {
@@ -80,10 +116,14 @@ class sonarrApiWrapper {
                             $urlImage =  $image["url"];
                         }
                     }
+                    //Save image
+                    $this->utils->saveImage($urlImage, $seriesId);
                     $episodeImage = array(
                         'title' => $episode,
                         'serie' => $episodeTitle,
                         'image' => $urlImage,
+                        'seriesId' => $seriesId,
+                        'date' => $ddl_date_str,
                     );
                     array_push($missingEpisodesList, $episodeImage);
                 } else if ($stopSearch == false) {
@@ -94,15 +134,10 @@ class sonarrApiWrapper {
             $pageToSearch++;
         }
         $missingEpisodesList = $this->utils->applyMaxRulesToArray($missingEpisodesList, $rules);
-        foreach($missingEpisodesList as $missingEpisode) {
-            $missingEpisodesListStr = $this->utils->formatList($missingEpisodesListStr, $missingEpisode["title"], $separator);
-        }
-        return $missingEpisodesListStr;
+        return $missingEpisodesList;
     }
-    public function getDownladedEpisodes($rules, $separator, $formattor) {
-        $anteriorDate = $this->utils->getAnteriorDateForNumberDay($rules["numberDays"]);
-        $ddlEpisodesList = $this->getHistoryForDate($anteriorDate, $formattor);
-        $ddlEpisodesList = $this->utils->applyMaxRulesToArray($ddlEpisodesList, $rules);
+    public function getDownladedEpisodesFormattedList($rules, $separator, $formattor) {
+        $ddlEpisodesList = $this->getDownloadedEpisodesArray($rules, $formattor);
         $ddlEpisodesList = $this->utils->getEpisodesMoviesList($ddlEpisodesList);
         return implode($separator, $ddlEpisodesList);
     }
@@ -112,6 +147,13 @@ class sonarrApiWrapper {
         $last_refresh_date = strtotime($last_refresh_date);
         $list_episodesImgs = $this->getHistoryForDate($last_refresh_date, $formattor);
         $this->utils->sendNotificationForTitleImgArray($caller, $list_episodesImgs, $context);
+    }
+
+    public function getDownloadedEpisodesArray($rules, $formattor) {
+        $anteriorDate = $this->utils->getAnteriorDateForNumberDay($rules["numberDays"]);
+        $ddlEpisodesList = $this->getHistoryForDate($anteriorDate, $formattor);
+        $ddlEpisodesList = $this->utils->applyMaxRulesToArray($ddlEpisodesList, $rules);
+        return $ddlEpisodesList;
     }
 
     private function getHistoryForDate($last_refresh_date, $formattor) {
@@ -135,10 +177,11 @@ class sonarrApiWrapper {
                             log::add('sonarr', 'info', 'first run for notification');
                             $stopSearch = true;
                         }
+                        $seriesId = $serie["seriesId"];
                         $episodeTitle = $serie["series"]["title"];
                         $seasonNumber = $serie["episode"]["seasonNumber"];
                         $episodeNumber = $serie["episode"]["episodeNumber"];
-                        $quality = $serie["quality"]["quality"]["resolution"];
+                        $quality = $serie["quality"]["quality"]["resolution"]."p";
                         $episode = $this->utils->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber, $formattor);
                         $images = $serie["series"]["images"];
                         $urlImage = "";
@@ -147,21 +190,21 @@ class sonarrApiWrapper {
                                 $urlImage =  $image["url"];
                             }
                         }
+                        //Save image
+                        $this->utils->saveImage($urlImage, $seriesId);
                         // We have to find specifics informations on the episode
                         $size = $this->retrieveSizeForEpisode($serie["episodeId"]);
                         //$missingEpisodeNumber = $this->retrieveNumberMissingEpForSerie($serie["seriesId"]);
-                        $formattedDdlDate = new DateTime();
-                        $formattedDdlDate->setTimestamp($ddl_date);
-                        $formattedDdlDate = $formattedDdlDate->format('Y-m-d H:i:s');
-
+                        $ddl_date_str = $this->utils->formatDate($ddl_date_str);
                         $episodeImage = array(
                             'title' => $episode,
                             'quality' => $quality,
                             'size' => $size,
                             //'missingEpNumber' => $missingEpisodeNumber,
-                            'ddlDate' => $ddl_date_str,
+                            'date' => $ddl_date_str,
                             'serie' => $episodeTitle,
                             'image' => $urlImage,
+                            'seriesId' => $seriesId,
                         );
                         array_push($episodeList, $episodeImage);
                         log::add('sonarr', 'info', "found new episode downladed :".$serie["series"]["title"]);

@@ -20,8 +20,15 @@ class sonarrUtils {
         );
         return $rules;
     }
+    public function saveImage($url, $imageName) {
+        $img = '/var/www/html/plugins/sonarr/core/template/dashboard/imgs/sonarr_'.$imageName.'.jpg'; 
+        file_put_contents($img, file_get_contents($url));
+    }
     public function applyMaxRulesToArray($arrayToFormat, $rules) {
         $numberMax = $rules["numberMax"];
+        return $this->applyMaxToArray($arrayToFormat, $numberMax);
+    }
+    public function applyMaxToArray($arrayToFormat, $numberMax) {
         log::add('sonarr', 'debug', 'will return the '.$numberMax.' elements of the array');
         if ($numberMax != NULL && $numberMax < count($arrayToFormat)) {
             log::add('sonarr', 'debug', 'Need to reformat the array with max number');
@@ -126,16 +133,19 @@ class sonarrUtils {
             log::add('sonarr', 'info', "send notification for ".$formattedTitle);
             $context->getCmd(null, 'notification')->event($formattedTitle);
             $context->getCmd(null, 'last_episode')->event($titleImg["title"]);
-            $notificationHTML = $this->formatHTMLNotification($caller, $titleImg["title"], $titleImg["quality"], $titleImg["size"], $titleImg["ddlDate"], $titleImg["serie"], $titleImg["missingEpNumber"], $titleImg["image"]);
+            $notificationHTML = $this->formatHTMLNotification($caller, $titleImg["title"], $titleImg["quality"], $titleImg["size"], $titleImg["date"], $titleImg["serie"], $titleImg["missingEpNumber"], $titleImg["image"]);
             $context->getCmd(null, 'notificationHTML')->event($notificationHTML);
             sleep(1);
         }
     }
-    private function formatHTMLNotification($caller, $ddlObjName, $ddlObjQuality, $ddlObjSize, $ddlObjDate, $ddlSerieName, $ddlObjMissingNumber, $ddlObjPoster) {
+    public function formatDate($ddlObjDate) {
         $ddlObjDateFmatted = strtotime($ddlObjDate);
         $date = new DateTime();
         $date->setTimestamp($ddlObjDateFmatted);
-        $ddlObjDateFmatted = $date->format('Y-m-d H:i:s');
+        $ddlObjDateFmatted = $date->format('d/m/Y H:i:s');
+        return $ddlObjDateFmatted;
+    }
+    private function formatHTMLNotification($caller, $ddlObjName, $ddlObjQuality, $ddlObjSize, $ddlObjDate, $ddlSerieName, $ddlObjMissingNumber, $ddlObjPoster) {
         if ($caller == 'sonarr') {
             $application = "Sonarr";
             $type = "nouvel épisode";
@@ -145,8 +155,8 @@ class sonarrUtils {
         }
         $HTML = $application." vient de récupérer un ".$type.": <a href=\"".$ddlObjPoster."\">".$ddlObjName."</a>"."\n\n";
         $HTML = $HTML."<b>Qualité \t Poids </b> \n";
-        $HTML = $HTML.$ddlObjQuality."p \t ".$ddlObjSize."\n\n";
-        $HTML = $HTML."Date de téléchargement: <b>".$ddlObjDateFmatted."</b>\n\n";
+        $HTML = $HTML.$ddlObjQuality." \t ".$ddlObjSize."\n\n";
+        $HTML = $HTML."Date de téléchargement: <b>".$ddlObjDate."</b>\n\n";
         if ($caller == 'sonarr') {
             //$HTML = $HTML."Nombre d'épisodes manquants pour <b>".$ddlSerieName."</b>: ".$ddlObjMissingNumber;
         }
