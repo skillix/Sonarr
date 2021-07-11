@@ -145,6 +145,18 @@ class sonarrUtils {
         $ddlObjDateFmatted = $date->format('d/m/Y H:i:s');
         return $ddlObjDateFmatted;
     }
+    public function formatSize($sizeToFormat) {
+        $convertGib = 1073741824;
+        $convertMib = 1048576;
+        $sizeGib = intdiv($sizeToFormat, $convertGib);
+        if ($sizeGib >= 1) {
+            // Convert to GigaByte
+            return round(($sizeToFormat / $convertGib), 2)."GB";
+        } else {
+            // Convert to MegaByte
+            return round(($sizeToFormat / $convertMib), 2)."MB";
+        }
+    }
     private function formatHTMLNotification($caller, $ddlObjName, $ddlObjQuality, $ddlObjSize, $ddlObjDate, $ddlSerieName, $ddlObjMissingNumber, $ddlObjPoster) {
         if ($caller == 'sonarr') {
             $application = "Sonarr";

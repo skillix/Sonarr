@@ -142,16 +142,7 @@ class radarrApiWrapper {
         return $liste_movies;
     }
     private function retrieveSizeForMovies($informationsEpisode) {
-        $convertGib = 1073741824;
-        $convertMib = 1048576;
         $sizeByte = $informationsEpisode["movie"]["sizeOnDisk"];
-        $sizeGib = intdiv($sizeByte, $convertGib);
-        if ($sizeGib >= 1) {
-            // Convert to GigaByte
-            return round(($sizeByte / $convertGib), 2)."GB";
-        } else {
-            // Convert to MegaByte
-            return round(($sizeByte / $convertMib), 2)."MB";
-        }
+        return $this->utils->formatSize($sizeByte);
     }
 }

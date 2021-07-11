@@ -61,12 +61,18 @@ class sonarrApiWrapper {
             }
             //Save image
             $this->utils->saveImage($urlImage, $seriesId);
+            $downloaded = $serie["hasFile"];
+            $size = $this->utils->formatSize($serie["episodeFile"]["size"]);
+            $quality = $serie["episodeFile"]["quality"]["quality"]["resolution"]."p";
             $episodeImage = array(
                 'title' => $episode,
                 'serie' => $episodeTitle,
                 'image' => $urlImage,
                 'seriesId' => $seriesId,
                 'date' => $ddl_date_str,
+                'downloaded' => $downloaded,
+                'size' => $size,
+                'quality' => $quality,
             );
             array_push($liste_episode, $episodeImage);
         }
@@ -219,18 +225,9 @@ class sonarrApiWrapper {
         return $episodeList;
     }
     private function retrieveSizeForEpisode($episodeId) {
-        $convertGib = 1073741824;
-        $convertMib = 1048576;
         $informationsEpisode = $this->getInformationsEpisodes($episodeId);
         $sizeByte = $informationsEpisode["episodeFile"]["size"];
-        $sizeGib = intdiv($sizeByte, $convertGib);
-        if ($sizeGib >= 1) {
-            // Convert to GigaByte
-            return round(($sizeByte / $convertGib), 2)."GB";
-        } else {
-            // Convert to MegaByte
-            return round(($sizeByte / $convertMib), 2)."MB";
-        }
+        return $this->utils->formatSize($sizeByte);
     }
     private function getInformationsEpisodes($episodeId) {
         $episodeInfoJSON = $this->sonarrApi->getEpisode($episodeId);

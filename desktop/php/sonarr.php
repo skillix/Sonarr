@@ -150,10 +150,18 @@ $eqLogics = eqLogic::byType($plugin->getId());
                             </div>
 							<div class="form-group">
 								<label class="col-sm-3 control-label"> {{API KEY}}
-									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez l'api Key de votre application'}}"></i></sup>
+									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez l'api Key de votre application}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
 									<input type="text" class="eqLogicAttr form-control inputPassword" data-l1key="configuration" data-l2key="apiKey"/>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label"> {{Widget format condensé}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Possibilité d'affichage du widget en condensé}}"></i></sup>
+								</label>
+								<div class="col-sm-7">
+									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="condensedWidget" checked/>{{format condensé}}</label>
 								</div>
 							</div>
 							<div class="form-group">

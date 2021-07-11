@@ -7,11 +7,37 @@
     position: relative;
     z-index: 1;
 }
-.img_container{
-    width: 150px;
+.div_vertical{
+    display:flex; 
+    flex-direction: row;
 }
 .info_data{
+    flex: 1;
     font-size: 1em;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+.div_horizontal {
+    flex: 1;
+    margin-left: auto;
+    margin-right: auto;
+}
+.ddl_img_poster{
+    flex: 1;
+    height: 170px;
+    width: 100px;
+    margin-top: 0px;
+    margin:auto;
+    display: block;
+}
+.ddl_img_icon{
+    flex: 1;
+    height: 30px;
+    width: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 .info_data:empty { 
     display: none; 

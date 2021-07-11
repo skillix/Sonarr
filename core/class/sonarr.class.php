@@ -229,31 +229,47 @@ class sonarr extends eqLogic {
             'ddl' => $ddlEpisodesList,
             'missing' => $missingEpisodesList,
          );
-         $toUpdateList = ['futur', 'ddl', 'missing'];
-         foreach($toUpdateList as $toUpdate) {
-            $correctDataToUpdate = $dataToUpdate[$toUpdate];
-            for ($i = 0; $i < 3; $i++) {
-               if ($i < count($correctDataToUpdate)) {
-                  $replace['#'.$toUpdate.'_img_'.$i.'#'] = 'plugins/sonarr/core/template/dashboard/imgs/sonarr_'.$correctDataToUpdate[$i]['seriesId'].'.jpg';
-                  $replace['#'.$toUpdate.'_title_'.$i.'#'] = $correctDataToUpdate[$i]['title'];
-                  $replace['#'.$toUpdate.'_date_'.$i.'#'] = $correctDataToUpdate[$i]['date'];
-                  if ($toUpdate == 'ddl') {
-                     $replace['#'.$toUpdate.'_quality_'.$i.'#'] = $correctDataToUpdate[$i]['quality'];
-                     $replace['#'.$toUpdate.'_size_'.$i.'#'] = $correctDataToUpdate[$i]['size'];
+         // check if we need to show condensed
+         $condensed = $this->getConfiguration('condensedWidget');
+         if ($condensed == 0) {
+            $toUpdateList = ['futur', 'ddl', 'missing'];
+            foreach($toUpdateList as $toUpdate) {
+               $correctDataToUpdate = $dataToUpdate[$toUpdate];
+               for ($i = 0; $i < 3; $i++) {
+                  if ($i < count($correctDataToUpdate)) {
+                     $replace['#'.$toUpdate.'_img_'.$i.'#'] = 'plugins/sonarr/core/template/dashboard/imgs/sonarr_'.$correctDataToUpdate[$i]['seriesId'].'.jpg';
+                     $replace['#'.$toUpdate.'_title_'.$i.'#'] = $correctDataToUpdate[$i]['title'];
+                     $replace['#'.$toUpdate.'_date_'.$i.'#'] = $correctDataToUpdate[$i]['date'];
+                     if ($toUpdate == 'ddl') {
+                        $replace['#ddl_supp_'.$i.'#'] = $correctDataToUpdate[$i]['quality']." ".$correctDataToUpdate[$i]['size'];
+                     }
                   } else {
-                     $replace['#'.$toUpdate.'_quality_'.$i.'#'] = '';
-                     $replace['#'.$toUpdate.'_size_'.$i.'#'] = '';
+                     $replace['#'.$toUpdate.'_img_'.$i.'#'] = '';
                   }
-               } else {
-                  $replace['#'.$toUpdate.'_img_'.$i.'#'] = '';
-                  $replace['#'.$toUpdate.'_title_'.$i.'#'] = '';
-                  $replace['#'.$toUpdate.'_date_'.$i.'#'] = '';
-                  $replace['#'.$toUpdate.'_quality_'.$i.'#'] = '';
-                  $replace['#'.$toUpdate.'_size_'.$i.'#'] = '';
                }
             }
+            return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'sonarr_template', 'sonarr')));
+         } else {
+            $correctDataToUpdate = $dataToUpdate['futur'];
+            for ($i = 0; $i < 3; $i++) {
+               if ($i < count($correctDataToUpdate)) {
+                  $replace['#futur_img_'.$i.'#'] = 'plugins/sonarr/core/template/dashboard/imgs/sonarr_'.$correctDataToUpdate[$i]['seriesId'].'.jpg';
+                  $replace['#futur_title_'.$i.'#'] = $correctDataToUpdate[$i]['title'];
+                  $replace['#futur_date_'.$i.'#'] = $correctDataToUpdate[$i]['date'];
+                  // check if we need to show ddl informations
+                  if($correctDataToUpdate[$i]['downloaded'] == true) {
+                     $replace['#downloaded_'.$i.'#'] = true;
+                     $replace['#info_supp_'.$i.'#'] = $correctDataToUpdate[$i]['quality']." ".$correctDataToUpdate[$i]['size'];
+                  } else {
+                     $replace['#downloaded_'.$i.'#'] = false;
+                     $replace['#info_supp_'.$i.'#'] = '';
+                  }
+               } else {
+                  $replace['#futur_img_'.$i.'#'] = '';
+               }
+            }
+            return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'sonarr_template_condensed', 'sonarr')));
          }
-         return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'sonarr_template', 'sonarr')));
       }
 		return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'sonarr_template', 'sonarr')));
 	}
