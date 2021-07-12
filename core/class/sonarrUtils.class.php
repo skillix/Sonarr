@@ -20,10 +20,6 @@ class sonarrUtils {
         );
         return $rules;
     }
-    public function saveImage($url, $imageName) {
-        $img = '/var/www/html/plugins/sonarr/core/template/dashboard/imgs/sonarr_'.$imageName.'.jpg'; 
-        file_put_contents($img, file_get_contents($url));
-    }
     public function applyMaxRulesToArray($arrayToFormat, $rules) {
         $numberMax = $rules["numberMax"];
         return $this->applyMaxToArray($arrayToFormat, $numberMax);

@@ -24,6 +24,7 @@ class sonarrApiWrapper {
         foreach($futurEpisodesList as $futurEpisode) {
             $futurEpisodesListStr = $this->utils->formatList($futurEpisodesListStr, $futurEpisode["title"], $separator);
         }
+        return $futurEpisodesListStr;
     }
     public function getFutureEpisodesArray($rules, $formattor) {
         $liste_episode = [];
@@ -60,10 +61,20 @@ class sonarrApiWrapper {
                 }
             }
             //Save image
-            $this->utils->saveImage($urlImage, $seriesId);
+            $this->saveImage($urlImage, $seriesId);
             $downloaded = $serie["hasFile"];
-            $size = $this->utils->formatSize($serie["episodeFile"]["size"]);
-            $quality = $serie["episodeFile"]["quality"]["quality"]["resolution"]."p";
+            $size = $serie["episodeFile"]["size"];
+            if ($size != null && $size != 0) {
+                $size = $this->utils->formatSize($size);
+            } else {
+                $size = "";
+            }
+            $quality = $serie["episodeFile"]["quality"]["quality"]["resolution"];
+            if ($quality != null && $quality != 0) {
+                $quality = $quality."p";
+            } else {
+                $quality = "";
+            }
             $episodeImage = array(
                 'title' => $episode,
                 'serie' => $episodeTitle,
@@ -123,7 +134,7 @@ class sonarrApiWrapper {
                         }
                     }
                     //Save image
-                    $this->utils->saveImage($urlImage, $seriesId);
+                    $this->saveImage($urlImage, $seriesId);
                     $episodeImage = array(
                         'title' => $episode,
                         'serie' => $episodeTitle,
@@ -197,7 +208,7 @@ class sonarrApiWrapper {
                             }
                         }
                         //Save image
-                        $this->utils->saveImage($urlImage, $seriesId);
+                        $this->saveImage($urlImage, $seriesId);
                         // We have to find specifics informations on the episode
                         $size = $this->retrieveSizeForEpisode($serie["episodeId"]);
                         //$missingEpisodeNumber = $this->retrieveNumberMissingEpForSerie($serie["seriesId"]);
@@ -223,6 +234,9 @@ class sonarrApiWrapper {
             $pageToSearch++;
         }
         return $episodeList;
+    }
+    public function retrieveWidgetsDatas() {
+        
     }
     private function retrieveSizeForEpisode($episodeId) {
         $informationsEpisode = $this->getInformationsEpisodes($episodeId);
@@ -279,5 +293,10 @@ class sonarrApiWrapper {
     public function getSystemStatus() {
         $statusJSON = $this->sonarrApi->getDiskspace();
         log::add('sonarr', 'info', 'JSON FOR DISKSPACE '.$statusJSON);
+    }
+
+    private function saveImage($url, $imageName) {
+        $img = '/var/www/html/plugins/sonarr/core/template/dashboard/imgs/sonarr_'.$imageName.'.jpg'; 
+        file_put_contents($img, file_get_contents($url));
     }
 }

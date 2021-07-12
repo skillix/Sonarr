@@ -1,4 +1,4 @@
-<div id="plugin_container" class="eqLogic-widget eqLogic allowResize" style="width:#width#;height:#height#;border:#border#;border-radius:#border-radius#;background-color: #background-color#;color: #color#; #style#" data-translate-category="#translate_category#" data-category="#category#" data-eqLogic_id="#id#" data-version="#version#" >
+<div class="eqLogic eqLogic-widget allowResize allowReorderCmd #custom_layout# #eqLogic_class# #class#" data-eqType="#eqType#" data-eqLogic_id="#id#" data-eqLogic_uid="#uid#" data-version="#version#" data-translate-category="#translate_category#" data-category="#category#" data-tags="#tags#" style="width: #width#;height: #height#;#style#">
 <link rel="stylesheet" href="plugins/sonarr/core/template/dashboard/css/style.css"/>
 <div class="text-center widget-name">
     <span class="warning" title="#alert_name#">
@@ -9,112 +9,11 @@
     </span>
     <span class="reportModeVisible">#name_display# <span class="object_name">#object_name#</span></span>
     <a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
-  </div>
+</div>
 <div>
-    <legend id="title_futur" style="color : white;margin-bottom:2px;"><b>Episodes à venir:</b></legend>
-    <div id="div_futur" class="div_vertical">
-        <div id="div_futur_0" class="div_horizontal">
-            <img class="ddl_img_poster" src=#futur_img_0#>
-            <div class="info_data">#futur_title_0#</div>
-            <div class="info_data">#futur_date_0#</div>
-        </div>
-        <div id="div_futur_1" class="div_horizontal">
-            <img class="ddl_img_poster" src=#futur_img_1#>
-            <div class="info_data">#futur_title_1#</div>
-            <div class="info_data">#futur_date_1#</div>
-        </div>
-        <div id="div_futur_2" class="div_horizontal">
-            <img class="ddl_img_poster" src=#futur_img_2#>
-            <div class="info_data">#futur_title_2#</div>
-            <div class="info_data">#futur_date_2#</div>
-        </div>
-    </div>
-    <legend id="title_ddl" style="color : white;margin-bottom:2px;"><b>Episodes téléchargés:</b></legend>
-    <div id="div_ddl" class="div_vertical">
-        <div id="div_ddl_0" class="div_horizontal">
-            <img class="ddl_img_poster" src=#ddl_img_0#>
-            <div class="info_data">#ddl_title_0#</div>
-            <div class="info_data">#ddl_date_0#</div>
-            <div class="info_data">#ddl_supp_0#</div>
-        </div>
-        <div id="div_ddl_1" class="div_horizontal">
-            <img class="ddl_img_poster" src=#ddl_img_1#>
-            <div class="info_data">#ddl_title_1#</div>
-            <div class="info_data">#ddl_date_1#</div>
-            <div class="info_data">#ddl_supp_1#</div>
-        </div>
-        <div id="div_ddl_2" class="div_horizontal">
-            <img class="ddl_img_poster" src=#ddl_img_2#>
-            <div class="info_data">#ddl_title_2#</div>
-            <div class="info_data">#ddl_date_2#</div>
-            <div class="info_data">#ddl_supp_2#</div>
-        </div>
-    </div>
-    <legend id="title_missing" style="color : white;margin-bottom:2px;"><b>Episodes manquants:</b></legend>
-    <div id="div_missing" class="div_vertical">
-        <div id="div_missing_0" class="div_horizontal">
-            <img class="ddl_img_poster" src=#missing_img_0#>
-            <div class="info_data">#missing_title_0#</div>
-            <div class="info_data">#missing_date_0#</div>
-        </div>
-        <div id="div_missing_1" class="div_horizontal">
-            <img  class="ddl_img_poster" src=#missing_img_1#>
-            <div class="info_data">#missing_title_1#</div>
-            <div class="info_data">#missing_date_1#</div>
-        </div>
-        <div id="div_missing_2" class="div_horizontal">
-            <img class="ddl_img_poster" src=#missing_img_2#>
-            <div class="info_data">#missing_title_2#</div>
-            <div class="info_data">#missing_date_2#</div>
-        </div>
-    </div>
+    #cmds#
 </div>
 <script>
-    var visibility_missing = "#visibility_missing#";
-    if (visibility_missing == 0) {
-        document.getElementById('title_missing').style.display = 'none';
-        document.getElementById('div_missing').style.display = 'none';
-    } else {
-        if ("#missing_img_0#" == "") {
-            document.getElementById('div_missing_0').style.display = 'none';
-        }
-        if ("#missing_img_1#" == "") {
-            document.getElementById('div_missing_1').style.display = 'none';
-        }
-        if ("#missing_img_2#" == "") {
-            document.getElementById('div_missing_2').style.display = 'none';
-        }
-    }
-    var visibility_missing = "#visibility_ddl#";
-    if (visibility_missing == 0) {
-        document.getElementById('title_ddl').style.display = 'none';
-        document.getElementById('div_ddl').style.display = 'none';
-    } else {
-        if ("#ddl_img_0#" == "") {
-            document.getElementById('div_ddl_0').style.display = 'none';
-        }
-        if ("#ddl_img_1#" == "") {
-            document.getElementById('div_ddl_1').style.display = 'none';
-        }
-        if ("#ddl_img_2#" == "") {
-            document.getElementById('div_ddl_2').style.display = 'none';
-        }
-    }
-    var visibility_missing = "#visibility_futur#";
-    if (visibility_missing == 0) {
-        document.getElementById('title_futur').style.display = 'none';
-        document.getElementById('div_futur').style.display = 'none';
-    } else {
-        if ("#futur_img_0#" == "") {
-            document.getElementById('div_futur_0').style.display = 'none';
-        }
-        if ("#futur_img_1#" == "") {
-            document.getElementById('div_futur_1').style.display = 'none';
-        }
-        if ("#futur_img_2#" == "") {
-            document.getElementById('div_futur_2').style.display = 'none';
-        }
-    }
     if ('#refresh_id#' != ''){
       $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function () {
         jeedom.cmd.execute({id: '#refresh_id#'});
