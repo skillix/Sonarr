@@ -53,6 +53,14 @@
         "Films téléchargés": "Downloaded movies",
         "Films manquants": "Missing movies"
     },
+    "plugins\/sonarr\/core\/class\/sonarrUtils.class.php": {
+        "nouvel épisode": "new episode",
+        "nouveau film": "new movie",
+        "vient de récupérer un": "has downloaded a",
+        "Qualité": "Quality",
+        "Poids": "Size",
+        "Date de téléchargement": "Downloading date"
+    },
     "plugins\/alexaapi\/desktop\/js\/alexaapi.js": {
         "Unite": "Unite",
         "Historiser": "Historize",
