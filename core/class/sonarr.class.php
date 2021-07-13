@@ -268,9 +268,9 @@ class sonarr extends eqLogic
       $html = '';
       foreach ($this->getCmd(null, null, true) as $cmd) {
          $condensed = $this->getConfiguration('condensedWidget');
-         $url = $this->getConfiguration('sonarrUrl');
-         $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
          if ($application == 'sonarr') {
+            $url = $this->getConfiguration('sonarrUrl');
+            $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
             if ($cmd->getLogicalId() == "day_episodes") {
                $html = $html . "<legend style=\"color : white;margin-bottom:2px;\"><b>";
                $html = $html . __("Episodes à venir", __FILE__) . "</b></legend><div class=\"div_vertical\">";
