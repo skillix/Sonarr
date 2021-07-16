@@ -57,7 +57,8 @@ class radarrApiWrapper
             $ddl_date_str = $movie["inCinemas"];
             $ddl_date_str = $this->utils->formatDate($ddl_date_str);
             $downloaded = $movie["hasFile"];
-            $size = $movie["movieFile"]["size"];
+
+            $size = $movie["sizeOnDisk"];
             if ($size != null && $size != 0) {
                 $size = $this->utils->formatSize($size);
             } else {
@@ -216,7 +217,6 @@ class radarrApiWrapper
                         }
                         $movieToNotify = $movie["movie"]["title"];
                         $moviesId = $movie["movie"]["id"];
-                        $ddl_date_str = $movie["inCinemas"];
                         $ddl_date_str = $this->utils->formatDate($ddl_date_str);
 
                         $size = $movie["movie"]["sizeOnDisk"];

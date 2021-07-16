@@ -156,10 +156,10 @@ class sonarrUtils
     {
         $convertGib = 1073741824;
         $convertMib = 1048576;
-        $sizeGib = intdiv($sizeToFormat, $convertGib);
+        $sizeGib = $sizeToFormat / $convertGib;
         if ($sizeGib >= 1) {
             // Convert to GigaByte
-            return round(($sizeToFormat / $convertGib), 2) . "GB";
+            return round(($sizeGib), 2) . "GB";
         } else {
             // Convert to MegaByte
             return round(($sizeToFormat / $convertMib), 2) . "MB";
@@ -174,7 +174,7 @@ class sonarrUtils
             $application = "Radarr";
             $type = __("nouveau film", __FILE__);
         }
-        $HTML = $application . " " . __("vient de récupérer un", __FILE__) . $type . ": <a href=\"" . $ddlObjPoster . "\">" . $ddlObjName . "</a>" . "\n\n";
+        $HTML = $application . " " . __("vient de récupérer un ", __FILE__) . $type . ": <a href=\"" . $ddlObjPoster . "\">" . $ddlObjName . "</a>" . "\n\n";
         $HTML = $HTML . "<b>" . __("Qualité", __FILE__) . " \t " . __("Poids", __FILE__) . " </b> \n";
         $HTML = $HTML . $ddlObjQuality . " \t " . $ddlObjSize . "\n\n";
         $HTML = $HTML . __("Date de téléchargement", __FILE__) . ": <b>" . $ddlObjDate . "</b>\n\n";

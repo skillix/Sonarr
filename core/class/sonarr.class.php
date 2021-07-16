@@ -227,7 +227,7 @@ class sonarr extends eqLogic
          $html = $html . "<div class=\"div_horizontal\">";
          $html_obj = template_replace($replace_ep, getTemplate('core', $_version, 'sonarr_cmd_condensed', 'sonarr'));
          $html = $html . $html_obj;
-         if ($datas["downloaded"] == true) {
+         if ($data["downloaded"] == true) {
             $html = $html . "<img class=\"ddl_img_icon\" src=\"plugins/sonarr/core/template/dashboard/imgs/downloaded_icon.svg\" alt=\"downloaded_icon\"/>";
             $html = $html . "<div class=\"info_data\">" . $replace_ep["#info_supp#"] . "</div>";
          }

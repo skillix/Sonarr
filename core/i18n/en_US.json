@@ -56,7 +56,7 @@
     "plugins\/sonarr\/core\/class\/sonarrUtils.class.php": {
         "nouvel épisode": "new episode",
         "nouveau film": "new movie",
-        "vient de récupérer un": "has downloaded a",
+        "vient de récupérer un ": "has downloaded a ",
         "Qualité": "Quality",
         "Poids": "Size",
         "Date de téléchargement": "Downloading date"
