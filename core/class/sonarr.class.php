@@ -272,8 +272,7 @@ class sonarr extends eqLogic
             $url = $this->getConfiguration('sonarrUrl');
             $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
             if ($cmd->getLogicalId() == "day_episodes") {
-               $html = $html . "<legend style=\"color : white;margin-bottom:2px;\"><b>";
-               $html = $html . __("Episodes à venir", __FILE__) . "</b></legend><div class=\"div_vertical\">";
+               $html = $html . $this->addCmdName($cmd, $_version, "Episodes à venir");
                $futurEpisodesRules = $this->getConfigurationFor($this, "dayFutureEpisodes", "maxFutureEpisodes");
                $futurEpisodesRules["numberMax"] = 3;
                $futurEpisodeList = $sonarrApiWrapper->getFutureEpisodesArray($futurEpisodesRules, $formattor);
@@ -286,8 +285,7 @@ class sonarr extends eqLogic
             }
             if ($condensed == 0) {
                if ($cmd->getLogicalId() == "day_ddl_episodes") {
-                  $html = $html . "<legend style=\"color : white;margin-bottom:2px;\"><b>";
-                  $html = $html . __("Episodes téléchargés", __FILE__) . "</b></legend><div class=\"div_vertical\">";
+                  $html = $html . $this->addCmdName($cmd, $_version, "Episodes téléchargés");
                   $downloadedEpisodesRules = $this->getConfigurationFor($this, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
                   $downloadedEpisodesRules["numberMax"] = 3;
                   $ddlEpisodesList = $sonarrApiWrapper->getDownloadedEpisodesArray($downloadedEpisodesRules, $formattor);
@@ -295,8 +293,7 @@ class sonarr extends eqLogic
                   $html = $html . "</div>";
                }
                if ($cmd->getLogicalId() == "day_missing_episodes") {
-                  $html = $html . "<legend style=\"color : white;margin-bottom:2px;\"><b>";
-                  $html = $html . __("Episodes manquants", __FILE__) . "</b></legend><div class=\"div_vertical\">";
+                  $html = $html . $this->addCmdName($cmd, $_version, "Episodes manquants");
                   $missingEpisodesRules = $this->getConfigurationFor($this, "dayMissingEpisodes", "maxMissingEpisodes");
                   $missingEpisodesRules["numberMax"] = 3;
                   $missingEpisodesList = $sonarrApiWrapper->getMissingEpisodesArray($missingEpisodesRules, $formattor);
@@ -308,8 +305,7 @@ class sonarr extends eqLogic
             $url = $this->getConfiguration('radarrUrl');
             $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
             if ($cmd->getLogicalId() == "day_movies") {
-               $html = $html . "<legend style=\"color : white;margin-bottom:2px;\"><b>";
-               $html = $html . __("Films à venir", __FILE__) . "</b></legend><div class=\"div_vertical\">";
+               $html = $html . $this->addCmdName($cmd, $_version, "Films à venir");
                $futurMoviesRules = $this->getConfigurationFor($this, "dayFutureMovies", "maxFutureMovies");
                $futurMoviesRules["numberMax"] = 3;
                $futurMovieList = $radarrApiWrapper->getFutureMoviesArray($futurMoviesRules);
@@ -322,8 +318,7 @@ class sonarr extends eqLogic
             }
             if ($condensed == 0) {
                if ($cmd->getLogicalId() == "day_ddl_movies") {
-                  $html = $html . "<legend style=\"color : white;margin-bottom:2px;\"><b>";
-                  $html = $html . __("Films téléchargés", __FILE__) . "</b></legend><div class=\"div_vertical\">";
+                  $html = $html . $this->addCmdName($cmd, $_version, "Films téléchargés");
                   $downloadMoviesRules = $this->getConfigurationFor($this, "dayDownloadedMovies", "maxDownloadedMovies");
                   $downloadMoviesRules["numberMax"] = 3;
                   $ddlMovieList = $radarrApiWrapper->getDownloadedMoviesArray($downloadMoviesRules);
@@ -331,8 +326,7 @@ class sonarr extends eqLogic
                   $html = $html . "</div>";
                }
                if ($cmd->getLogicalId() == "day_missing_movies") {
-                  $html = $html . "<legend style=\"color : white;margin-bottom:2px;\"><b>";
-                  $html = $html . __("Films manquants", __FILE__) . "</b></legend><div class=\"div_vertical\">";
+                  $html = $html . $this->addCmdName($cmd, $_version, "Films manquants");
                   $missingMovieRules["numberMax"] = 3;
                   $missingMovieList = $radarrApiWrapper->getMissingMoviesArray($missingMovieRules);
                   $html = $html . $this->generateHtmlForDatas($missingMovieList, $_version, $application, false);
@@ -343,6 +337,19 @@ class sonarr extends eqLogic
       }
       $replace["#cmds#"] = $html;
       return template_replace($replace, getTemplate('core', $version, 'sonarr_template', 'sonarr'));
+   }
+   private function addCmdName($cmd, $_version, $label)
+   {
+      $html = '';
+      if ($cmd->getDisplay('showNameOn' . $_version, 1) == 1 || $cmd->getDisplay('showIconAndName' . $_version, 0) == 1) {
+         $html = $html . "<legend style=\"color : white;margin-bottom:2px;\"><b>";
+         $html = $html . __($label, __FILE__) . "</b></legend>";
+      } else {
+         $html = $html . "<br>";
+      }
+
+      $html = $html . "<div class=\"div_vertical\">";
+      return $html;
    }
 }
 
