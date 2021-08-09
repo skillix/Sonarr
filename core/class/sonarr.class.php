@@ -199,12 +199,11 @@ class sonarr extends eqLogic
          $condensed = $this->getConfiguration('condensedWidget');
          if ($application == 'sonarr') {
             $url = $this->getConfiguration('sonarrUrl');
-            $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
             if ($cmd->getLogicalId() == "day_episodes") {
-               $html = $html . $this->addCmdName($cmd, $_version, "Episodes à venir");
                $futurEpRawCmd = $this->getCmd(null, 'day_episodes_raw');
                if ($futurEpRawCmd != null) {
-                  $futurEpisodeList = $futurEpRawCmd->execCmd();
+                  $html = $html . $this->addCmdName($cmd, $_version, "Episodes à venir");
+                  $futurEpisodeList = json_decode($futurEpRawCmd->execCmd(), true);
                   if (is_array($futurEpisodeList)) {
                      $futurEpisodeList = sonarrUtils::applyMaxToArray($futurEpisodeList, 3);
                      if ($condensed == 0) {
@@ -221,10 +220,10 @@ class sonarr extends eqLogic
             }
             if ($condensed == 0) {
                if ($cmd->getLogicalId() == "day_ddl_episodes") {
-                  $html = $html . $this->addCmdName($cmd, $_version, "Episodes téléchargés");
                   $ddlEpRawCmd = $this->getCmd(null, 'day_ddl_episodes_raw');
-                  if ($futurEpRawCmd != null) {
-                     $ddlEpisodesList = $ddlEpRawCmd->execCmd();
+                  if ($ddlEpRawCmd != null) {
+                     $html = $html . $this->addCmdName($cmd, $_version, "Episodes téléchargés");
+                     $ddlEpisodesList = json_decode($ddlEpRawCmd->execCmd(), true);
                      if (is_array($ddlEpisodesList)) {
                         $ddlEpisodesList = sonarrUtils::applyMaxToArray($ddlEpisodesList, 3);
                         $html = $html . $this->generateHtmlForDatas($ddlEpisodesList, $_version, $application, true);
@@ -235,11 +234,11 @@ class sonarr extends eqLogic
                   $html = $html . "</div>";
                }
                if ($cmd->getLogicalId() == "day_missing_episodes") {
-                  $html = $html . $this->addCmdName($cmd, $_version, "Episodes manquants");
                   $missingEpRawCmd = $this->getCmd(null, 'day_missing_episodes_raw');
-                  if ($futurEpRawCmd != null) {
-                     $missingEpisodesList = $missingEpRawCmd->execCmd();
-                     if (is_array($ddlEpisodesList)) {
+                  if ($missingEpRawCmd != null) {
+                     $html = $html . $this->addCmdName($cmd, $_version, "Episodes manquants");
+                     $missingEpisodesList = json_decode($missingEpRawCmd->execCmd(), true);
+                     if (is_array($missingEpisodesList)) {
                         $missingEpisodesList = sonarrUtils::applyMaxToArray($missingEpisodesList, 3);
                         $html = $html . $this->generateHtmlForDatas($missingEpisodesList, $_version, $application, false);
                      }

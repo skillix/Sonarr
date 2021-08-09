@@ -66,7 +66,7 @@ class sonarrApiWrapper
     {
         $futurEpisodesList = $this->getFutureEpisodesArray($rules, $formattor);
         // Save RAW
-        $context->checkAndUpdateCmd('day_episodes_raw', $futurEpisodesList);
+        $context->checkAndUpdateCmd('day_episodes_raw', json_encode($futurEpisodesList));
         // Format list
         $futurEpisodesListStr = '';
         foreach ($futurEpisodesList as $futurEpisode) {
@@ -146,7 +146,7 @@ class sonarrApiWrapper
     {
         $missingEpisodesList = $this->getMissingEpisodesArray($rules, $formattor);
         // Save RAW
-        $context->checkAndUpdateCmd('day_missing_episodes_raw', $missingEpisodesList);
+        $context->checkAndUpdateCmd('day_missing_episodes_raw', json_encode($missingEpisodesList));
         // Format list
         $missingEpisodesListStr = "";
         foreach ($missingEpisodesList as $missingEpisode) {
@@ -220,7 +220,7 @@ class sonarrApiWrapper
         $ddlEpisodesList = $this->getDownloadedEpisodesArray($rules);
         $ddlEpisodesList = sonarrUtils::getEpisodesMoviesList($ddlEpisodesList, $groupEpisode, $formattor, $separatorEpisodes);
         // Save RAW
-        $context->checkAndUpdateCmd('day_ddl_episodes_raw', $ddlEpisodesList);
+        $context->checkAndUpdateCmd('day_ddl_episodes_raw', json_encode($ddlEpisodesList));
         // Format list
         $listOnlyTitle = [];
         foreach ($ddlEpisodesList as $ddlObj) {

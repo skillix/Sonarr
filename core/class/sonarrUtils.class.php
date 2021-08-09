@@ -144,6 +144,7 @@ class sonarrUtils
                     $fmtedObject['episodes'] = [$object['episode']];
                     $fmtedObject["image"] = $object["image"];
                     $fmtedObject["seriesId"] = $object['seriesId'];
+                    $fmtedObject["date"] = $object["date"];
                     if ($i + 1 < count($listObject)) {
                         LogSonarr::debug('Episode is not the last one, we can look for other');
                         for ($j = $i + 1; $j < count($listObject); $j++) {
@@ -305,9 +306,13 @@ class sonarrUtils
             $type = __("nouveau film", __FILE__);
         }
         $HTML = $application . " " . __("vient de récupérer un ", __FILE__) . $type . ": <a href=\"" . $ddlObjPoster . "\">" . $ddlObjName . "</a>" . "\n\n";
-        $HTML = $HTML . "<b>" . __("Qualité", __FILE__) . " \t " . __("Poids", __FILE__) . " </b> \n";
-        $HTML = $HTML . $ddlObjQuality . " \t " . $ddlObjSize . "\n\n";
-        $HTML = $HTML . __("Date de téléchargement", __FILE__) . ": <b>" . $ddlObjDate . "</b>\n\n";
+        if ($ddlObjQuality != '' && $ddlObjSize != '') {
+            $HTML = $HTML . "<b>" . __("Qualité", __FILE__) . " \t " . __("Poids", __FILE__) . " </b> \n";
+            $HTML = $HTML . $ddlObjQuality . " \t " . $ddlObjSize . "\n\n";
+        }
+        if ($ddlObjDate != '') {
+            $HTML = $HTML . __("Date de téléchargement", __FILE__) . ": <b>" . $ddlObjDate . "</b>\n\n";
+        }
         return $HTML;
     }
     public function formatTitleImg($titleImg)
