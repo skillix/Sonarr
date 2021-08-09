@@ -278,31 +278,51 @@ class sonarr extends eqLogic
             $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
             if ($cmd->getLogicalId() == "day_episodes") {
                $html = $html . $this->addCmdName($cmd, $_version, "Episodes à venir");
-               $futurEpisodesRules = $this->getConfigurationFor($this, "dayFutureEpisodes", "maxFutureEpisodes");
-               $futurEpisodesRules["numberMax"] = 3;
-               $futurEpisodeList = $sonarrApiWrapper->getFutureEpisodesArray($futurEpisodesRules, $formattor);
-               if ($condensed == 0) {
-                  $html = $html . $this->generateHtmlForDatas($futurEpisodeList, $_version, $application, false);
+
+               $futurEpRawCmd = $this->getCmd(null, 'day_episodes_raw');
+               if ($futurEpRawCmd != null) {
+                  $futurEpisodeList = $futurEpRawCmd->execCmd();
+                  if (is_array($futurEpisodeList)) {
+                     $futurEpisodeList = sonarrUtils::applyMaxToArray($futurEpisodeList, 3);
+                     if ($condensed == 0) {
+                        $html = $html . $this->generateHtmlForDatas($futurEpisodeList, $_version, $application, false);
+                     } else {
+                        $html = $html . $this->generateHtmlForDatasCondensed($futurEpisodeList, $_version, $application, true);
+                     }
+                  }
                } else {
-                  $html = $html . $this->generateHtmlForDatasCondensed($futurEpisodeList, $_version, $application, true);
+                  LogSonarr::error('missing cmd day_episodes_raw');
                }
                $html = $html . "</div>";
             }
             if ($condensed == 0) {
                if ($cmd->getLogicalId() == "day_ddl_episodes") {
                   $html = $html . $this->addCmdName($cmd, $_version, "Episodes téléchargés");
-                  $downloadedEpisodesRules = $this->getConfigurationFor($this, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
-                  $downloadedEpisodesRules["numberMax"] = 3;
-                  $ddlEpisodesList = $sonarrApiWrapper->getDownloadedEpisodesArray($downloadedEpisodesRules, $formattor);
-                  $html = $html . $this->generateHtmlForDatas($ddlEpisodesList, $_version, $application, true);
+                  $ddlEpRawCmd = $this->getCmd(null, 'day_ddl_episodes_raw');
+                  if ($futurEpRawCmd != null) {
+                     $ddlEpisodesList = $ddlEpRawCmd->execCmd();
+                     if (is_array($ddlEpisodesList)) {
+                        $ddlEpisodesList = sonarrUtils::applyMaxToArray($ddlEpisodesList, 3);
+                        $html = $html . $this->generateHtmlForDatas($ddlEpisodesList, $_version, $application, true);
+                     }
+                  } else {
+                     LogSonarr::error('missing cmd day_ddl_episodes');
+                  }
                   $html = $html . "</div>";
                }
                if ($cmd->getLogicalId() == "day_missing_episodes") {
                   $html = $html . $this->addCmdName($cmd, $_version, "Episodes manquants");
-                  $missingEpisodesRules = $this->getConfigurationFor($this, "dayMissingEpisodes", "maxMissingEpisodes");
-                  $missingEpisodesRules["numberMax"] = 3;
-                  $missingEpisodesList = $sonarrApiWrapper->getMissingEpisodesArray($missingEpisodesRules, $formattor);
-                  $html = $html . $this->generateHtmlForDatas($missingEpisodesList, $_version, $application, false);
+
+                  $missingEpRawCmd = $this->getCmd(null, 'day_missing_episodes_raw');
+                  if ($futurEpRawCmd != null) {
+                     $missingEpisodesList = $missingEpRawCmd->execCmd();
+                     if (is_array($ddlEpisodesList)) {
+                        $missingEpisodesList = sonarrUtils::applyMaxToArray($missingEpisodesList, 3);
+                        $html = $html . $this->generateHtmlForDatas($missingEpisodesList, $_version, $application, false);
+                     }
+                  } else {
+                     LogSonarr::error('missing cmd day_missing_episodes_raw');
+                  }
                   $html = $html . "</div>";
                }
             }
