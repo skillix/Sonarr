@@ -21,6 +21,8 @@ require_once __DIR__  . '/../../../../core/php/core.inc.php';
 require_once __DIR__  . '/sonarrApiWrapper.class.php';
 require_once __DIR__  . '/radarrApiWrapper.class.php';
 require_once __DIR__ . '/../../vendor/mips/jeedom-tools/src/MipsTrait.php';
+require_once __DIR__  . '/Utils/LogSonarr.php';
+
 
 class sonarr extends eqLogic
 {
@@ -67,7 +69,7 @@ class sonarr extends eqLogic
                $sonarr->refresh();
             }
          } catch (Exception $e) {
-            log::add('sonarr', 'error', __('Expression cron non valide pour ', __FILE__) . $sonarr->getHumanName() . ' : ' . $autorefresh);
+            LogSonarr::error(__('Expression cron non valide pour ', __FILE__) . $sonarr->getHumanName() . ' : ' . $autorefresh);
          }
       }
    }
@@ -90,92 +92,19 @@ class sonarr extends eqLogic
       // Refresh datas
       $application = $this->getConfiguration('application', '');
       if ($application == '') {
-         log::add('sonarr', 'info', 'impossible to refresh no application set. You have to set Sonarr or Radarr');
+         LogSonarr::info('impossible to refresh no application set. You have to set Sonarr or Radarr');
       } else {
          if ($application == 'sonarr') {
-            $this->refreshSonarr($application);
+            $apiKey = $this->getConfiguration('apiKey');
+            $url = $this->getConfiguration('sonarrUrl');
+            $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
+            $sonarrApiWrapper->refreshSonarr($this);
          } else if ($application == 'radarr') {
-            $this->refreshRadarr($application);
+            $apiKey = $this->getConfiguration('apiKey');
+            $url = $this->getConfiguration('radarrUrl');
+            $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
          }
       }
-   }
-   private function refreshSonarr($application)
-   {
-      log::add('sonarr', 'info', 'start REFRESH SONARR');
-      $apiKey = $this->getConfiguration('apiKey');
-      $url = $this->getConfiguration('sonarrUrl');
-      $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
-      $separator = $this->getSeparator();
-      log::add('sonarr', 'info', 'selected separator: ' . $separator);
-      $formattor = $this->getConfiguration('formattorEpisode');
-      log::add('sonarr', 'info', 'selected formattor: ' . $formattor);
-      log::add('sonarr', 'info', 'getting futures episodes, will look for selected rule');
-      $futurEpisodesRules = $this->getConfigurationFor($this, "dayFutureEpisodes", "maxFutureEpisodes");
-      $futurEpisodeList = $sonarrApiWrapper->getFutureEpisodesFormattedList($separator, $futurEpisodesRules, $formattor);
-      if ($futurEpisodeList == "") {
-         log::add('sonarr', 'info', 'no future episodes');
-      }
-      $this->checkAndUpdateCmd('day_episodes', $futurEpisodeList);
-      log::add('sonarr', 'info', 'getting missings episodes, will look for selected rule');
-      $missingEpisodesRules = $this->getConfigurationFor($this, "dayMissingEpisodes", "maxMissingEpisodes");
-      $missingEpisodesList = $sonarrApiWrapper->getMissingEpisodesFormattedList($missingEpisodesRules, $separator, $formattor);
-      if ($missingEpisodesList == "") {
-         log::add('sonarr', 'info', 'no missing episodes');
-      }
-      $this->checkAndUpdateCmd('day_missing_episodes', $missingEpisodesList);
-      log::add('sonarr', 'info', 'getting last downloaded episodes, will look for specific rules');
-      $downloadedEpisodesRules = $this->getConfigurationFor($this, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
-      $dowloadedEpisodesList = $sonarrApiWrapper->getDownladedEpisodesFormattedList($downloadedEpisodesRules, $separator, $formattor);
-      if ($dowloadedEpisodesList == "") {
-         log::add('sonarr', 'info', 'no downloaded episodes');
-      }
-      $this->checkAndUpdateCmd('day_ddl_episodes', $dowloadedEpisodesList);
-      log::add('sonarr', 'info', 'notify for last downloaded episodes');
-      $last_refresh_date = $this->getCmd(null, 'last_episode')->getValueDate();
-      $sonarrApiWrapper->notifyEpisode($application, $last_refresh_date, $this, $formattor);
-      log::add('sonarr', 'info', 'getting the monitored series');
-      $liste_monitored_series = $sonarrApiWrapper->getMonitoredSeries($separator);
-      if ($liste_monitored_series == "") {
-         log::add('sonarr', 'info', 'no monitored series');
-      } else {
-         $this->checkAndUpdateCmd('monitoredSeries', $liste_monitored_series);
-      }
-      log::add('sonarr', 'info', 'stop REFRESH SONARR');
-   }
-
-   private function refreshRadarr($application)
-   {
-      log::add('sonarr', 'info', 'start REFRESH RADARR');
-      $apiKey = $this->getConfiguration('apiKey');
-      $url = $this->getConfiguration('radarrUrl');
-      $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
-      $separator = $this->getSeparator();
-      log::add('sonarr', 'info', 'selected separator: ' . $separator);
-      log::add('sonarr', 'info', 'getting futures movies, will look for selected rule');
-      $futurMoviesRules = $this->getConfigurationFor($this, "dayFutureMovies", "maxFutureMovies");
-      $futurMovieList = $radarrApiWrapper->getFutureMoviesFormattedList($separator, $futurMoviesRules);
-      if ($futurMovieList == "") {
-         log::add('sonarr', 'info', 'no future movies');
-      }
-      log::add('sonarr', 'info', 'futur movie list: ' . $futurMovieList);
-      $this->checkAndUpdateCmd('day_movies', $futurMovieList);
-      log::add('sonarr', 'info', 'getting missings movies');
-      $missingMoviesList = $radarrApiWrapper->getMissingMoviesFormattedList($separator);
-      if ($missingMoviesList == "") {
-         log::add('sonarr', 'info', 'no missing movies');
-      }
-      $this->checkAndUpdateCmd('day_missing_movies', $missingMoviesList);
-      log::add('sonarr', 'info', 'getting last downloaded movies, will look for selected rules');
-      $downloadMoviesRules = $this->getConfigurationFor($this, "dayDownloadedMovies", "maxDownloadedMovies");
-      $downloadMoviesList = $radarrApiWrapper->getDownladedMoviesFormattedList($downloadMoviesRules, $separator);
-      if ($downloadMoviesList == "") {
-         log::add('sonarr', 'info', 'no downloaded movies');
-      }
-      $this->checkAndUpdateCmd('day_ddl_movies', $downloadMoviesList);
-      log::add('sonarr', 'info', 'notify for last downloaded movies');
-      $last_refresh_date = $this->getCmd(null, 'last_episode')->getValueDate();
-      $radarrApiWrapper->notifyMovie($application, $last_refresh_date, $this);
-      log::add('sonarr', 'info', 'stop REFRESH RADARR');
    }
 
    public function getSeparator()
@@ -193,13 +122,13 @@ class sonarr extends eqLogic
       if ($numberDays == NULL || !is_numeric($numberDays)) {
          $numberDays = 1;
       }
-      log::add('sonarr', 'info', 'Configuration for ' . $numberDaysConfig . ' is set to ' . $numberDays);
+      LogSonarr::info('Configuration for ' . $numberDaysConfig . ' is set to ' . $numberDays);
       $numberMax = $context->getConfiguration($numberMaxConfig);
       if ($numberMax == NULL && !is_numeric($numberMax)) {
          $numberMax = NULL;
-         log::add('sonarr', 'info', 'Configuration for ' . $numberMaxConfig . ' not set, will use only day rule');
+         LogSonarr::info('Configuration for ' . $numberMaxConfig . ' not set, will use only day rule');
       } else {
-         log::add('sonarr', 'info', 'Configuration for ' . $numberMaxConfig . ' is set to ' . $numberMax);
+         LogSonarr::info('Configuration for ' . $numberMaxConfig . ' is set to ' . $numberMax);
       }
       $rules = array(
          'numberDays' => $numberDays,
@@ -273,31 +202,43 @@ class sonarr extends eqLogic
             $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
             if ($cmd->getLogicalId() == "day_episodes") {
                $html = $html . $this->addCmdName($cmd, $_version, "Episodes à venir");
-               $futurEpisodesRules = $this->getConfigurationFor($this, "dayFutureEpisodes", "maxFutureEpisodes");
-               $futurEpisodesRules["numberMax"] = 3;
-               $futurEpisodeList = $sonarrApiWrapper->getFutureEpisodesArray($futurEpisodesRules, $formattor);
-               if ($condensed == 0) {
-                  $html = $html . $this->generateHtmlForDatas($futurEpisodeList, $_version, $application, false);
+               $futurEpRawCmd = $this->getCmd(null, 'day_episodes_raw');
+               if ($futurEpRawCmd != null) {
+                  $futurEpisodeList = $futurEpRawCmd->execCmd();
+                  $futurEpisodeList = sonarrUtils::applyMaxToArray($futurEpisodeList, 3);
+                  if ($condensed == 0) {
+                     $html = $html . $this->generateHtmlForDatas($futurEpisodeList, $_version, $application, false);
+                  } else {
+                     $html = $html . $this->generateHtmlForDatasCondensed($futurEpisodeList, $_version, $application, true);
+                  }
                } else {
-                  $html = $html . $this->generateHtmlForDatasCondensed($futurEpisodeList, $_version, $application, true);
+                  LogSonarr::error('missing cmd day_episodes_raw');
                }
                $html = $html . "</div>";
             }
             if ($condensed == 0) {
                if ($cmd->getLogicalId() == "day_ddl_episodes") {
                   $html = $html . $this->addCmdName($cmd, $_version, "Episodes téléchargés");
-                  $downloadedEpisodesRules = $this->getConfigurationFor($this, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
-                  $downloadedEpisodesRules["numberMax"] = 3;
-                  $ddlEpisodesList = $sonarrApiWrapper->getDownloadedEpisodesArray($downloadedEpisodesRules, $formattor);
-                  $html = $html . $this->generateHtmlForDatas($ddlEpisodesList, $_version, $application, true);
+                  $ddlEpRawCmd = $this->getCmd(null, 'day_ddl_episodes_raw');
+                  if ($futurEpRawCmd != null) {
+                     $ddlEpisodesList = $ddlEpRawCmd->execCmd();
+                     $ddlEpisodesList = sonarrUtils::applyMaxToArray($ddlEpisodesList, 3);
+                     $html = $html . $this->generateHtmlForDatas($ddlEpisodesList, $_version, $application, true);
+                  } else {
+                     LogSonarr::error('missing cmd day_ddl_episodes');
+                  }
                   $html = $html . "</div>";
                }
                if ($cmd->getLogicalId() == "day_missing_episodes") {
                   $html = $html . $this->addCmdName($cmd, $_version, "Episodes manquants");
-                  $missingEpisodesRules = $this->getConfigurationFor($this, "dayMissingEpisodes", "maxMissingEpisodes");
-                  $missingEpisodesRules["numberMax"] = 3;
-                  $missingEpisodesList = $sonarrApiWrapper->getMissingEpisodesArray($missingEpisodesRules, $formattor);
-                  $html = $html . $this->generateHtmlForDatas($missingEpisodesList, $_version, $application, false);
+                  $missingEpRawCmd = $this->getCmd(null, 'day_missing_episodes_raw');
+                  if ($futurEpRawCmd != null) {
+                     $missingEpisodesList = $missingEpRawCmd->execCmd();
+                     $missingEpisodesList = sonarrUtils::applyMaxToArray($missingEpisodesList, 3);
+                     $html = $html . $this->generateHtmlForDatas($missingEpisodesList, $_version, $application, false);
+                  } else {
+                     LogSonarr::error('missing cmd day_missing_episodes_raw');
+                  }
                   $html = $html . "</div>";
                }
             }
