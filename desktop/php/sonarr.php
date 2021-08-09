@@ -180,12 +180,19 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<label class="col-sm-3 control-label"> {{Regroupement des épisodes}}
+									<sup><i class="fas fa-question-circle tooltips" title="{{Possibilité de regrouper les épisodes téléchargé d'une même saison.}}"></i></sup>
+								</label>
 								<div class="col-sm-7">
-									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="groupedEpisodes" checked />{{Regrouper les épisodes d'une même série}}</label>
+									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="groupedEpisodes"/>{{Regrouper les épisodes}}</label>
 								</div>
-								<label class="col-sm-3 control-label"> {{Séparateur d'épisode}}								</label>
-								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="separatorEpisodes" placeholder=", " />
+							</div>
+							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<div id="info_sup_epGroup">
+									<label class="col-sm-3 control-label"> {{Séparateur d'épisode}} </label>
+									<div class="col-sm-3">
+										<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="separatorEpisodes" placeholder=", " />
+									</div>
 								</div>
 							</div>
 							<legend><i class="fas fa-cogs"></i> {{Configuration épisodes / films à venir}}</legend>

@@ -94,3 +94,11 @@ function addCmdToTable(_cmd) {
   $('.sonarr-' + $(this).value()).show();
 });
 
+$(".eqLogicAttr[data-l1key='configuration'][data-l2key='groupedEpisodes']").change(function () {
+  var groupedEpisodes = $(".eqLogicAttr[data-l1key='configuration'][data-l2key='groupedEpisodes']").value();
+  if (groupedEpisodes == 1) {
+    checkBox = document.getElementById('info_sup_epGroup').style.display = 'block';
+  } else {
+    checkBox = document.getElementById('info_sup_epGroup').style.display = 'none';
+  }
+});
