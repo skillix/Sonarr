@@ -72,9 +72,14 @@ class sonarr extends eqLogic
             LogSonarr::error(__('Expression cron non valide pour ', __FILE__) . $sonarr->getHumanName() . ' : ' . $autorefresh);
          }
       }
-   }
+   } 
 
    public function postSave()
+   {
+      $this->createCmdIfNeeded();
+   }
+   
+   public function createCmdIfNeeded()
    {
       $commands = self::getCommandsFileContent(__DIR__ . '/../config/commands.json');
 
