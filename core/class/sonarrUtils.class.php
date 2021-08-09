@@ -1,7 +1,4 @@
 <?php
-
-require_once __DIR__  . '/Utils/LogSonarr.php';
-
 class sonarrUtils
 {
 
@@ -11,13 +8,13 @@ class sonarrUtils
         if ($numberDays == NULL || !is_numeric($numberDays)) {
             $numberDays = 1;
         }
-        LogSonarr::info('Configuration for ' . $numberDaysConfig . ' is set to ' . $numberDays);
+        log::add('sonarr', 'info', 'Configuration for ' . $numberDaysConfig . ' is set to ' . $numberDays);
         $numberMax = $context->getConfiguration($numberMaxConfig);
         if ($numberMax == NULL && !is_numeric($numberMax)) {
             $numberMax = NULL;
-            LogSonarr::info('Configuration for ' . $numberMaxConfig . ' not set, will use only day rule');
+            log::add('sonarr', 'info', 'Configuration for ' . $numberMaxConfig . ' not set, will use only day rule');
         } else {
-            LogSonarr::info('Configuration for ' . $numberMaxConfig . ' is set to ' . $numberMax);
+            log::add('sonarr', 'info', 'Configuration for ' . $numberMaxConfig . ' is set to ' . $numberMax);
         }
         $rules = array(
             'numberDays' => $numberDays,
@@ -28,20 +25,20 @@ class sonarrUtils
     public function applyMaxRulesToArray($arrayToFormat, $rules)
     {
         $numberMax = $rules["numberMax"];
-        return sonarrUtils::applyMaxToArray($arrayToFormat, $numberMax);
+        return $this->applyMaxToArray($arrayToFormat, $numberMax);
     }
-    public static function applyMaxToArray($arrayToFormat, $numberMax)
+    public function applyMaxToArray($arrayToFormat, $numberMax)
     {
-        LogSonarr::debug('will return the ' . $numberMax . ' elements of the array');
+        log::add('sonarr', 'debug', 'will return the ' . $numberMax . ' elements of the array');
         if ($numberMax != NULL && $numberMax < count($arrayToFormat)) {
-            LogSonarr::debug('Need to reformat the array with max number');
+            log::add('sonarr', 'debug', 'Need to reformat the array with max number');
             $formattedArray = [];
             for ($i = 0; $i < $numberMax; $i++) {
                 array_push($formattedArray, $arrayToFormat[$i]);
             }
             return $formattedArray;
         } else {
-            LogSonarr::debug('Number max to return is superior to the size of the array. Return the whole array');
+            log::add('sonarr', 'debug', 'Number max to return is superior to the size of the array. Return the whole array');
             return $arrayToFormat;
         }
     }
@@ -50,7 +47,7 @@ class sonarrUtils
         $decodeJson = json_decode($jsonToVerify, true);
         if ($decodeJson['error'] != NULL) {
             $msg = $decodeJson['error']['msg'];
-            LogSonarr::error('There was an issue with the connection to Sonarr / Radarr :' . $msg);
+            log::add('sonarr', 'warning', 'There was an issue with the connection to Sonarr / Radarr :' . $msg);
             return NULL;
         }
         return $decodeJson;
@@ -62,192 +59,65 @@ class sonarrUtils
         $anteriorDate = $anteriorDate->getTimestamp();
         return $anteriorDate;
     }
-    public static function formatEpisode($episodeTitle, $seasonNumber, $episodeNumber, $formattor)
+    public function formatEpisode($episodeTitle, $seasonNumber, $episodeNumber, $formattor)
     {
         $utf8 = "UTF-8";
         $formatorSeason = "%s";
         $formatorEpisode = "%e";
         $posSeason = mb_strpos($formattor, $formatorSeason, 0, $utf8);
         $posEpisode = mb_strpos($formattor, $formatorEpisode, 0, $utf8);
-        LogSonarr::debug('selected formattor ' . $formattor);
+        log::add('sonarr', 'debug', 'selected formattor ' . $formattor);
         if ($posSeason !== false && $posEpisode !== false) {
-            LogSonarr::debug('found %s and %e in formattor');
+            log::add('sonarr', 'debug', 'found %s and %e in formattor');
             // We have season and episode formattor
             if ($posSeason < $posEpisode) {
-                LogSonarr::debug('%s is before %e');
+                log::add('sonarr', 'debug', '%s is before %e');
                 // Season is before episode
                 $seasonStr = mb_substr($formattor, 0, mb_strpos($formattor, $formatorSeason, 0, $utf8), $utf8);
-                LogSonarr::debug('string for season formattor: ' . $seasonStr);
+                log::add('sonarr', 'debug', 'string for season formattor: ' . $seasonStr);
                 $length = mb_strlen($seasonStr, $utf8) + mb_strlen($formatorSeason, $utf8);
-                LogSonarr::debug('length of first part with formattor: ' . $length);
+                log::add('sonarr', 'debug', 'length of first part with formattor: ' . $length);
                 $numberToTakeForEpisode = mb_strpos($formattor, $formatorEpisode, 0, $utf8) - $length;
-                LogSonarr::debug('number to take for second part: ' . $numberToTakeForEpisode);
+                log::add('sonarr', 'debug', 'number to take for second part: ' . $numberToTakeForEpisode);
                 $episodeStr = mb_substr($formattor, $length, $numberToTakeForEpisode, $utf8);
-                LogSonarr::debug('string for episode formattor: ' . $episodeStr);
+                log::add('sonarr', 'debug', 'string for episode formattor: ' . $episodeStr);
                 return $episodeTitle . " " . $seasonStr . $seasonNumber . $episodeStr . $episodeNumber;
             } else {
-                LogSonarr::debug('%s is after %e');
+                log::add('sonarr', 'debug', '%s is after %e');
                 // Episode is before season
                 $episodeStr = mb_substr($formattor, 0, mb_strpos($formattor, $formatorEpisode, 0, $utf8), $utf8);
-                LogSonarr::debug('string for episode formattor: ' . $episodeStr);
+                log::add('sonarr', 'debug', 'string for episode formattor: ' . $episodeStr);
                 $length = mb_strlen($episodeStr, $utf8) + mb_strlen($formatorEpisode, $utf8);
-                LogSonarr::debug('length of first part with formattor: ' . $length);
+                log::add('sonarr', 'debug', 'length of first part with formattor: ' . $length);
                 $numberToTakeForSeason = mb_strpos($formattor, $formatorSeason, 0, $utf8) - $length;
-                LogSonarr::debug('number to take for second part: ' . $numberToTakeForSeason);
+                log::add('sonarr', 'debug', 'number to take for second part: ' . $numberToTakeForSeason);
                 $seasonStr = mb_substr($formattor, $length, $numberToTakeForSeason, $utf8);
-                LogSonarr::debug('string for season formattor: ' . $seasonStr);
+                log::add('sonarr', 'debug', 'string for season formattor: ' . $seasonStr);
                 return $episodeTitle . " " . $episodeStr . $episodeNumber . $seasonStr . $seasonNumber;
             }
         } else {
             if ($posSeason !== false) {
-                LogSonarr::debug('only %s is present in: ' . $posSeason);
+                log::add('sonarr', 'debug', 'only %s is present in: ' . $posSeason);
                 $seasonStr = mb_substr($formattor, 0, mb_strpos($formattor, $formatorSeason, 0, $utf8), $utf8);
                 return $episodeTitle . " " . $seasonStr . $seasonNumber;
             } else if ($posEpisode !== false) {
-                LogSonarr::debug('only %e is present in: ' . $posEpisode);
+                log::add('sonarr', 'debug', 'only %e is present in: ' . $posEpisode);
                 $episodeStr = mb_substr($formattor, 0, mb_strpos($formattor, $formatorEpisode, 0, $utf8), $utf8);
                 return $episodeTitle . " " . $episodeStr . $episodeNumber;
             } else {
-                LogSonarr::debug('no formattor');
+                log::add('sonarr', 'debug', 'no formattor');
                 return $episodeTitle . " " . "S" . $seasonNumber . "E" . $episodeNumber;
             }
         }
     }
 
-    public static function getEpisodesMoviesList($listObject, $groupEpisode, $formattor, $separatorEpisodes)
+    public function getEpisodesMoviesList($listObject)
     {
         $listFormattedObject = [];
-        if ($groupEpisode == 1) {
-            LogSonarr::debug('Start group formatting for ' . count($listObject) . ' episodes');
-            $newGroupedList = [];
-            for ($i = 0; $i < count($listObject); $i++) {
-                $object = $listObject[$i];
-                $alreadyInList = false;
-                $currentSerie = $object['serie'];
-                $currentSeason = $object['season'];
-                LogSonarr::debug('Will see if serie ' . $currentSerie . ' and season ' . $currentSeason . ' already in list');
-                foreach ($newGroupedList as $fmtedObject) {
-                    if (
-                        $currentSerie == $fmtedObject['serie']
-                        && $currentSeason == $fmtedObject['season']
-                    ) {
-                        LogSonarr::debug('Already in list');
-                        $alreadyInList = true;
-                    }
-                }
-                if ($alreadyInList == false) {
-                    LogSonarr::debug('Not in list yet');
-                    // We add in list
-                    $fmtedObject = [];
-                    $fmtedObject['serie'] = $currentSerie;
-                    $fmtedObject['season'] = $currentSeason;
-                    $fmtedObject['episodes'] = [$object['episode']];
-                    $fmtedObject["image"] = $object["image"];
-                    $fmtedObject["seriesId"] = $object['seriesId'];
-                    if ($i + 1 < count($listObject)) {
-                        LogSonarr::debug('Episode is not the last one, we can look for other');
-                        for ($j = $i + 1; $j < count($listObject); $j++) {
-                            $nextObject = $listObject[$j];
-                            // Check if next object is same serie and season number
-                            if (
-                                $currentSerie == $nextObject['serie']
-                                && $currentSeason == $nextObject['season']
-                            ) {
-                                LogSonarr::debug('Other episode found for ' . $currentSerie);
-                                array_push($fmtedObject['episodes'], $nextObject['episode']);
-                            }
-                        }
-                    }
-                    array_push($newGroupedList, $fmtedObject);
-                }
-            }
-            LogSonarr::debug('All episodes are grouped now, there are ' . count($newGroupedList) . ' series');
-            // We have our new formatted list
-            // We can format this in titles
-            foreach ($newGroupedList as $object) {
-                // We format
-                $object['title'] = sonarrUtils::formatGroupedEpisodesTitle($object, $formattor, $separatorEpisodes);
-                LogSonarr::debug('Formatted title to add ' . $object['title']);
-                array_push($listFormattedObject, $object);
-            }
-        } else {
-            if ($formattor != null) {
-                foreach ($listObject as $object) {
-                    $formattedTitle = sonarrUtils::formatEpisode($object["serie"], $object["season"], $object["episode"], $formattor);
-                    $object['title'] = $formattedTitle;
-                    array_push($listFormattedObject, $object);
-                }
-            } else {
-                return $listObject;
-            }
+        foreach ($listObject as $object) {
+            array_push($listFormattedObject, $object["title"]);
         }
         return $listFormattedObject;
-    }
-    public static function formatGroupedEpisodesTitle($episodesToFormat, $formattor, $separatorEpisodes)
-    {
-        // First generate episode string
-        $utf8 = "UTF-8";
-        $formatorSeason = "%s";
-        $formatorEpisode = "%e";
-        $posSeason = mb_strpos($formattor, $formatorSeason, 0, $utf8);
-        $posEpisode = mb_strpos($formattor, $formatorEpisode, 0, $utf8);
-        LogSonarr::debug('selected formattor ' . $formattor);
-        if ($posSeason !== false && $posEpisode !== false) {
-            LogSonarr::debug('found %s and %e in formattor');
-            // We have season and episode formattor
-            if ($posSeason < $posEpisode) {
-                LogSonarr::debug('%s is before %e');
-                // Season is before episode
-                $seasonStr = mb_substr($formattor, 0, mb_strpos($formattor, $formatorSeason, 0, $utf8), $utf8);
-                LogSonarr::debug('string for season formattor: ' . $seasonStr);
-                $length = mb_strlen($seasonStr, $utf8) + mb_strlen($formatorSeason, $utf8);
-                LogSonarr::debug('length of first part with formattor: ' . $length);
-                $numberToTakeForEpisode = mb_strpos($formattor, $formatorEpisode, 0, $utf8) - $length;
-                LogSonarr::debug('number to take for second part: ' . $numberToTakeForEpisode);
-                $episodeStr = mb_substr($formattor, $length, $numberToTakeForEpisode, $utf8);
-                LogSonarr::debug('string for episode formattor: ' . $episodeStr);
-                $episodeString = sonarrUtils::formatGroupedEpisodesStr($episodesToFormat, $episodeStr, $separatorEpisodes);
-                return $episodesToFormat["serie"] . " " . $seasonStr . $episodesToFormat["season"] . $episodeString;
-            } else {
-                LogSonarr::debug('%s is after %e');
-                // Episode is before season
-                $episodeStr = mb_substr($formattor, 0, mb_strpos($formattor, $formatorEpisode, 0, $utf8), $utf8);
-                LogSonarr::debug('string for episode formattor: ' . $episodeStr);
-                $length = mb_strlen($episodeStr, $utf8) + mb_strlen($formatorEpisode, $utf8);
-                LogSonarr::debug('length of first part with formattor: ' . $length);
-                $numberToTakeForSeason = mb_strpos($formattor, $formatorSeason, 0, $utf8) - $length;
-                LogSonarr::debug('number to take for second part: ' . $numberToTakeForSeason);
-                $seasonStr = mb_substr($formattor, $length, $numberToTakeForSeason, $utf8);
-                LogSonarr::debug('string for season formattor: ' . $seasonStr);
-                $episodeString = sonarrUtils::formatGroupedEpisodesStr($episodesToFormat, $episodeStr, $separatorEpisodes);
-                return $episodesToFormat["serie"] . " " . $episodeString . $seasonStr . $episodesToFormat["season"];
-            }
-        } else {
-            if ($posSeason !== false) {
-                LogSonarr::debug('only %s is present in: ' . $posSeason);
-                $seasonStr = mb_substr($formattor, 0, mb_strpos($formattor, $formatorSeason, 0, $utf8), $utf8);
-                return $episodesToFormat["serie"] . " " . $seasonStr . $episodesToFormat["season"];
-            } else if ($posEpisode !== false) {
-                LogSonarr::debug('only %e is present in: ' . $posEpisode);
-                $episodeStr = mb_substr($formattor, 0, mb_strpos($formattor, $formatorEpisode, 0, $utf8), $utf8);
-                $episodeString = sonarrUtils::formatGroupedEpisodesStr($episodesToFormat, $episodeStr, $separatorEpisodes);
-            } else {
-                LogSonarr::debug('no formattor');
-                $episodeString = "";
-                foreach ($episodesToFormat as $episode) {
-                    $episodeString = $episodeString . "E" . $episode["episode"];
-                }
-                return $episodesToFormat["serie"] . " " . "S" . $episodesToFormat["season"] . $episodeString;
-            }
-        }
-    }
-    public static function formatGroupedEpisodesStr($episodesToFormat, $episodeStr, $separatorEpisodes)
-    {
-        $episodeNumberList = [];
-        foreach ($episodesToFormat['episodes'] as $numberEpisode) {
-            array_push($episodeNumberList, $numberEpisode);
-        }
-        return $episodeStr . implode($separatorEpisodes, $episodeNumberList);
     }
 
     public function formatList($list, $episode, $separator)
@@ -263,13 +133,13 @@ class sonarrUtils
     {
         // Reverse Array to be asc
         $titleImgArray = array_reverse($titleImgArray);
-        LogSonarr::info("will send notification for " . count($titleImgArray) . " movies/series");
+        log::add('sonarr', 'info', "will send notification for " . count($titleImgArray) . " movies/series");
         foreach ($titleImgArray as $titleImg) {
             $formattedTitle = $this->formatTitleImg($titleImg);
-            LogSonarr::info("send notification for " . $formattedTitle);
+            log::add('sonarr', 'info', "send notification for " . $formattedTitle);
             $context->getCmd(null, 'notification')->event($formattedTitle);
             $context->getCmd(null, 'last_episode')->event($titleImg["title"]);
-            $notificationHTML = $this->formatHTMLNotification($caller, $titleImg["title"], $titleImg["quality"], $titleImg["size"], $titleImg["date"], $titleImg["image"]);
+            $notificationHTML = $this->formatHTMLNotification($caller, $titleImg["title"], $titleImg["quality"], $titleImg["size"], $titleImg["date"], $titleImg["serie"], $titleImg["missingEpNumber"], $titleImg["image"]);
             $context->getCmd(null, 'notificationHTML')->event($notificationHTML);
             sleep(1);
         }
@@ -295,7 +165,7 @@ class sonarrUtils
             return round(($sizeToFormat / $convertMib), 2) . "MB";
         }
     }
-    private function formatHTMLNotification($caller, $ddlObjName, $ddlObjQuality, $ddlObjSize, $ddlObjDate, $ddlObjPoster)
+    private function formatHTMLNotification($caller, $ddlObjName, $ddlObjQuality, $ddlObjSize, $ddlObjDate, $ddlSerieName, $ddlObjMissingNumber, $ddlObjPoster)
     {
         if ($caller == 'sonarr') {
             $application = "Sonarr";
@@ -308,6 +178,9 @@ class sonarrUtils
         $HTML = $HTML . "<b>" . __("Qualité", __FILE__) . " \t " . __("Poids", __FILE__) . " </b> \n";
         $HTML = $HTML . $ddlObjQuality . " \t " . $ddlObjSize . "\n\n";
         $HTML = $HTML . __("Date de téléchargement", __FILE__) . ": <b>" . $ddlObjDate . "</b>\n\n";
+        if ($caller == 'sonarr') {
+            //$HTML = $HTML."Nombre d'épisodes manquants pour <b>".$ddlSerieName."</b>: ".$ddlObjMissingNumber;
+        }
         return $HTML;
     }
     public function formatTitleImg($titleImg)

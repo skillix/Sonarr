@@ -24,14 +24,6 @@
             "isHistorized": 0
         },
         {
-            "logicalId": "day_ddl_episodes_raw",
-            "name": "Episodes téléchargés raw",
-            "type": "info",
-            "subtype": "other",
-            "isVisible": 1,
-            "isHistorized": 0
-        },
-        {
             "logicalId": "day_episodes",
             "name": "Episodes à venir",
             "type": "info",
@@ -40,26 +32,10 @@
             "isHistorized": 0
         },
         {
-            "logicalId": "day_episodes_raw",
-            "name": "Episodes à venir raw",
-            "type": "info",
-            "subtype": "other",
-            "isVisible": 1,
-            "isHistorized": 0
-        },
-        {
             "logicalId": "day_missing_episodes",
             "name": "Episodes manquants",
             "type": "info",
             "subtype": "string",
-            "isVisible": 1,
-            "isHistorized": 0
-        },
-        {
-            "logicalId": "day_missing_episodes_raw",
-            "name": "Episodes manquants raw",
-            "type": "info",
-            "subtype": "other",
             "isVisible": 1,
             "isHistorized": 0
         },

@@ -2,103 +2,50 @@
 
 require_once __DIR__  . '/sonarrApi.class.php';
 require_once __DIR__  . '/sonarrUtils.class.php';
-require_once __DIR__  . '/Utils/LogSonarr.php';
 
-
-class sonarrApiWrapper
-{
+class sonarrApiWrapper {
     protected $sonarrApi;
     protected $utils;
 
-    public function __construct($url, $apiKey)
-    {
+    public function __construct($url, $apiKey) {
         if ($url == NULL || $url == "") {
-            LogSonarr::error('No URL given, this plugin needs the URL to your Sonarr to work');
+            log::add('sonarr', 'error', 'No URL given, this plugin needs the URL to your Sonarr to work');
         }
         if ($apiKey == NULL || $apiKey == "") {
-            LogSonarr::error('No API KEY given, this plugin needs the API KEY of your Sonarr to work');
+            log::add('sonarr', 'error', 'No API KEY given, this plugin needs the API KEY of your Sonarr to work');
         }
         $this->sonarrApi = new sonarrApi($url, $apiKey);
         $this->utils = new sonarrUtils();
     }
 
-    public function refreshSonarr($context)
-    {
-        LogSonarr::info('start REFRESH SONARR');
-        $separator = $context->getSeparator();
-        LogSonarr::info('selected separator: ' . $separator);
-        $formattor = $context->getConfiguration('formattorEpisode');
-        LogSonarr::info('selected formattor: ' . $formattor);
-        LogSonarr::info('getting futures episodes, will look for selected rule');
-        $futurEpisodesRules = $context->getConfigurationFor($context, "dayFutureEpisodes", "maxFutureEpisodes");
-        $this->getFutureEpisodesFormattedList($context, $separator, $futurEpisodesRules, $formattor);
-        LogSonarr::info('getting missings episodes, will look for selected rule');
-        $missingEpisodesRules = $context->getConfigurationFor($context, "dayMissingEpisodes", "maxMissingEpisodes");
-        $this->getMissingEpisodesFormattedList($context, $missingEpisodesRules, $separator, $formattor);
-        LogSonarr::info('getting last downloaded episodes, will look for specific rules');
-        $groupEpisode = $context->getConfiguration('groupedEpisodes');
-        $separatorEpisodes = $this->getSeparatorEpisodes($context);
-        $downloadedEpisodesRules = $context->getConfigurationFor($context, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
-        $this->getDownladedEpisodesFormattedList($context, $downloadedEpisodesRules, $separator, $formattor, $groupEpisode, $separatorEpisodes);
-        LogSonarr::info('notify for last downloaded episodes');
-        $last_refresh_date = $context->getCmd(null, 'last_episode')->getValueDate();
-        $this->notifyEpisode('Sonarr', $last_refresh_date, $context, $formattor, $groupEpisode, $separatorEpisodes);
-        LogSonarr::info('getting the monitored series');
-        $liste_monitored_series = $this->getMonitoredSeries($separator);
-        if ($liste_monitored_series == "") {
-            LogSonarr::info('no monitored series');
-        } else {
-            $context->checkAndUpdateCmd('monitoredSeries', $liste_monitored_series);
-        }
-        LogSonarr::info('stop REFRESH SONARR');
-    }
-    public function getSeparatorEpisodes($context)
-   {
-      $separator = $context->getConfiguration('separatorEpisodes');
-      if ($separator != NULL) {
-         return $separator;
-      } else {
-         return ", ";
-      }
-   }
-
-    public function getFutureEpisodesFormattedList($context, $separator, $rules, $formattor)
-    {
-        $futurEpisodesList = $this->getFutureEpisodesArray($rules, $formattor);
-        // Save RAW
-        $context->checkAndUpdateCmd('day_episodes_raw', $futurEpisodesList);
-        // Format list
+    public function getFutureEpisodesFormattedList($separator, $rules, $formattor) {
         $futurEpisodesListStr = '';
-        foreach ($futurEpisodesList as $futurEpisode) {
+        $futurEpisodesList = $this->getFutureEpisodesArray($rules, $formattor);
+        foreach($futurEpisodesList as $futurEpisode) {
             $futurEpisodesListStr = $this->utils->formatList($futurEpisodesListStr, $futurEpisode["title"], $separator);
         }
-        if ($futurEpisodesListStr == "") {
-            LogSonarr::info('no future episodes');
-        }
-        // Save formatted list
-        $context->checkAndUpdateCmd('day_episodes', $futurEpisodesListStr);
+        return $futurEpisodesListStr;
     }
-    private function getFutureEpisodesArray($rules, $formattor)
-    {
+    public function getFutureEpisodesArray($rules, $formattor) {
         $liste_episode = [];
         $dayFutures = $rules["numberDays"];
         $currentDate = new DateTime();
         $futureDate = new DateTime();
-        $futureDate->add(new DateInterval('P' . $dayFutures . 'D'));
+        $futureDate->add(new DateInterval('P'.$dayFutures.'D'));
         $currentDate = $currentDate->format('Y-m-d');
         $futureDate = $futureDate->format('Y-m-d');
         // Server call
-        LogSonarr::debug('fetching futures episodes between ' . $currentDate . ' and ' . $futureDate);
+        log::add('sonarr', 'debug', 'fetching futures episodes between '.$currentDate.' and '.$futureDate);
         $calendar = $this->sonarrApi->getCalendar($currentDate, $futureDate);
-        LogSonarr::debug('JSON FOR CALENDAR' . $calendar);
+        log::add('sonarr', 'debug', 'JSON FOR CALENDAR'.$calendar);
         // return error if needed
         $calendar = $this->utils->verifyJson($calendar);
         if ($calendar == NULL) {
-            return "";
+           return "";
         }
         $calendar = $this->utils->applyMaxRulesToArray($calendar, $rules);
         // Analyze datas
-        foreach ($calendar as $serie) {
+        foreach($calendar as $serie) {
             $episodeTitle = $serie["series"]["title"];
             $seasonNumber = $serie["seasonNumber"];
             $episodeNumber = $serie["episodeNumber"];
@@ -108,7 +55,7 @@ class sonarrApiWrapper
             $ddl_date_str = $this->utils->formatDate($ddl_date_str);
             $images = $serie["series"]["images"];
             $urlImage = "";
-            foreach ($images as $image) {
+            foreach($images as $image) {
                 if ($image["coverType"] == "poster") {
                     $urlImage =  $image["url"];
                 }
@@ -124,7 +71,7 @@ class sonarrApiWrapper
             }
             $quality = $serie["episodeFile"]["quality"]["quality"]["resolution"];
             if ($quality != null && $quality != 0) {
-                $quality = $quality . "p";
+                $quality = $quality."p";
             } else {
                 $quality = "";
             }
@@ -142,45 +89,36 @@ class sonarrApiWrapper
         }
         return $liste_episode;
     }
-    public function getMissingEpisodesFormattedList($context, $rules, $separator, $formattor)
-    {
-        $missingEpisodesList = $this->getMissingEpisodesArray($rules, $formattor);
-        // Save RAW
-        $context->checkAndUpdateCmd('day_missing_episodes_raw', $missingEpisodesList);
-        // Format list
+    public function getMissingEpisodesFormattedList($rules, $separator, $formattor) {
         $missingEpisodesListStr = "";
-        foreach ($missingEpisodesList as $missingEpisode) {
+        $missingEpisodesList = $this->getMissingEpisodesArray($rules, $formattor);
+        foreach($missingEpisodesList as $missingEpisode) {
             $missingEpisodesListStr = $this->utils->formatList($missingEpisodesListStr, $missingEpisode["title"], $separator);
         }
-        if ($missingEpisodesListStr == "") {
-            LogSonarr::info('no missing episodes');
-        }
-        // Save format
-        $context->checkAndUpdateCmd('day_missing_episodes', $missingEpisodesListStr);
+        return $missingEpisodesListStr;
     }
-    public function getMissingEpisodesArray($rules, $formattor)
-    {
+    public function getMissingEpisodesArray($rules, $formattor) {
         $missingEpisodesList = [];
         $stopSearch = false;
         $pageToSearch = 1;
         while ($stopSearch == false) {
             $missingEpisodesJSON = $this->sonarrApi->getWantedMissing($pageToSearch, 10, 'airDateUtc', 'desc');
-            LogSonarr::debug('JSON FOR MISSINGS' . $missingEpisodesJSON);
+            log::add('sonarr', 'debug', 'JSON FOR MISSINGS'.$missingEpisodesJSON);
             $missingEpisodes = $this->utils->verifyJson($missingEpisodesJSON);
-            if ($missingEpisodes == NULL || empty($missingEpisodes['records'])) {
-                LogSonarr::info("stop searching for missing episodes, no more episodes");
+            if ($missingEpisodes == NULL || empty($missingEpisodes['records'])) { 
+                log::add('sonarr', 'info', "stop searching for missing episodes, no more episodes");
                 $stopSearch = true;
             }
-            foreach ($missingEpisodes['records'] as $serie) {
+            foreach($missingEpisodes['records'] as $serie) {
                 $episodeTitle = $serie["series"]["title"];
                 // Verify date rule
                 $numberDaysToRetrieve = $rules["numberDays"];
                 $anteriorDate = $this->utils->getAnteriorDateForNumberDay($numberDaysToRetrieve);
-                LogSonarr::debug("anterior date timestamp is " . $anteriorDate);
+                log::add('sonarr', 'debug', "anterior date timestamp is ".$anteriorDate);
                 $airDateEpisode = strtotime($serie["airDateUtc"]);
-                LogSonarr::debug("air date timestamp for " . $episodeTitle . " is " . $airDateEpisode);
+                log::add('sonarr', 'debug', "air date timestamp for ".$episodeTitle." is ".$airDateEpisode);
                 if ($stopSearch == false && $airDateEpisode > $anteriorDate) {
-                    LogSonarr::debug("airDate for " . $episodeTitle . " is after the anterior date");
+                    log::add('sonarr', 'debug', "airDate for ".$episodeTitle." is after the anterior date");
                     // We can add the episode
                     $seriesId = $serie["seriesId"];
                     $seasonNumber = $serie["seasonNumber"];
@@ -190,7 +128,7 @@ class sonarrApiWrapper
                     $ddl_date_str = $this->utils->formatDate($ddl_date_str);
                     $images = $serie["series"]["images"];
                     $urlImage = "";
-                    foreach ($images as $image) {
+                    foreach($images as $image) {
                         if ($image["coverType"] == "poster") {
                             $urlImage =  $image["url"];
                         }
@@ -206,7 +144,7 @@ class sonarrApiWrapper
                     );
                     array_push($missingEpisodesList, $episodeImage);
                 } else if ($stopSearch == false) {
-                    LogSonarr::debug("airDate for " . $episodeTitle . " is before the anterior date, stop searching");
+                    log::add('sonarr', 'debug', "airDate for ".$episodeTitle." is before the anterior date, stop searching");
                     $stopSearch = true;
                 }
             }
@@ -215,72 +153,56 @@ class sonarrApiWrapper
         $missingEpisodesList = $this->utils->applyMaxRulesToArray($missingEpisodesList, $rules);
         return $missingEpisodesList;
     }
-    public function getDownladedEpisodesFormattedList($context, $rules, $separator, $formattor, $groupEpisode, $separatorEpisodes)
-    {
-        $ddlEpisodesList = $this->getDownloadedEpisodesArray($rules);
-        $ddlEpisodesList = sonarrUtils::getEpisodesMoviesList($ddlEpisodesList, $groupEpisode, $formattor, $separatorEpisodes);
-        // Save RAW
-        $context->checkAndUpdateCmd('day_ddl_episodes_raw', $ddlEpisodesList);
-        // Format list
-        $listOnlyTitle = [];
-        foreach ($ddlEpisodesList as $ddlObj) {
-            array_push($listOnlyTitle, $ddlObj['title']);
-        }
-        $dowloadedEpisodesList =  implode($separator, $listOnlyTitle);
-        if ($dowloadedEpisodesList == "") {
-            LogSonarr::info('no downloaded episodes');
-        }
-        // Save format
-        $context->checkAndUpdateCmd('day_ddl_episodes', $dowloadedEpisodesList);
+    public function getDownladedEpisodesFormattedList($rules, $separator, $formattor) {
+        $ddlEpisodesList = $this->getDownloadedEpisodesArray($rules, $formattor);
+        $ddlEpisodesList = $this->utils->getEpisodesMoviesList($ddlEpisodesList);
+        return implode($separator, $ddlEpisodesList);
     }
 
-    public function notifyEpisode($caller, $last_refresh_date, $context, $formattor, $groupEpisode, $separatorEpisodes)
-    {
-        LogSonarr::info('date du dernier refresh : ' . $last_refresh_date);
+    public function notifyEpisode($caller, $last_refresh_date, $context, $formattor) {
+        log::add('sonarr', 'info', 'date du dernier refresh : '.$last_refresh_date);
         $last_refresh_date = strtotime($last_refresh_date);
-        $list_episodesImgs = $this->getHistoryForDate($last_refresh_date);
-        $list_episodesImgs = sonarrUtils::getEpisodesMoviesList($list_episodesImgs, $groupEpisode, $formattor, $separatorEpisodes);
-        $this->utils->sendNotificationForTitleImgArray($caller, $list_episodesImgs, $context, $formattor);
+        $list_episodesImgs = $this->getHistoryForDate($last_refresh_date, $formattor);
+        $this->utils->sendNotificationForTitleImgArray($caller, $list_episodesImgs, $context);
     }
 
-    public function getDownloadedEpisodesArray($rules)
-    {
+    public function getDownloadedEpisodesArray($rules, $formattor) {
         $anteriorDate = $this->utils->getAnteriorDateForNumberDay($rules["numberDays"]);
-        $ddlEpisodesList = $this->getHistoryForDate($anteriorDate);
+        $ddlEpisodesList = $this->getHistoryForDate($anteriorDate, $formattor);
         $ddlEpisodesList = $this->utils->applyMaxRulesToArray($ddlEpisodesList, $rules);
         return $ddlEpisodesList;
     }
 
-    private function getHistoryForDate($last_refresh_date)
-    {
+    private function getHistoryForDate($last_refresh_date, $formattor) {
         $episodeList = [];
         $stopSearch = false;
         $pageToSearch = 1;
         while ($stopSearch == false) {
             $historyJSON = $this->sonarrApi->getHistory($pageToSearch, 10, 'date', 'desc');
-            LogSonarr::debug('JSON FOR HISTORY' . $historyJSON);
+            log::add('sonarr', 'debug', 'JSON FOR HISTORY'.$historyJSON);
             $history = $this->utils->verifyJson($historyJSON);
-            if ($history == NULL || empty($history['records'])) {
-                LogSonarr::info("stop searching for new episode to notify empty history page");
+            if ($history == NULL || empty($history['records'])) { 
+                log::add('sonarr', 'info', "stop searching for new episode to notify empty history page");
                 $stopSearch = true;
             }
-            foreach ($history['records'] as $serie) {
+            foreach($history['records'] as $serie) {
                 if ($stopSearch == false && $serie["eventType"] == "downloadFolderImported") {
                     $ddl_date_str = $serie["date"];
                     $ddl_date = strtotime($ddl_date_str);
                     if ($ddl_date > $last_refresh_date || $last_refresh_date == NULL) {
                         if ($last_refresh_date == NULL) {
-                            LogSonarr::info('first run for notification');
+                            log::add('sonarr', 'info', 'first run for notification');
                             $stopSearch = true;
                         }
                         $seriesId = $serie["seriesId"];
                         $episodeTitle = $serie["series"]["title"];
                         $seasonNumber = $serie["episode"]["seasonNumber"];
                         $episodeNumber = $serie["episode"]["episodeNumber"];
-                        $quality = $serie["quality"]["quality"]["resolution"] . "p";
+                        $quality = $serie["quality"]["quality"]["resolution"]."p";
+                        $episode = $this->utils->formatEpisode($episodeTitle, $seasonNumber, $episodeNumber, $formattor);
                         $images = $serie["series"]["images"];
                         $urlImage = "";
-                        foreach ($images as $image) {
+                        foreach($images as $image) {
                             if ($image["coverType"] == "poster") {
                                 $urlImage =  $image["url"];
                             }
@@ -292,19 +214,19 @@ class sonarrApiWrapper
                         //$missingEpisodeNumber = $this->retrieveNumberMissingEpForSerie($serie["seriesId"]);
                         $ddl_date_str = $this->utils->formatDate($ddl_date_str);
                         $episodeImage = array(
-                            'serie' => $episodeTitle,
-                            'season' => $seasonNumber,
-                            'episode' => $episodeNumber,
+                            'title' => $episode,
                             'quality' => $quality,
                             'size' => $size,
+                            //'missingEpNumber' => $missingEpisodeNumber,
                             'date' => $ddl_date_str,
+                            'serie' => $episodeTitle,
                             'image' => $urlImage,
                             'seriesId' => $seriesId,
                         );
                         array_push($episodeList, $episodeImage);
-                        LogSonarr::info("found new episode downladed :" . $serie["series"]["title"]);
+                        log::add('sonarr', 'info', "found new episode downladed :".$serie["series"]["title"]);
                     } else {
-                        LogSonarr::info("stop searching for new episode to notify");
+                        log::add('sonarr', 'info', "stop searching for new episode to notify");
                         $stopSearch = true;
                     }
                 }
@@ -313,59 +235,54 @@ class sonarrApiWrapper
         }
         return $episodeList;
     }
-    public function retrieveWidgetsDatas()
-    {
+    public function retrieveWidgetsDatas() {
+        
     }
-    private function retrieveSizeForEpisode($episodeId)
-    {
+    private function retrieveSizeForEpisode($episodeId) {
         $informationsEpisode = $this->getInformationsEpisodes($episodeId);
         $sizeByte = $informationsEpisode["episodeFile"]["size"];
         return $this->utils->formatSize($sizeByte);
     }
-    private function getInformationsEpisodes($episodeId)
-    {
+    private function getInformationsEpisodes($episodeId) {
         $episodeInfoJSON = $this->sonarrApi->getEpisode($episodeId);
-        LogSonarr::debug('JSON FOR SPECIFIC EPISODE' . $episodeInfoJSON);
+        log::add('sonarr', 'debug', 'JSON FOR SPECIFIC EPISODE'.$episodeInfoJSON);
         $episodeInfo = $this->utils->verifyJson($episodeInfoJSON);
         if ($episodeInfo == NULL) {
-            return "";
+           return "";
         } else {
             return $episodeInfo;
         }
     }
-    private function retrieveNumberMissingEpForSerie($seriesId)
-    {
+    private function retrieveNumberMissingEpForSerie($seriesId) {
         $informationsSerie = $this->getInformationsSeries($seriesId);
         $numberEpisodeMissing = 0;
-        foreach ($informationsSerie["seasons"] as $season) {
+        foreach($informationsSerie["seasons"] as $season) {
             if ($season["monitored"]) {
                 $numberEpisodeMissing += $season["totalEpisodeCount"] - $season["episodeFileCount"];
             }
         }
         return $numberEpisodeMissing;
     }
-    private function getInformationsSeries($seriesId)
-    {
+    private function getInformationsSeries($seriesId) {
         $seriesInfoJSON = $this->sonarrApi->getSeries($seriesId);
-        LogSonarr::debug('JSON FOR SPECIFIC SERIES' . $seriesInfoJSON);
+        log::add('sonarr', 'debug', 'JSON FOR SPECIFIC SERIES'.$seriesInfoJSON);
         $seriesInfo = $this->utils->verifyJson($seriesInfoJSON);
         if ($seriesInfo == NULL) {
-            return "";
+           return "";
         } else {
             return $seriesInfo;
         }
     }
-    public function getMonitoredSeries($separator)
-    {
+    public function getMonitoredSeries($separator) {
         $listSeriesJSON = $this->sonarrApi->getSeries();
-        LogSonarr::debug('JSON FOR SERIES ' . $listSeriesJSON);
+        log::add('sonarr', 'debug', 'JSON FOR SERIES '.$listSeriesJSON);
         $listSeries = $this->utils->verifyJson($listSeriesJSON);
         if ($listSeries == NULL) {
-            LogSonarr::info('There are nos series in your sonarr');
+            log::add('sonarr', 'info', 'There are nos series in your sonarr');
             return "";
         }
         $liste_series = "";
-        foreach ($listSeries as $serie) {
+        foreach($listSeries as $serie) {
             if ($serie["monitored"] == true) {
                 $liste_series = $this->utils->formatList($liste_series, $serie["title"], $separator);
             }
@@ -373,15 +290,13 @@ class sonarrApiWrapper
         return $liste_series;
     }
 
-    public function getSystemStatus()
-    {
+    public function getSystemStatus() {
         $statusJSON = $this->sonarrApi->getDiskspace();
-        LogSonarr::info('JSON FOR DISKSPACE ' . $statusJSON);
+        log::add('sonarr', 'info', 'JSON FOR DISKSPACE '.$statusJSON);
     }
 
-    private function saveImage($url, $imageName)
-    {
-        $img = '/var/www/html/plugins/sonarr/core/template/dashboard/imgs/sonarr_' . $imageName . '.jpg';
+    private function saveImage($url, $imageName) {
+        $img = '/var/www/html/plugins/sonarr/core/template/dashboard/imgs/sonarr_'.$imageName.'.jpg'; 
         file_put_contents($img, file_get_contents($url));
     }
 }
