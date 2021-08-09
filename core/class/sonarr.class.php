@@ -205,11 +205,13 @@ class sonarr extends eqLogic
                $futurEpRawCmd = $this->getCmd(null, 'day_episodes_raw');
                if ($futurEpRawCmd != null) {
                   $futurEpisodeList = $futurEpRawCmd->execCmd();
-                  $futurEpisodeList = sonarrUtils::applyMaxToArray($futurEpisodeList, 3);
-                  if ($condensed == 0) {
-                     $html = $html . $this->generateHtmlForDatas($futurEpisodeList, $_version, $application, false);
-                  } else {
-                     $html = $html . $this->generateHtmlForDatasCondensed($futurEpisodeList, $_version, $application, true);
+                  if (is_array($futurEpisodeList)) {
+                     $futurEpisodeList = sonarrUtils::applyMaxToArray($futurEpisodeList, 3);
+                     if ($condensed == 0) {
+                        $html = $html . $this->generateHtmlForDatas($futurEpisodeList, $_version, $application, false);
+                     } else {
+                        $html = $html . $this->generateHtmlForDatasCondensed($futurEpisodeList, $_version, $application, true);
+                     }
                   }
                } else {
                   LogSonarr::error('missing cmd day_episodes_raw');
@@ -222,8 +224,10 @@ class sonarr extends eqLogic
                   $ddlEpRawCmd = $this->getCmd(null, 'day_ddl_episodes_raw');
                   if ($futurEpRawCmd != null) {
                      $ddlEpisodesList = $ddlEpRawCmd->execCmd();
-                     $ddlEpisodesList = sonarrUtils::applyMaxToArray($ddlEpisodesList, 3);
-                     $html = $html . $this->generateHtmlForDatas($ddlEpisodesList, $_version, $application, true);
+                     if (is_array($ddlEpisodesList)) {
+                        $ddlEpisodesList = sonarrUtils::applyMaxToArray($ddlEpisodesList, 3);
+                        $html = $html . $this->generateHtmlForDatas($ddlEpisodesList, $_version, $application, true);
+                     }
                   } else {
                      LogSonarr::error('missing cmd day_ddl_episodes');
                   }
@@ -234,8 +238,10 @@ class sonarr extends eqLogic
                   $missingEpRawCmd = $this->getCmd(null, 'day_missing_episodes_raw');
                   if ($futurEpRawCmd != null) {
                      $missingEpisodesList = $missingEpRawCmd->execCmd();
-                     $missingEpisodesList = sonarrUtils::applyMaxToArray($missingEpisodesList, 3);
-                     $html = $html . $this->generateHtmlForDatas($missingEpisodesList, $_version, $application, false);
+                     if (is_array($ddlEpisodesList)) {
+                        $missingEpisodesList = sonarrUtils::applyMaxToArray($missingEpisodesList, 3);
+                        $html = $html . $this->generateHtmlForDatas($missingEpisodesList, $_version, $application, false);
+                     }
                   } else {
                      LogSonarr::error('missing cmd day_missing_episodes_raw');
                   }
