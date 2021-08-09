@@ -11,7 +11,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 <div class="row row-overflow">
 	<!-- Page d'accueil du plugin -->
 	<div class="col-xs-12 eqLogicThumbnailDisplay">
-		<legend><i class="fas fa-cog"></i>  {{Gestion}}</legend>
+		<legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
 		<!-- Boutons de gestion du plugin -->
 		<div class="eqLogicThumbnailContainer">
 			<div class="cursor eqLogicAction logoPrimary" data-action="add">
@@ -41,7 +41,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 			echo '<div class="eqLogicThumbnailContainer">';
 			foreach ($eqLogics as $eqLogic) {
 				$opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-				echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '">';
+				echo '<div class="eqLogicDisplayCard cursor ' . $opacity . '" data-eqLogic_id="' . $eqLogic->getId() . '">';
 				echo '<img src="' . $eqLogic->getImage() . '"/>';
 				echo '<br>';
 				echo '<span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
@@ -59,7 +59,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 			<span class="input-group-btn">
 				<!-- Les balises <a></a> sont volontairement fermées à la ligne suivante pour éviter les espaces entre les boutons. Ne pas modifier -->
 				<a class="btn btn-sm btn-default eqLogicAction roundedLeft" data-action="configure"><i class="fas fa-cogs"></i><span class="hidden-xs"> {{Configuration avancée}}</span>
-				</a><a class="btn btn-sm btn-default eqLogicAction" data-action="copy"><i class="fas fa-copy"></i><span class="hidden-xs">  {{Dupliquer}}</span>
+				</a><a class="btn btn-sm btn-default eqLogicAction" data-action="copy"><i class="fas fa-copy"></i><span class="hidden-xs"> {{Dupliquer}}</span>
 				</a><a class="btn btn-sm btn-success eqLogicAction" data-action="save"><i class="fas fa-check-circle"></i> {{Sauvegarder}}
 				</a><a class="btn btn-sm btn-danger eqLogicAction roundedRight" data-action="remove"><i class="fas fa-minus-circle"></i> {{Supprimer}}
 				</a>
@@ -83,12 +83,12 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							<div class="form-group">
 								<label class="col-sm-3 control-label">{{Nom de l'équipement}}</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;"/>
-									<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom de l'équipement}}"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
+									<input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom de l'équipement}}" />
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-3 control-label" >{{Objet parent}}</label>
+								<label class="col-sm-3 control-label">{{Objet parent}}</label>
 								<div class="col-sm-7">
 									<select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
 										<option value="">{{Aucun}}</option>
@@ -117,43 +117,43 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							<div class="form-group">
 								<label class="col-sm-3 control-label">{{Options}}</label>
 								<div class="col-sm-7">
-									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isEnable" checked/>{{Activer}}</label>
-									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked/>{{Visible}}</label>
+									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isEnable" checked />{{Activer}}</label>
+									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked />{{Visible}}</label>
 								</div>
 							</div>
 
 							<legend><i class="fas fa-cogs"></i> {{Paramètres spécifiques}}</legend>
 							<div class="form-group">
-                                    <label class="col-sm-3 control-label">{{Sonarr/Radarr}}</label>
-                                    <div class="col-sm-3">
-                                        <select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="application">
-                                            <option value="">{{Sélectionner}}</option>
-                                            <?php
-                                            foreach (sonarr::getApplications() as $key => $description) {
-                                                echo "<option value='{$key}'>{$description}</option>";
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                            </div>
-                            <div class="form-group sonarr-function-config sonarr-sonarr">
-                                <label class="col-sm-3 control-label">{{Url de Sonarr}}</label>
-                                <div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="sonarrUrl" placeholder="{{http://127.0.0.1:8989}}"/>
-                                </div>
-                            </div>
+								<label class="col-sm-3 control-label">{{Sonarr/Radarr}}</label>
+								<div class="col-sm-3">
+									<select class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="application">
+										<option value="">{{Sélectionner}}</option>
+										<?php
+										foreach (sonarr::getApplications() as $key => $description) {
+											echo "<option value='{$key}'>{$description}</option>";
+										}
+										?>
+									</select>
+								</div>
+							</div>
+							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<label class="col-sm-3 control-label">{{Url de Sonarr}}</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="sonarrUrl" placeholder="{{http://127.0.0.1:8989}}" />
+								</div>
+							</div>
 							<div class="form-group sonarr-function-config sonarr-radarr">
-                                <label class="col-sm-3 control-label">{{Url de Radarr}}</label>
-                                <div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="radarrUrl" placeholder="{{http://127.0.0.1:8310}}"/>
-                                </div>
-                            </div>
+								<label class="col-sm-3 control-label">{{Url de Radarr}}</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="radarrUrl" placeholder="{{http://127.0.0.1:8310}}" />
+								</div>
+							</div>
 							<div class="form-group">
 								<label class="col-sm-3 control-label"> {{API KEY}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Renseignez l'api Key de votre application}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control inputPassword" data-l1key="configuration" data-l2key="apiKey"/>
+									<input type="text" class="eqLogicAttr form-control inputPassword" data-l1key="configuration" data-l2key="apiKey" />
 								</div>
 							</div>
 							<div class="form-group">
@@ -161,7 +161,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Possibilité d'affichage du widget en condensé}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="condensedWidget" checked/>{{format condensé}}</label>
+									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="condensedWidget" checked />{{format condensé}}</label>
 								</div>
 							</div>
 							<div class="form-group">
@@ -170,7 +170,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								</label>
 								<div class="col-sm-7">
 									<div class="input-group">
-										<input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="autorefresh" placeholder="{{Cliquer sur ? pour afficher l'assistant cron}}"/>
+										<input type="text" class="eqLogicAttr form-control roundedLeft" data-l1key="configuration" data-l2key="autorefresh" placeholder="{{Cliquer sur ? pour afficher l'assistant cron}}" />
 										<span class="input-group-btn">
 											<a class="btn btn-default cursor jeeHelper roundedRight" data-helper="cron" title="Assistant cron">
 												<i class="fas fa-question-circle"></i>
@@ -179,13 +179,22 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									</div>
 								</div>
 							</div>
+							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<div class="col-sm-7">
+									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="groupedEpisodes" checked />{{Regrouper les épisodes d'une même série}}</label>
+								</div>
+								<label class="col-sm-3 control-label"> {{Séparateur d'épisode}}								</label>
+								<div class="col-sm-7">
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="separatorEpisodes" placeholder=", " />
+								</div>
+							</div>
 							<legend><i class="fas fa-cogs"></i> {{Configuration épisodes / films à venir}}</legend>
 							<div class="form-group sonarr-function-config sonarr-sonarr">
 								<label class="col-sm-3 control-label"> {{Nombre de jours à remonter}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Par défaut le plugin retourne les objets de ce jour ci}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayFutureEpisodes" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayFutureEpisodes" placeholder="1" />
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-radarr">
@@ -193,7 +202,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Par défaut le plugin retourne les objets de ce jour ci}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayFutureMovies" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayFutureMovies" placeholder="1" />
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-sonarr">
@@ -201,7 +210,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Si non renseigné, seule la règle du nombre de jours compte}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxFutureEpisodes" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxFutureEpisodes" placeholder="1" />
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-radarr">
@@ -209,7 +218,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Si non renseigné, seule la règle du nombre de jours compte}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxFutureMovies" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxFutureMovies" placeholder="1" />
 								</div>
 							</div>
 							<legend><i class="fas fa-cogs"></i> {{Configuration épisodes / films manquants}}</legend>
@@ -218,7 +227,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Par défaut le plugin retourne les objets de ce jour ci}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayMissingEpisodes" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayMissingEpisodes" placeholder="1" />
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-sonarr">
@@ -226,7 +235,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Si non renseigné, seule la règle du nombre de jours compte}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxMissingEpisodes" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxMissingEpisodes" placeholder="1" />
 								</div>
 							</div>
 							<legend><i class="fas fa-cogs"></i> {{Configuration épisodes / films téléchargés}}</legend>
@@ -235,7 +244,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Par défaut le plugin retourne les objets de ce jour ci}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayDownloadedEpisodes" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayDownloadedEpisodes" placeholder="1" />
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-radarr">
@@ -243,7 +252,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Par défaut le plugin retourne les objets de ce jour ci}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayDownloadedMovies" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="dayDownloadedMovies" placeholder="1" />
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-sonarr">
@@ -251,7 +260,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Si non renseigné, seule la règle du nombre de jours compte}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxDownloadedEpisodes" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxDownloadedEpisodes" placeholder="1" />
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-radarr">
@@ -259,7 +268,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Si non renseigné, seule la règle du nombre de jours compte}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxDownloadedMovies" placeholder="1"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxDownloadedMovies" placeholder="1" />
 								</div>
 							</div>
 							<legend><i class="fas fa-cogs"></i> {{Configuration supplémentaire}}</legend>
@@ -268,17 +277,17 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Vous pouvez sélectionner ici un séparateur à utiliser pour le retour des objets}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="separator" placeholder=", "/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="separator" placeholder=", " />
 								</div>
-							</div>	
+							</div>
 							<div class="form-group sonarr-function-config sonarr-sonarr">
 								<label class="col-sm-3 control-label"> {{Formatage du nom des épisodes}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Ici, vous pouvez configurer le formatage du nom des épisodes. Le chiffre de la saison est représenté par %s, le chiffre de l'épisode est représenté par %e. Si vous souhaitez que l'équipement retourne l'épisode sous la forme saison 2 épisode 4, Il faut alors renseigner saison %s épisode %e dans le champ}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="formattorEpisode" placeholder="S%sE%e"/>
+									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="formattorEpisode" placeholder="S%sE%e" />
 								</div>
-							</div>							
+							</div>
 						</div>
 					</fieldset>
 				</form>
@@ -288,7 +297,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 			<!-- Onglet des commandes de l'équipement -->
 			<div role="tabpanel" class="tab-pane" id="commandtab">
 				<a class="btn btn-default btn-sm pull-right cmdAction" data-action="add" style="margin-top:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter une commande}}</a>
-				<br/><br/>
+				<br /><br />
 				<div class="table-responsive">
 					<table id="table_cmd" class="table table-bordered table-condensed">
 						<thead>
@@ -312,6 +321,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
 </div><!-- /.row row-overflow -->
 
 <!-- Inclusion du fichier javascript du plugin (dossier, nom_du_fichier, extension_du_fichier, id_du_plugin) -->
-<?php include_file('desktop', 'sonarr', 'js', 'sonarr');?>
+<?php include_file('desktop', 'sonarr', 'js', 'sonarr'); ?>
 <!-- Inclusion du fichier javascript du core - NE PAS MODIFIER NI SUPPRIMER -->
-<?php include_file('core', 'plugin.template', 'js');?>
+<?php include_file('core', 'plugin.template', 'js'); ?>
