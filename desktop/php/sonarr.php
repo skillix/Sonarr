@@ -184,7 +184,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<sup><i class="fas fa-question-circle tooltips" title="{{Possibilité de regrouper les épisodes téléchargé d'une même saison.}}"></i></sup>
 								</label>
 								<div class="col-sm-7">
-									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="groupedEpisodes"/>{{Regrouper les épisodes}}</label>
+									<label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="groupedEpisodes" />{{Regrouper les épisodes}}</label>
 								</div>
 							</div>
 							<div class="form-group sonarr-function-config sonarr-sonarr">
@@ -228,8 +228,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
 									<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="maxFutureMovies" placeholder="1" />
 								</div>
 							</div>
-							<legend><i class="fas fa-cogs"></i> {{Configuration épisodes / films manquants}}</legend>
 							<div class="form-group sonarr-function-config sonarr-sonarr">
+								<legend><i class="fas fa-cogs"></i> {{Configuration épisodes / films manquants}}</legend>
 								<label class="col-sm-3 control-label"> {{Nombre de jours à remonter}}
 									<sup><i class="fas fa-question-circle tooltips" title="{{Par défaut le plugin retourne les objets de ce jour ci}}"></i></sup>
 								</label>

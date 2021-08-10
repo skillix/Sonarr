@@ -309,6 +309,12 @@ class sonarrUtils
         if ($ddlObjQuality != '' && $ddlObjSize != '') {
             $HTML = $HTML . "<b>" . __("Qualité", __FILE__) . " \t " . __("Poids", __FILE__) . " </b> \n";
             $HTML = $HTML . $ddlObjQuality . " \t " . $ddlObjSize . "\n\n";
+        } else if ($ddlObjQuality != '') {
+            $HTML = $HTML . "<b>" . __("Qualité", __FILE__) . "</b> \n";
+            $HTML = $HTML . $ddlObjQuality . "\n\n";
+        } else if ($ddlObjSize != '') {
+            $HTML = $HTML . "<b>" . __("Poids", __FILE__) . "</b> \n";
+            $HTML = $HTML . $ddlObjSize . "\n\n";
         }
         if ($ddlObjDate != '') {
             $HTML = $HTML . __("Date de téléchargement", __FILE__) . ": <b>" . $ddlObjDate . "</b>\n\n";

@@ -192,7 +192,6 @@ class sonarr extends eqLogic
       $application = $this->getConfiguration('application', '');
 
       $apiKey = $this->getConfiguration('apiKey');
-      $formattor = $this->getConfiguration('formattorEpisode');
 
       $html = '';
       foreach ($this->getCmd(null, null, true) as $cmd) {
