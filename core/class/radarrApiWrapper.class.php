@@ -49,7 +49,7 @@ class radarrApiWrapper
         $context->checkAndUpdateCmd('day_ddl_movies', $downloadMoviesList);
         LogSonarr::info('notify for last downloaded movies');
         $last_refresh_date = $context->getCmd(null, 'last_episode')->getValueDate();
-        $this->notifyMovie('Radarr', $last_refresh_date, $context);
+        $this->notifyMovie('radarr', $last_refresh_date, $context);
         LogSonarr::info('stop REFRESH RADARR');
     }
 
