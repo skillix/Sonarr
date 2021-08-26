@@ -24,6 +24,11 @@ $eqLogics = eqLogic::byType($plugin->getId());
 				<br>
 				<span>{{Configuration}}</span>
 			</div>
+			<div class="cursor pluginAction logoSecondary" data-action="openLocation" data-location="https://github.com/users/hbedek/projects/4">
+                <i class="fas fa-columns"></i>
+                <br>
+                <span>Agenda des fonctionnalités</span>
+            </div>
 		</div>
 		<legend><i class="fas fa-table"></i> {{Mes serveurs}}</legend>
 		<?php

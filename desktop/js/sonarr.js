@@ -102,3 +102,8 @@ $(".eqLogicAttr[data-l1key='configuration'][data-l2key='groupedEpisodes']").chan
     checkBox = document.getElementById('info_sup_epGroup').style.display = 'none';
   }
 });
+
+$('.pluginAction[data-action=openLocation]').on('click', function () {
+  window.open($(this).attr("data-location"), "_blank", null);
+});
+
