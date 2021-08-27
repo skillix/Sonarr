@@ -48,7 +48,7 @@ class sonarrUtils
     public function verifyJson($jsonToVerify)
     {
         $decodeJson = json_decode($jsonToVerify, true);
-        if ($decodeJson['error'] != NULL) {
+        if (array_key_exists('error', $decodeJson) && $decodeJson['error'] != NULL) {
             $msg = $decodeJson['error']['msg'];
             LogSonarr::error('There was an issue with the connection to Sonarr / Radarr :' . $msg);
             return NULL;
