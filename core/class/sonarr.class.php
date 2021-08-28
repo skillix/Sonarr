@@ -103,6 +103,7 @@ class sonarr extends eqLogic
             $apiKey = $this->getConfiguration('apiKey');
             $url = $this->getConfiguration('radarrUrl');
             $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
+            $radarrApiWrapper->refreshRadarr($this);
          }
       }
    }
@@ -282,6 +283,13 @@ class sonarr extends eqLogic
          }
       }
       $replace["#cmds#"] = $html;
+      if ($application == 'sonarr') {
+         $url = $this->getConfiguration('sonarrUrl');
+         $replace["#server_url#"] = $url;
+      } else if ($application == 'radarr') {
+         $url = $this->getConfiguration('radarrUrl');
+         $replace["#server_url#"] = $url;
+      }
       return template_replace($replace, getTemplate('core', $version, 'sonarr_template', 'sonarr'));
    }
    private function addCmdName($cmd, $_version, $label)
