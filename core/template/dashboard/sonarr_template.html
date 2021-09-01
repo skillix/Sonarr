@@ -13,12 +13,7 @@
     <span class="reportModeVisible">#name_display# <span class="object_name">#object_name#</span></span>
     <a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
   </div>
-  <div id="widget_view">
-    <div style="height: 5px;"></div>
-    <span class="pull-right" data-action="openLocation" data-location='#server_url#'>
-      <i class="fas fa-desktop"></i>
-    </span>
-    <div style="height: 5px;"></div>
+  <div onclick="window.open('#server_url#','#id#');">
     #cmds#
   </div>
   <script>
@@ -29,13 +24,7 @@
     } else {
       $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove();
     }
-    $('.pull-right[data-action=openLocation]').on('click', function () {
-      window.open($(this).attr("data-location"), "_blank", null);
-    });
-    var div = document.getElementById('widget_view');
-    div.addEventListener('click', function (event) {
-      window.open("#server_url#", "_blank", null);
-    });
+
   </script>
 
   <span class="statusCmd"
