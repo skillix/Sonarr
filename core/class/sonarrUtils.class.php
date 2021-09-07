@@ -117,7 +117,7 @@ class sonarrUtils
     public static function getEpisodesMoviesList($listObject, $groupEpisode, $formattor, $separatorEpisodes)
     {
         $listFormattedObject = [];
-        if ($groupEpisode == 1) {
+        if ($groupEpisode == 1 && count($listObject) > 1) {
             LogSonarr::debug('Start group formatting for ' . count($listObject) . ' episodes');
             $newGroupedList = [];
             for ($i = 0; $i < count($listObject); $i++) {
