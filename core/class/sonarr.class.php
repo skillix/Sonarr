@@ -22,6 +22,8 @@ require_once __DIR__  . '/sonarrApiWrapper.class.php';
 require_once __DIR__  . '/radarrApiWrapper.class.php';
 require_once __DIR__ . '/../../vendor/mips/jeedom-tools/src/MipsTrait.php';
 require_once __DIR__  . '/Utils/LogSonarr.php';
+require_once __DIR__  . '/Utils/SonarrRadarrUtils.php';
+
 
 
 class sonarr extends eqLogic
@@ -105,6 +107,24 @@ class sonarr extends eqLogic
             $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
             $radarrApiWrapper->refreshRadarr($this);
          }
+      }
+   }
+
+   public function search($_options)
+   {
+      // Depends of application
+      $application = SonarrRadarrUtils::verifyConfiguration($this, 'application');
+      if ($application == null) {
+         return;
+      }
+      if ($application == 'sonarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'sonarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
+         $sonarrApiWrapper->searchForSerie($this, $_options['message']);
       }
    }
 
@@ -211,7 +231,6 @@ class sonarr extends eqLogic
                      } else {
                         $html = $html . $this->generateHtmlForDatasCondensed($futurEpisodeList, $_version, $application, true);
                      }
-
                   }
                } else {
                   LogSonarr::error('missing cmd day_episodes_raw');
@@ -316,6 +335,9 @@ class sonarrCmd extends cmd
       switch ($this->getLogicalId()) {
          case 'refresh':
             $eqlogic->refresh();
+            break;
+         case 'search_action':
+            $eqlogic->search($_options);
             break;
       }
    }

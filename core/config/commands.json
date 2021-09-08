@@ -86,6 +86,30 @@
             "subtype": "string",
             "isVisible": 1,
             "isHistorized": 0
+        },
+        {
+            "logicalId": "search_action",
+            "name": "Recherche",
+            "type": "action",
+            "subtype": "message",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "search_result",
+            "name": "Résultats de la recherche",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "search_result_raw",
+            "name": "Résultats de la recherche raw",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
         }
     ],
     "radarr": [

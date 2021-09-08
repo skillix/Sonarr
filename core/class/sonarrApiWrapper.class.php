@@ -3,6 +3,7 @@
 require_once __DIR__  . '/sonarrApi.class.php';
 require_once __DIR__  . '/sonarrUtils.class.php';
 require_once __DIR__  . '/Utils/LogSonarr.php';
+require_once __DIR__  . '/Utils/SonarrRadarrUtils.php';
 
 
 class sonarrApiWrapper
@@ -53,14 +54,14 @@ class sonarrApiWrapper
         LogSonarr::info('stop REFRESH SONARR');
     }
     public function getSeparatorEpisodes($context)
-   {
-      $separator = $context->getConfiguration('separatorEpisodes');
-      if ($separator != NULL) {
-         return $separator;
-      } else {
-         return ", ";
-      }
-   }
+    {
+        $separator = $context->getConfiguration('separatorEpisodes');
+        if ($separator != NULL) {
+            return $separator;
+        } else {
+            return ", ";
+        }
+    }
 
     public function getFutureEpisodesFormattedList($context, $separator, $rules, $formattor)
     {
@@ -383,5 +384,77 @@ class sonarrApiWrapper
     {
         $img = '/var/www/html/plugins/sonarr/core/template/dashboard/imgs/sonarr_' . $imageName . '.jpg';
         file_put_contents($img, file_get_contents($url));
+    }
+
+    public function searchForSerie($context, $queryTerms)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START SERIE SEARCH ' . $context->getName() . ' with terms: ' . $queryTerms);
+        // Check needed cmd
+        $searchResult = SonarrRadarrUtils::verifyCmd($context, 'search_result');
+        $searchResultRaw = SonarrRadarrUtils::verifyCmd($context, 'search_result_raw');
+        if ($searchResult == null || $searchResultRaw == null) {
+            return;
+        }
+        // Retrieve JSON
+        $listSeriesJSON = $this->sonarrApi->getSeriesLookup($queryTerms);
+        LogSonarr::debug('JSON FOR SEARCH ' . $listSeriesJSON);
+        // Save RAW
+        $searchResultRaw->event($listSeriesJSON);
+        $series = new SeriesSearch($listSeriesJSON);
+        // Format list
+        $separator = $context->getSeparator();
+        $seriesStr = '';
+        foreach ($series->series as $serie) {
+            $str = $serie->title . ' ' . $serie->year;
+            $seriesStr = $this->utils->formatList($seriesStr, $str, $separator);
+        }
+        if ($seriesStr == "") {
+            LogSonarr::info('no search results');
+        }
+        $searchResult->event($seriesStr);
+        LogSonarr::info('END SERIE SEARCH ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+}
+
+class SeriesSearch
+{
+    public $series;
+
+    function __construct($dataJSON)
+    {
+        $data = json_decode($dataJSON, true);
+        if ($data != '' && $data != null) {
+            $array_series = array();
+            foreach ($data as $value) {
+                $serie = new SerieSearch($value);
+                array_push($array_series, $serie);
+            }
+            $this->series = $array_series;
+        } else {
+        }
+    }
+}
+class SerieSearch
+{
+    public $title;
+    public $seasonCount;
+    public $year;
+    public $tvdbId;
+
+    function __construct($data)
+    {
+        if (isset($data['title']))
+            $this->title = $data['title'];
+
+        if (isset($data['seasonCount']))
+            $this->seasonCount = $data['seasonCount'];
+
+        if (isset($data['year']))
+            $this->year = $data['year'];
+
+        if (isset($data['title']))
+            $this->tvdbId = $data['tvdbId'];
     }
 }
