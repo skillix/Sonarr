@@ -78,8 +78,11 @@ class sonarr extends eqLogic
 
    public function postSave()
    {
-      $commands = self::getCommandsFileContent(__DIR__ . '/../config/commands.json');
+      $this->createCmdIfNeeded();
+   }
 
+   public function createCmdIfNeeded() {
+      $commands = self::getCommandsFileContent(__DIR__ . '/../config/commands.json');
       $application = $this->getConfiguration('application', '');
       if ($application == '') {
          $this->removeUnusedCommands(array());
@@ -88,7 +91,6 @@ class sonarr extends eqLogic
          $this->createCommandsFromConfig($commands[$application]);
       }
    }
-
    public function refresh()
    {
       // Refresh datas

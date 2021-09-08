@@ -19,17 +19,20 @@
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 
 // Fonction exécutée automatiquement après l'installation du plugin
-  function sonarr_install() {
-
-  }
+function sonarr_install()
+{
+}
 
 // Fonction exécutée automatiquement après la mise à jour du plugin
-  function sonarr_update() {
+function sonarr_update()
+{
+  // Adding commands on equipment if needed
+  foreach (eqLogic::byType('sonarr') as $sonarr) {
+    $sonarr->createCmdIfNeeded();
   }
+}
 
 // Fonction exécutée automatiquement après la suppression du plugin
-  function sonarr_remove() {
-
-  }
-
-?>
+function sonarr_remove()
+{
+}
