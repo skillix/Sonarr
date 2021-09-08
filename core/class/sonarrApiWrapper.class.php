@@ -400,8 +400,8 @@ class sonarrApiWrapper
         $listSeriesJSON = $this->sonarrApi->getSeriesLookup($queryTerms);
         LogSonarr::debug('JSON FOR SEARCH ' . $listSeriesJSON);
         // Save RAW
-        $searchResultRaw->event($listSeriesJSON);
         $series = new SeriesSearch($listSeriesJSON);
+        $searchResultRaw->event(json_encode($series));
         // Format list
         $separator = $context->getSeparator();
         $seriesStr = '';
@@ -415,6 +415,148 @@ class sonarrApiWrapper
         $searchResult->event($seriesStr);
         LogSonarr::info('END SERIE SEARCH ' . $context->getName());
         LogSonarr::info('----------------------------------');
+    }
+
+    public function addSerie($context, $_options)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START ADDING SERIE ' . $context->getName());
+        $searchResultRawCmd = SonarrRadarrUtils::verifyCmd($context, 'search_result_raw');
+        $profilesResultRawCmd = SonarrRadarrUtils::verifyCmd($context, 'profiles_result_raw');
+        if ($searchResultRawCmd == null || $profilesResultRawCmd == null) {
+            return;
+        }
+        // To add a serie we have to find the profile
+        $json = $_options['message'];
+        if ($json == null) {
+            LogSonarr::error('NO message given, cannot ADD serie');
+            return;
+        }
+        $arrayOption = new AddOptions($json);
+        $serieTitle = $arrayOption->serie;
+        $profileString = $arrayOption->profile;
+        $path = $arrayOption->path;
+
+        if ($serieTitle == null || $profileString == null) {
+            LogSonarr::error('NO serie or profile, cannot ADD serie');
+            return;
+        }
+        // On récupère la série dans la liste
+        $serieToAdd = null;
+        $searchResultToConvert = json_decode($searchResultRawCmd->execCmd(), true)['series'];
+        $encodedSeriesRaw = new SeriesSearch(json_encode($searchResultToConvert));
+        foreach ($encodedSeriesRaw->series as $serie) {
+            if ($serieTitle == $serie->title) {
+                $serieToAdd = $serie;
+            }
+        }
+        if ($serieToAdd == null) {
+            // La série n'a pas été trouvée
+            LogSonarr::error('CANNOT FOUND SERIE TO ADD');
+            return;
+        }
+        $profileToAdd = null;
+        $encodedProfilesToConvert = json_decode($profilesResultRawCmd->execCmd(), true)['profiles'];
+        $encodedProfilesRaw = new Profiles(json_encode($encodedProfilesToConvert));
+        foreach ($encodedProfilesRaw->profiles as $profile) {
+            if ($profileString == $profile->name) {
+                $profileToAdd = $profile;
+            }
+        }
+        if ($profileToAdd == null) {
+            // La série n'a pas été trouvée
+            LogSonarr::error('CANNOT FOUND PROFILE TO ADD');
+            return;
+        }
+
+        $data = array(
+            'tvdbId' => $serieToAdd->tvdbId,
+            'title' => $serieToAdd->title,
+            'qualityProfileId' => $profileToAdd->id,
+            'titleSlug' => $serieToAdd->titleSlug,
+            'images' => $serieToAdd->images,
+            'seasons' => $serieToAdd->seasons,
+            'rootFolderPath' => $path
+        );
+        $response = $this->sonarrApi->postSeries($data);
+        LogSonarr::debug('JSON ADDING SERIE ' . json_encode($response));
+        LogSonarr::info('END ADDING SERIE ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+    public function getProfiles($context)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START GETTING PROFILES ' . $context->getName());
+        $profilesResult = SonarrRadarrUtils::verifyCmd($context, 'profiles_result');
+        $profilesResultRaw = SonarrRadarrUtils::verifyCmd($context, 'profiles_result_raw');
+        if ($profilesResult == null || $profilesResultRaw == null) {
+            return;
+        }
+        $listProfilesJSON = $this->sonarrApi->getProfiles();
+        LogSonarr::debug('JSON FOR PROFILES ' . $listProfilesJSON);
+        $profiles = new Profiles($listProfilesJSON);
+        $profilesResultRaw->event(json_encode($profiles));
+        // Format list
+        $separator = $context->getSeparator();
+        $profilesStr = '';
+        foreach ($profiles->profiles as $profile) {
+            $profilesStr = $this->utils->formatList($profilesStr, $profile->name, $separator);
+        }
+        if ($profilesStr == "") {
+            LogSonarr::info('no search results');
+        }
+        $profilesResult->event($profilesStr);
+        LogSonarr::info('END GETTING PROFILES ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+
+    public function getPaths($context)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START GETTING PATHS ' . $context->getName());
+        $pathResult = SonarrRadarrUtils::verifyCmd($context, 'path_result');
+        $pathResultRaw = SonarrRadarrUtils::verifyCmd($context, 'path_result_raw');
+        if ($pathResult == null || $pathResultRaw == null) {
+            return;
+        }
+        $listPathsJSON = $this->sonarrApi->getRootFolder();
+        LogSonarr::debug('JSON FOR PROFILES ' . $listPathsJSON);
+        $paths = new Paths($listPathsJSON);
+        $pathResultRaw->event(json_encode($paths));
+        // Format list
+        $separator = $context->getSeparator();
+        $pathsStr = '';
+        foreach ($paths->paths as $path) {
+            $pathsStr = $this->utils->formatList($pathsStr, $path->path, $separator);
+        }
+        if ($pathsStr == "") {
+            LogSonarr::info('no paths');
+        }
+        $pathResult->event($pathsStr);
+        LogSonarr::info('END GETTING PATHS ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+}
+
+class AddOptions
+{
+    public $serie;
+    public $profile;
+    public $path;
+
+    function __construct($dataJSON)
+    {
+        $data = json_decode($dataJSON, true);
+        if ($data != '' && $data != null) {
+            if (isset($data['serie']))
+                $this->serie = $data['serie'];
+
+            if (isset($data['profile']))
+                $this->profile = $data['profile'];
+
+            if (isset($data['path']))
+                $this->path = $data['path'];
+        }
     }
 }
 
@@ -432,7 +574,6 @@ class SeriesSearch
                 array_push($array_series, $serie);
             }
             $this->series = $array_series;
-        } else {
         }
     }
 }
@@ -442,6 +583,9 @@ class SerieSearch
     public $seasonCount;
     public $year;
     public $tvdbId;
+    public $titleSlug;
+    public $images;
+    public $seasons;
 
     function __construct($data)
     {
@@ -454,7 +598,79 @@ class SerieSearch
         if (isset($data['year']))
             $this->year = $data['year'];
 
-        if (isset($data['title']))
+        if (isset($data['tvdbId']))
             $this->tvdbId = $data['tvdbId'];
+
+        if (isset($data['titleSlug']))
+            $this->titleSlug = $data['titleSlug'];
+
+        if (isset($data['images']))
+            $this->images = $data['images'];
+
+        if (isset($data['seasons']))
+            $this->seasons = $data['seasons'];
+    }
+}
+
+
+class Profiles
+{
+    public $profiles;
+
+    function __construct($dataJSON)
+    {
+        $data = json_decode($dataJSON, true);
+        if ($data != '' && $data != null) {
+            $array_profiles = array();
+            foreach ($data as $value) {
+                $profile = new Profile($value);
+                array_push($array_profiles, $profile);
+            }
+            $this->profiles = $array_profiles;
+        }
+    }
+}
+
+class Profile
+{
+    public $name;
+    public $id;
+
+    function __construct($data)
+    {
+        if (isset($data['name']))
+            $this->name = $data['name'];
+
+        if (isset($data['id']))
+            $this->id = $data['id'];
+    }
+}
+
+class Paths
+{
+    public $paths;
+
+    function __construct($dataJSON)
+    {
+        $data = json_decode($dataJSON, true);
+        if ($data != '' && $data != null) {
+            $array_paths = array();
+            foreach ($data as $value) {
+                $path = new Path($value);
+                array_push($array_paths, $path);
+            }
+            $this->paths = $array_paths;
+        }
+    }
+}
+
+class Path
+{
+    public $path;
+
+    function __construct($data)
+    {
+        if (isset($data['path']))
+            $this->path = $data['path'];
     }
 }

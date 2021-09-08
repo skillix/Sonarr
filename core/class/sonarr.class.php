@@ -128,6 +128,58 @@ class sonarr extends eqLogic
       }
    }
 
+   public function addSerie($_options)
+   {
+      // Depends of application
+      $application = SonarrRadarrUtils::verifyConfiguration($this, 'application');
+      if ($application == null) {
+         return;
+      }
+      if ($application == 'sonarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'sonarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
+         $sonarrApiWrapper->addSerie($this, $_options);
+      }
+   }
+   public function getProfiles()
+   {
+      // Depends of application
+      $application = SonarrRadarrUtils::verifyConfiguration($this, 'application');
+      if ($application == null) {
+         return;
+      }
+      if ($application == 'sonarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'sonarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
+         $sonarrApiWrapper->getProfiles($this);
+      }
+   }
+   public function getPaths()
+   {
+      // Depends of application
+      $application = SonarrRadarrUtils::verifyConfiguration($this, 'application');
+      if ($application == null) {
+         return;
+      }
+      if ($application == 'sonarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'sonarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
+         $sonarrApiWrapper->getPaths($this);
+      }
+   }
+
    public function getSeparator()
    {
       $separator = $this->getConfiguration('separator');
@@ -338,6 +390,15 @@ class sonarrCmd extends cmd
             break;
          case 'search_action':
             $eqlogic->search($_options);
+            break;
+         case 'add_serie':
+            $eqlogic->addSerie($_options);
+            break;
+         case 'get_profiles':
+            $eqlogic->getProfiles();
+            break;
+         case 'get_path':
+            $eqlogic->getPaths();
             break;
       }
    }

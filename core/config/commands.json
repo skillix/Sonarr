@@ -110,6 +110,62 @@
             "subtype": "string",
             "isVisible": 1,
             "isHistorized": 0
+        },
+        {
+            "logicalId": "get_profiles",
+            "name": "Récupération des profils",
+            "type": "action",
+            "subtype": "other",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "profiles_result",
+            "name": "Liste des profils",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "profiles_result_raw",
+            "name": "Liste des profils raw",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "get_path",
+            "name": "Récupération des dossiers",
+            "type": "action",
+            "subtype": "other",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "path_result",
+            "name": "Liste des dossiers",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "path_result_raw",
+            "name": "Liste des dossiers raw",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "add_serie",
+            "name": "Ajout d'une série",
+            "type": "action",
+            "subtype": "message",
+            "isVisible": 1,
+            "isHistorized": 0
         }
     ],
     "radarr": [
