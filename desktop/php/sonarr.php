@@ -316,6 +316,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 							<tr>
 								<th>{{Id}}</th>
 								<th>{{Nom}}</th>
+								<th>{{Type}}</th>
 								<th>{{Options}}</th>
 								<th>{{Action}}</th>
 							</tr>
