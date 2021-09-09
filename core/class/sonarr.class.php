@@ -81,7 +81,8 @@ class sonarr extends eqLogic
       $this->createCmdIfNeeded();
    }
 
-   public function createCmdIfNeeded() {
+   public function createCmdIfNeeded()
+   {
       $commands = self::getCommandsFileContent(__DIR__ . '/../config/commands.json');
       $application = $this->getConfiguration('application', '');
       if ($application == '') {
@@ -179,6 +180,40 @@ class sonarr extends eqLogic
          }
          $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
          $sonarrApiWrapper->getPaths($this);
+      }
+   }
+   public function getTags()
+   {
+      // Depends of application
+      $application = SonarrRadarrUtils::verifyConfiguration($this, 'application');
+      if ($application == null) {
+         return;
+      }
+      if ($application == 'sonarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'sonarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
+         $sonarrApiWrapper->getTags($this);
+      }
+   }
+
+   public function searchMissing() {
+      // Depends of application
+      $application = SonarrRadarrUtils::verifyConfiguration($this, 'application');
+      if ($application == null) {
+         return;
+      }
+      if ($application == 'sonarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'sonarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
+         $sonarrApiWrapper->searchMissing($this);
       }
    }
 
@@ -401,6 +436,12 @@ class sonarrCmd extends cmd
             break;
          case 'get_path':
             $eqlogic->getPaths();
+            break;
+         case 'get_tags':
+            $eqlogic->getTags();
+            break;
+         case 'search_missing':
+            $eqlogic->searchMissing();
             break;
       }
    }

@@ -483,7 +483,7 @@ class sonarrApi
      *
      * @return array|object|string
      */
-    public function postSeries(array $data, $onlyFutureEpisodes = true)
+    public function postSeries(array $data)
     {
         $uri = 'series';
         $uriData = [];
@@ -500,11 +500,10 @@ class sonarrApi
         if ( array_key_exists('tvRageId', $data) ) { $uriData['tvRageId'] = $data['tvRageId']; }
         $uriData['seasonFolder'] = ( array_key_exists('seasonFolder', $data) ) ? $data['seasonFolder'] : true;
         if ( array_key_exists('monitored', $data) ) { $uriData['monitored'] = $data['monitored']; }
-        if ( $onlyFutureEpisodes ) {
-            $uriData['addOptions'] = [
-                'ignoreEpisodesWithFiles' => true,
-                'ignoreEpisodesWithoutFiles' => true
-            ];
+        if ( array_key_exists('tags', $data) ) { $uriData['tags'] = $data['tags']; }
+        if ( array_key_exists('seriesType', $data) ) { $uriData['seriesType'] = $data['seriesType']; }
+        if ( array_key_exists('monitoringType', $data) ) { 
+            $uriData['addOptions'] = ['monitor' => $data['monitoringType']];
         }
 
         $response = [
@@ -598,6 +597,20 @@ class sonarrApi
     public function getSystemStatus()
     {
         $uri = 'system/status';
+
+        $response = [
+            'uri' => $uri,
+            'type' => 'get',
+            'data' => []
+        ];
+
+        return $this->processRequest($response);
+    }
+
+    public function getTags($id=null)
+    {
+        $uri = 'tag';
+	    if ($id !== null) $uri.='/'.$id;
 
         $response = [
             'uri' => $uri,

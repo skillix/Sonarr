@@ -18,7 +18,7 @@ class SonarrRadarrUtils
     {
         $cmdToVerify = $context->getCmd(null, $name);
         if (!is_object($cmdToVerify)) {
-            LogSonarr::error('Missing ' . $name . ' cmd for ' . $context->getName() . 'try SAVING equipment to create missings cmds');
+            LogSonarr::error('Missing ' . $name . ' cmd for ' . $context->getName() . ' try SAVING equipment to create missings cmds');
             return null;
         }
         return $cmdToVerify;

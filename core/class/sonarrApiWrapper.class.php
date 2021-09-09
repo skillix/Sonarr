@@ -436,9 +436,8 @@ class sonarrApiWrapper
         $serieTitle = $arrayOption->serie;
         $profileString = $arrayOption->profile;
         $path = $arrayOption->path;
-
-        if ($serieTitle == null || $profileString == null) {
-            LogSonarr::error('NO serie or profile, cannot ADD serie');
+        if ($serieTitle == null || $profileString == null || $path == null) {
+            LogSonarr::error('NO serie or profile or path, cannot ADD serie');
             return;
         }
         // On récupère la série dans la liste
@@ -468,7 +467,12 @@ class sonarrApiWrapper
             LogSonarr::error('CANNOT FOUND PROFILE TO ADD');
             return;
         }
-
+        // Check if optionnal parameters
+        $tagsToAdd = [];
+        $tagsWanted = $arrayOption->tags;
+        $tagsToAdd = $this->retrieveTagsFromCmd($context, $tagsWanted);
+        $seriesType = $this->retrieveSeriesType($arrayOption->seriesType);
+        $monitoringType = $this->retrieveMonitoreOptions($arrayOption->monitoringType);
         $data = array(
             'tvdbId' => $serieToAdd->tvdbId,
             'title' => $serieToAdd->title,
@@ -476,7 +480,10 @@ class sonarrApiWrapper
             'titleSlug' => $serieToAdd->titleSlug,
             'images' => $serieToAdd->images,
             'seasons' => $serieToAdd->seasons,
-            'rootFolderPath' => $path
+            'rootFolderPath' => $path,
+            'tags' => $tagsToAdd,
+            'seriesType' => $seriesType,
+            'monitoringType' => $monitoringType,
         );
         $response = $this->sonarrApi->postSeries($data);
         LogSonarr::debug('JSON ADDING SERIE ' . json_encode($response));
@@ -536,6 +543,96 @@ class sonarrApiWrapper
         LogSonarr::info('END GETTING PATHS ' . $context->getName());
         LogSonarr::info('----------------------------------');
     }
+
+    public function getTags($context)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START GETTING TAGS ' . $context->getName());
+        $tagResult = SonarrRadarrUtils::verifyCmd($context, 'tags_result');
+        $tagResultRaw = SonarrRadarrUtils::verifyCmd($context, 'tags_result_raw');
+        if ($tagResult == null || $tagResultRaw == null) {
+            return;
+        }
+        $listTagsJSON = $this->sonarrApi->getTags();
+        LogSonarr::debug('JSON FOR TAGS ' . $listTagsJSON);
+        $tags = new Tags($listTagsJSON);
+        $tagResultRaw->event(json_encode($tags));
+        // Format list
+        $separator = $context->getSeparator();
+        $tagsStr = '';
+        foreach ($tags->tags as $tag) {
+            $tagsStr = $this->utils->formatList($tagsStr, $tag->label, $separator);
+        }
+        if ($tagsStr == "") {
+            LogSonarr::info('no tags');
+        }
+        $tagResult->event($tagsStr);
+        LogSonarr::info('END GETTING TAGS ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+
+    public function searchMissing($context)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START SEARCH MISSING ' . $context->getName());
+        $this->sonarrApi->postCommand('missingEpisodeSearch');
+        LogSonarr::info('STOP SEARCH MISSING ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+
+    public function retrieveTagsFromCmd($context, $tagsWanted)
+    {
+        $tagsToReturn = [];
+        $tagsResultRawCmd = SonarrRadarrUtils::verifyCmd($context, 'tags_result_raw');
+        if ($tagsResultRawCmd == null) {
+            return $tagsToReturn;
+        }
+        $tagsResultRaw = json_decode($tagsResultRawCmd->execCmd(), true)['tags'];
+        $tagsRaw = new Tags(json_encode($tagsResultRaw));
+        foreach ($tagsRaw->tags as $tagRaw) {
+            foreach ($tagsWanted as $tagWanted) {
+                if ($tagWanted == $tagRaw->label) {
+                    array_push($tagsToReturn, $tagRaw->id);
+                }
+            }
+        }
+        return $tagsToReturn;
+    }
+
+    public function retrieveSeriesType($seriesTypeWanted)
+    {
+        if (
+            $seriesTypeWanted != '' &&
+            $seriesTypeWanted != 'standard' &&
+            $seriesTypeWanted != 'daily' &&
+            $seriesTypeWanted != 'anime'
+        ) {
+            LogSonarr::error('WRONG SERIES TYPE GIVEN, should be "" or standard or daily or anime');
+            return '';
+        }
+        return $seriesTypeWanted;
+    }
+
+    public function retrieveMonitoreOptions($monitoreType)
+    {
+        if ($monitoreType == '') {
+            return 'all';
+        }
+        if (
+            $monitoreType != 'all' &&
+            $monitoreType != 'future' &&
+            $monitoreType != 'missing' &&
+            $monitoreType != 'existing' &&
+            $monitoreType != 'pilot' &&
+            $monitoreType != 'firstSeason' &&
+            $monitoreType != 'none' &&
+            $monitoreType != 'latestSeason'
+        ) {
+            LogSonarr::error('WRONG SERIES TYPE GIVEN, should be "" or standard or daily or anime');
+            return 'all';
+        }
+        return $monitoreType;
+    }
 }
 
 class AddOptions
@@ -543,6 +640,9 @@ class AddOptions
     public $serie;
     public $profile;
     public $path;
+    public $tags;
+    public $seriesType;
+    public $monitoringType;
 
     function __construct($dataJSON)
     {
@@ -556,6 +656,15 @@ class AddOptions
 
             if (isset($data['path']))
                 $this->path = $data['path'];
+
+            if (isset($data['tags']))
+                $this->tags = $data['tags'];
+
+            if (isset($data['seriesType']))
+                $this->seriesType = $data['seriesType'];
+
+            if (isset($data['monitoringType']))
+                $this->monitoringType = $data['monitoringType'];
         }
     }
 }
@@ -672,5 +781,38 @@ class Path
     {
         if (isset($data['path']))
             $this->path = $data['path'];
+    }
+}
+
+class Tags
+{
+    public $tags;
+
+    function __construct($dataJSON)
+    {
+        $data = json_decode($dataJSON, true);
+        if ($data != '' && $data != null) {
+            $array_tags = array();
+            foreach ($data as $value) {
+                $tag = new Tag($value);
+                array_push($array_tags, $tag);
+            }
+            $this->tags = $array_tags;
+        }
+    }
+}
+
+class Tag
+{
+    public $label;
+    public $id;
+
+    function __construct($data)
+    {
+        if (isset($data['label']))
+            $this->label = $data['label'];
+
+        if (isset($data['id']))
+            $this->id = $data['id'];
     }
 }
