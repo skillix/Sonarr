@@ -26,7 +26,7 @@ $("#table_cmd").sortable({
   forcePlaceholderSize: true
 });
 
-/* Fonction permettant l'affichage des commandes dans l'équipement */
+/* Fonction permet²tant l'affichage des commandes dans l'équipement */
 function addCmdToTable(_cmd) {
   if (!isset(_cmd)) {
     var _cmd = { configuration: {} };
@@ -50,7 +50,7 @@ function addCmdToTable(_cmd) {
   tr += '</div>';
   tr += '</td>';
   tr += '<td>';
-  tr += '<span class="type" type="' + init(_cmd.type) + '">' + jeedom.cmd.availableType() + '</span>';
+  tr += '<label>' + init(_cmd.type) + '</label>';
   tr += '</td>';
   tr += '<td style="min-width:80px;width:350px;">';
   tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="isVisible" checked/>{{Afficher}}</label>';
