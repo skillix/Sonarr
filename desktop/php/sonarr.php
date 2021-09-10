@@ -313,7 +313,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 				<a class="btn btn-default btn-sm pull-right cmdAction" data-action="add" style="margin-top:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter une commande}}</a>
 				<br /><br />
 				<div class="table-responsive">
-					<legend><i class="fas"></i> {{Episodes futures}}</legend>
+					<legend><i class="fas"></i> {{Episodes / Films futures}}</legend>
 					<table id="table_cmdFuture" class="table table-bordered table-condensed">
 						<thead>
 							<tr>
@@ -327,7 +327,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 						<tbody>
 						</tbody>
 					</table>
-					<legend><i class="fas"></i> {{Episodes téléchargés}}</legend>
+					<legend><i class="fas"></i> {{Episodes / Films téléchargés}}</legend>
 					<table id="table_cmdDownloaded" class="table table-bordered table-condensed">
 						<thead>
 							<tr>
@@ -341,7 +341,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
 						<tbody>
 						</tbody>
 					</table>
-					<legend><i class="fas"></i> {{Episodes manquants}}</legend>
+					<legend><i class="fas"></i> {{Episodes / Films manquants}}</legend>
 					<table id="table_cmdMissing" class="table table-bordered table-condensed">
 						<thead>
 							<tr>

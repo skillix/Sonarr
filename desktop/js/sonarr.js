@@ -71,31 +71,50 @@ function addCmdToTable(_cmd) {
   tr += '</tr>';
   trOther += '</tr>';
   var table = '';
-  if (_cmd.logicalId == 'day_episodes' || _cmd.logicalId == 'day_episodes_raw') {
+  if (_cmd.logicalId == 'day_episodes' ||
+    _cmd.logicalId == 'day_episodes_raw' ||
+    _cmd.logicalId == 'day_movies') {
     table = '#table_cmdFuture';
   }
-  if (_cmd.logicalId == 'day_ddl_episodes' || _cmd.logicalId == 'day_ddl_episodes_raw' || _cmd.logicalId == 'last_episode') {
+  if (_cmd.logicalId == 'day_ddl_episodes' ||
+    _cmd.logicalId == 'day_ddl_episodes_raw' ||
+    _cmd.logicalId == 'last_episode' || 
+    _cmd.logicalId == 'day_ddl_movies') {
     table = '#table_cmdDownloaded';
   }
-  if (_cmd.logicalId == 'day_missing_episodes' || _cmd.logicalId == 'day_missing_episodes_raw') {
+  if (_cmd.logicalId == 'day_missing_episodes' || 
+  _cmd.logicalId == 'day_missing_episodes_raw' || 
+  _cmd.logicalId == 'day_missing_movies') {
     table = '#table_cmdMissing';
   }
-  if (_cmd.logicalId == 'notification' || _cmd.logicalId == 'notificationHTML') {
+  if (_cmd.logicalId == 'notification' || 
+  _cmd.logicalId == 'notificationHTML') {
     table = '#table_cmdNotifications';
   }
-  if (_cmd.logicalId == 'search_action' || _cmd.logicalId == 'search_result' || _cmd.logicalId == 'search_result_raw') {
+  if (_cmd.logicalId == 'search_action' || 
+  _cmd.logicalId == 'search_result' || 
+  _cmd.logicalId == 'search_result_raw') {
     table = '#table_cmdSearch';
   }
-  if (_cmd.logicalId == 'get_path' || _cmd.logicalId == 'path_result' || _cmd.logicalId == 'path_result_raw') {
+  if (_cmd.logicalId == 'get_path' || 
+  _cmd.logicalId == 'path_result' || 
+  _cmd.logicalId == 'path_result_raw') {
     table = '#table_cmdFolder';
   }
-  if (_cmd.logicalId == 'get_tags' || _cmd.logicalId == 'tags_result' || _cmd.logicalId == 'tags_result_raw') {
+  if (_cmd.logicalId == 'get_tags' || 
+  _cmd.logicalId == 'tags_result' || 
+  _cmd.logicalId == 'tags_result_raw') {
     table = '#table_cmdTags';
   }
-  if (_cmd.logicalId == 'get_profiles' || _cmd.logicalId == 'profiles_result' || _cmd.logicalId == 'profiles_result_raw') {
+  if (_cmd.logicalId == 'get_profiles' || 
+  _cmd.logicalId == 'profiles_result' || 
+  _cmd.logicalId == 'profiles_result_raw') {
     table = '#table_cmdProfile';
   }
-  if (_cmd.logicalId == 'refresh' || _cmd.logicalId == 'monitoredSeries' || _cmd.logicalId == 'add_serie' || _cmd.logicalId == 'search_missing') {
+  if (_cmd.logicalId == 'refresh' || 
+  _cmd.logicalId == 'monitoredSeries' || 
+  _cmd.logicalId == 'add_serie' || 
+  _cmd.logicalId == 'search_missing') {
     table = '#table_cmdOther';
   }
   $(table + ' tbody').append(tr);
