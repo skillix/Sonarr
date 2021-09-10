@@ -74,9 +74,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
 		<ul class="nav nav-tabs" role="tablist">
 			<li role="presentation"><a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay"><i class="fas fa-arrow-circle-left"></i></a></li>
 			<li role="presentation" class="active"><a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-tachometer-alt"></i> {{Equipement}}</a></li>
-			<li role="presentation"><a href="#commandtab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-list"></i> {{Commandes}}</a></li>
-			<li role="presentation"><a href="#commandtabOrder" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-list"></i> {{Ré-ordonner les commandes}}</a></li>
-
+			<li role="presentation"><a href="#commandtab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-list"></i> {{Liste des commandes}}</a></li>
+			<li role="presentation"><a href="#commandtabOrder" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-list"></i> {{Gestion des commandes}}</a></li>
 		</ul>
 		<div class="tab-content">
 			<!-- Onglet de configuration de l'équipement -->
@@ -310,8 +309,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 			<!-- Onglet des commandes de l'équipement -->
 			<div role="tabpanel" class="tab-pane" id="commandtab">
-				<a class="btn btn-default btn-sm pull-right cmdAction" data-action="add" style="margin-top:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter une commande}}</a>
-				<br /><br />
 				<div class="table-responsive">
 					<legend><i class="fas"></i> {{Episodes / Films futures}}</legend>
 					<table id="table_cmdFuture" class="table table-bordered table-condensed">
@@ -320,8 +317,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								<th>{{Id}}</th>
 								<th>{{Nom}}</th>
 								<th>{{Type}}</th>
-								<th>{{Options}}</th>
-								<th>{{Action}}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -329,113 +324,41 @@ $eqLogics = eqLogic::byType($plugin->getId());
 					</table>
 					<legend><i class="fas"></i> {{Episodes / Films téléchargés}}</legend>
 					<table id="table_cmdDownloaded" class="table table-bordered table-condensed">
-						<thead>
-							<tr>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-							</tr>
-						</thead>
 						<tbody>
 						</tbody>
 					</table>
 					<legend><i class="fas"></i> {{Episodes / Films manquants}}</legend>
 					<table id="table_cmdMissing" class="table table-bordered table-condensed">
-						<thead>
-							<tr>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-							</tr>
-						</thead>
 						<tbody>
 						</tbody>
 					</table>
 					<legend><i class="fas"></i> {{Notifications}}</legend>
 					<table id="table_cmdNotifications" class="table table-bordered table-condensed">
-						<thead>
-							<tr>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-							</tr>
-						</thead>
 						<tbody>
 						</tbody>
 					</table>
 					<legend><i class="fas"></i> {{Recherche épisode}}</legend>
 					<table id="table_cmdSearch" class="table table-bordered table-condensed">
-						<thead>
-							<tr>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-							</tr>
-						</thead>
 						<tbody>
 						</tbody>
 					</table>
 					<legend><i class="fas"></i> {{Dossiers / Chemins}}</legend>
 					<table id="table_cmdFolder" class="table table-bordered table-condensed">
-						<thead>
-							<tr>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-							</tr>
-						</thead>
 						<tbody>
 						</tbody>
 					</table>
 					<legend><i class="fas"></i> {{Tags}}</legend>
 					<table id="table_cmdTags" class="table table-bordered table-condensed">
-						<thead>
-							<tr>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-							</tr>
-						</thead>
 						<tbody>
 						</tbody>
 					</table>
 					<legend><i class="fas"></i> {{Profils}}</legend>
 					<table id="table_cmdProfile" class="table table-bordered table-condensed">
-						<thead>
-							<tr>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-							</tr>
-						</thead>
 						<tbody>
 						</tbody>
 					</table>
 					<legend><i class="fas"></i> {{Autres commandes}}</legend>
 					<table id="table_cmdOther" class="table table-bordered table-condensed">
-						<thead>
-							<tr>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-								<th></th>
-							</tr>
-						</thead>
 						<tbody>
 						</tbody>
 					</table>
@@ -449,6 +372,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
 								<th>{{Id}}</th>
 								<th>{{Nom}}</th>
 								<th>{{Type}}</th>
+								<th>{{Options}}</th>
+								<th>{{Action}}</th>
 							</tr>
 						</thead>
 						<tbody>

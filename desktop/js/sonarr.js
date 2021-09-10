@@ -46,18 +46,15 @@ function addCmdToTable(_cmd) {
   tr += '<div class="col-xs-7">';
   tr += '<input class="cmdAttr form-control input-sm" data-l1key="name" placeholder="{{Nom de la commande}}">';
   tr += '</div>';
-  trOther = tr;
   tr += '<div class="col-xs-5">';
   tr += '<a class="cmdAction btn btn-default btn-sm" data-l1key="chooseIcon"><i class="fas fa-flag"></i> {{Icône}}</a>';
   tr += '<span class="cmdAttr" data-l1key="display" data-l2key="icon" style="margin-left : 10px;"></span>';
   tr += '</div>';
   tr += '</div>';
   tr += '</td>';
-  trType = '<td>';
-  trType += '<label>' + init(_cmd.type) + '</label>';
-  trType += '</td>';
-  tr += trType;
-  trOther += trType;
+  tr += '<td>';
+  tr += '<label>' + init(_cmd.type) + '</label>';
+  tr += '</td>';
   tr += '<td style="min-width:80px;width:350px;">';
   tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="isVisible" checked/>{{Afficher}}</label>';
   tr += '<label class="checkbox-inline"><input type="checkbox" class="cmdAttr" data-l1key="isHistorized" checked/>{{Historiser}}</label>';
@@ -69,71 +66,43 @@ function addCmdToTable(_cmd) {
   }
   tr += '<i class="fas fa-minus-circle pull-right cmdAction cursor" data-action="remove"></i></td>';
   tr += '</tr>';
-  trOther += '</tr>';
   var table = '';
   if (_cmd.logicalId == 'day_episodes' ||
     _cmd.logicalId == 'day_episodes_raw' ||
     _cmd.logicalId == 'day_movies') {
     table = '#table_cmdFuture';
-  }
-  if (_cmd.logicalId == 'day_ddl_episodes' ||
+  } else if (_cmd.logicalId == 'day_ddl_episodes' ||
     _cmd.logicalId == 'day_ddl_episodes_raw' ||
-    _cmd.logicalId == 'last_episode' || 
+    _cmd.logicalId == 'last_episode' ||
     _cmd.logicalId == 'day_ddl_movies') {
     table = '#table_cmdDownloaded';
-  }
-  if (_cmd.logicalId == 'day_missing_episodes' || 
-  _cmd.logicalId == 'day_missing_episodes_raw' || 
-  _cmd.logicalId == 'day_missing_movies') {
+  } else if (_cmd.logicalId == 'day_missing_episodes' ||
+    _cmd.logicalId == 'day_missing_episodes_raw' ||
+    _cmd.logicalId == 'day_missing_movies') {
     table = '#table_cmdMissing';
-  }
-  if (_cmd.logicalId == 'notification' || 
-  _cmd.logicalId == 'notificationHTML') {
+  } else if (_cmd.logicalId == 'notification' ||
+    _cmd.logicalId == 'notificationHTML') {
     table = '#table_cmdNotifications';
-  }
-  if (_cmd.logicalId == 'search_action' || 
-  _cmd.logicalId == 'search_result' || 
-  _cmd.logicalId == 'search_result_raw') {
+  } else if (_cmd.logicalId == 'search_action' ||
+    _cmd.logicalId == 'search_result' ||
+    _cmd.logicalId == 'search_result_raw') {
     table = '#table_cmdSearch';
-  }
-  if (_cmd.logicalId == 'get_path' || 
-  _cmd.logicalId == 'path_result' || 
-  _cmd.logicalId == 'path_result_raw') {
+  } else if (_cmd.logicalId == 'get_path' ||
+    _cmd.logicalId == 'path_result' ||
+    _cmd.logicalId == 'path_result_raw') {
     table = '#table_cmdFolder';
-  }
-  if (_cmd.logicalId == 'get_tags' || 
-  _cmd.logicalId == 'tags_result' || 
-  _cmd.logicalId == 'tags_result_raw') {
+  } else if (_cmd.logicalId == 'get_tags' ||
+    _cmd.logicalId == 'tags_result' ||
+    _cmd.logicalId == 'tags_result_raw') {
     table = '#table_cmdTags';
-  }
-  if (_cmd.logicalId == 'get_profiles' || 
-  _cmd.logicalId == 'profiles_result' || 
-  _cmd.logicalId == 'profiles_result_raw') {
+  } else if (_cmd.logicalId == 'get_profiles' ||
+    _cmd.logicalId == 'profiles_result' ||
+    _cmd.logicalId == 'profiles_result_raw') {
     table = '#table_cmdProfile';
-  }
-  if (_cmd.logicalId == 'refresh' || 
-  _cmd.logicalId == 'monitoredSeries' || 
-  _cmd.logicalId == 'add_serie' || 
-  _cmd.logicalId == 'search_missing') {
+  } else {
     table = '#table_cmdOther';
   }
-  $(table + ' tbody').append(tr);
-  $('#table_cmdOrder tbody').append(trOther);
-
-  var tr = $(table + ' tbody tr').last();
-  jeedom.eqLogic.builSelectCmd({
-    id: $('.eqLogicAttr[data-l1key=id]').value(),
-    filter: { type: 'info' },
-    error: function (error) {
-      $('#div_alert').showAlert({ message: error.message, level: 'danger' });
-    },
-    success: function (result) {
-      tr.find('.cmdAttr[data-l1key=value]').append(result);
-      tr.setValues(_cmd, '.cmdAttr');
-      jeedom.cmd.changeType(tr, init(_cmd.subType));
-    }
-  });
-
+  $('#table_cmdOrder tbody').append(tr);
   var tr = $('#table_cmdOrder tbody tr').last();
   jeedom.eqLogic.builSelectCmd({
     id: $('.eqLogicAttr[data-l1key=id]').value(),
@@ -147,6 +116,22 @@ function addCmdToTable(_cmd) {
       jeedom.cmd.changeType(tr, init(_cmd.subType));
     }
   });
+  var trOther = '<tr>';
+  trOther += '<td style="width:60px;">';
+  trOther += '<label>' + init(_cmd.id) + '</label>';
+  trOther += '</td>';
+  trOther += '<td style="min-width:300px;width:500px;">';
+  trOther += '<div class="row">';
+  trOther += '<div class="col-xs-7">';
+  trOther += '<label>' + init(_cmd.name) + '</label>';
+  trOther += '</div>';
+  trOther += '</div>';
+  trOther += '</td>';
+  trOther += '<td>';
+  trOther += '<label>' + init(_cmd.type) + '</label>';
+  trOther += '</td>';
+  trOther += '</tr>';
+  $(table + ' tbody').append(trOther);
 }
 
 $(".eqLogicAttr[data-l1key='configuration'][data-l2key='application']").change(function () {
