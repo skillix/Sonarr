@@ -29,7 +29,7 @@ $("#table_cmdOther").sortable({ axis: "y", cursor: "move", items: ".cmd", placeh
 
 $("#table_cmdOrder").sortable({ axis: "y", cursor: "move", items: ".cmd", placeholder: "ui-state-highlight", tolerance: "intersect", forcePlaceholderSize: true });
 
-/* Fonction permet²tant l'affichage des commandes dans l'équipement */
+/* Fonction permettant l'affichage des commandes dans l'équipement */
 function addCmdToTable(_cmd) {
   if (!isset(_cmd)) {
     var _cmd = { configuration: {} };
@@ -62,7 +62,7 @@ function addCmdToTable(_cmd) {
   tr += '<td style="min-width:80px;width:200px;">';
   if (is_numeric(_cmd.id)) {
     tr += '<a class="btn btn-default btn-xs cmdAction" data-action="configure"><i class="fas fa-cogs"></i></a> ';
-    tr += '<a class="btn btn-default btn-xs cmdAction" data-action="test"><i class="fas fa-rss"></i> Tester</a>';
+    tr += '<a class="btn btn-default btn-xs cmdAction" data-action="test" data-arg1='+ init(_cmd.id) +' ><i class="fas fa-rss"></i> Tester</a>';
   }
   tr += '<i class="fas fa-minus-circle pull-right cmdAction cursor" data-action="remove"></i></td>';
   tr += '</tr>';
@@ -103,19 +103,6 @@ function addCmdToTable(_cmd) {
     table = '#table_cmdOther';
   }
   $('#table_cmdOrder tbody').append(tr);
-  var tr = $('#table_cmdOrder tbody tr').last();
-  jeedom.eqLogic.builSelectCmd({
-    id: $('.eqLogicAttr[data-l1key=id]').value(),
-    filter: { type: 'info' },
-    error: function (error) {
-      $('#div_alert').showAlert({ message: error.message, level: 'danger' });
-    },
-    success: function (result) {
-      tr.find('.cmdAttr[data-l1key=value]').append(result);
-      tr.setValues(_cmd, '.cmdAttr');
-      jeedom.cmd.changeType(tr, init(_cmd.subType));
-    }
-  });
   var trOther = '<tr>';
   trOther += '<td style="width:60px;">';
   trOther += '<label>' + init(_cmd.id) + '</label>';
@@ -130,9 +117,39 @@ function addCmdToTable(_cmd) {
   trOther += '<td>';
   trOther += '<label>' + init(_cmd.type) + '</label>';
   trOther += '</td>';
+  trOther += '<td style="min-width:80px;width:200px;">';
+  if (is_numeric(_cmd.id)) {
+    trOther += '<a class="btn btn-default btn-xs cmdAction" onClick="testMockCmd(\'' + init(_cmd.id) + '\')" ><i class="fas fa-rss"></i> Tester</a>';
+  }
   trOther += '</tr>';
   $(table + ' tbody').append(trOther);
+  
+  var tr = $('#table_cmdOrder tbody tr').last();
+  jeedom.eqLogic.builSelectCmd({
+    id: $('.eqLogicAttr[data-l1key=id]').value(),
+    filter: { type: 'info' },
+    error: function (error) {
+      $('#div_alert').showAlert({ message: error.message, level: 'danger' });
+    },
+    success: function (result) {
+      tr.find('.cmdAttr[data-l1key=value]').append(result);
+      tr.setValues(_cmd, '.cmdAttr');
+      jeedom.cmd.changeType(tr, init(_cmd.subType));
+    }
+  });
 }
+
+$(".eqLogicAttr[data-l1key=id]").change(function () {
+  $("#table_cmdFuture tr").remove(); 
+  $("#table_cmdDownloaded tr").remove(); 
+  $("#table_cmdMissing tr").remove(); 
+  $("#table_cmdNotifications tr").remove(); 
+  $("#table_cmdSearch tr").remove(); 
+  $("#table_cmdFolder tr").remove(); 
+  $("#table_cmdTags tr").remove(); 
+  $("#table_cmdProfile tr").remove(); 
+  $("#table_cmdOther tr").remove(); 
+});
 
 $(".eqLogicAttr[data-l1key='configuration'][data-l2key='application']").change(function () {
   $('.sonarr-function-config').hide();
@@ -151,4 +168,14 @@ $(".eqLogicAttr[data-l1key='configuration'][data-l2key='groupedEpisodes']").chan
 $('.pluginAction[data-action=openLocation]').on('click', function () {
   window.open($(this).attr("data-location"), "_blank", null);
 });
+
+function testMockCmd(id){
+  $.hideAlert()
+  if ($('.eqLogicAttr[data-l1key=isEnable]').is(':checked')) {
+    jeedom.cmd.test({id: id});
+  } else {
+    $('#div_alert').showAlert({message: '{{Veuillez activer l\'équipement avant de tester une de ses commandes}}', level: 'warning'})
+  }
+}
+
 
