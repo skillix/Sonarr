@@ -109,6 +109,8 @@ class sonarrUtils
                 return $episodeTitle . " " . $episodeStr . $episodeNumber;
             } else {
                 LogSonarr::debug('no formattor');
+                $seasonNumber = sonarrUtils::formatDefaultNumber($seasonNumber);
+                $episodeNumber = sonarrUtils::formatDefaultNumber($episodeNumber);
                 return $episodeTitle . " " . "S" . $seasonNumber . "E" . $episodeNumber;
             }
         }
@@ -159,6 +161,7 @@ class sonarrUtils
                             }
                         }
                     }
+                    $fmtedObject['episodes'] = array_unique($fmtedObject['episodes']);
                     array_push($newGroupedList, $fmtedObject);
                 }
             }
@@ -234,8 +237,14 @@ class sonarrUtils
                 $episodeString = sonarrUtils::formatGroupedEpisodesStr($episodesToFormat, $episodeStr, $separatorEpisodes);
             } else {
                 LogSonarr::debug('no formattor');
-                $episodeString = sonarrUtils::formatGroupedEpisodesStr($episodesToFormat, "E", $separatorEpisodes);
-                return $episodesToFormat["serie"] . " " . "S" . $episodesToFormat["season"] . $episodeString;
+                $episodeNumberList = [];
+                foreach ($episodesToFormat['episodes'] as $numberEpisode) {
+                    $numberEpisode = sonarrUtils::formatDefaultNumber($numberEpisode);
+                    array_push($episodeNumberList, $numberEpisode);
+                }
+                $episodeString = "E" . implode($separatorEpisodes, $episodeNumberList);
+                $numberSeason = sonarrUtils::formatDefaultNumber($episodesToFormat["season"]);
+                return $episodesToFormat["serie"] . " " . "S" . $numberSeason . $episodeString;
             }
         }
     }
@@ -246,6 +255,14 @@ class sonarrUtils
             array_push($episodeNumberList, $numberEpisode);
         }
         return $episodeStr . implode($separatorEpisodes, $episodeNumberList);
+    }
+    public static function formatDefaultNumber($numberStr)
+    {
+        $number = (int)$numberStr;
+        if ($number < 10) {
+            $numberStr = "0" . strval($number);
+        }
+        return $numberStr;
     }
 
     public function formatList($list, $episode, $separator)
