@@ -544,7 +544,7 @@ class sonarrApiWrapper
         LogSonarr::info('----------------------------------');
     }
 
-    public function getTags($context)
+    public function getSonarrTags($context)
     {
         LogSonarr::info('----------------------------------');
         LogSonarr::info('START GETTING TAGS ' . $context->getName());

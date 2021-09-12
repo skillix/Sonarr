@@ -182,7 +182,7 @@ class sonarr extends eqLogic
          $sonarrApiWrapper->getPaths($this);
       }
    }
-   public function getTags()
+   public function getSonarrTags()
    {
       // Depends of application
       $application = SonarrRadarrUtils::verifyConfiguration($this, 'application');
@@ -196,7 +196,7 @@ class sonarr extends eqLogic
             return;
          }
          $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
-         $sonarrApiWrapper->getTags($this);
+         $sonarrApiWrapper->getSonarrTags($this);
       }
    }
 
@@ -438,7 +438,7 @@ class sonarrCmd extends cmd
             $eqlogic->getPaths();
             break;
          case 'get_tags':
-            $eqlogic->getTags();
+            $eqlogic->getSonarrTags();
             break;
          case 'search_missing':
             $eqlogic->searchMissing();
