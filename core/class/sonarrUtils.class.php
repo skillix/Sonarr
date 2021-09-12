@@ -234,10 +234,7 @@ class sonarrUtils
                 $episodeString = sonarrUtils::formatGroupedEpisodesStr($episodesToFormat, $episodeStr, $separatorEpisodes);
             } else {
                 LogSonarr::debug('no formattor');
-                $episodeString = "";
-                foreach ($episodesToFormat as $episode) {
-                    $episodeString = $episodeString . "E" . $episode["episode"];
-                }
+                $episodeString = sonarrUtils::formatGroupedEpisodesStr($episodesToFormat, "E", $separatorEpisodes);
                 return $episodesToFormat["serie"] . " " . "S" . $episodesToFormat["season"] . $episodeString;
             }
         }

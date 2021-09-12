@@ -177,11 +177,8 @@ class sonarrApiWrapper
                 // Verify date rule
                 $numberDaysToRetrieve = $rules["numberDays"];
                 $anteriorDate = $this->utils->getAnteriorDateForNumberDay($numberDaysToRetrieve);
-                LogSonarr::debug("anterior date timestamp is " . $anteriorDate);
                 $airDateEpisode = strtotime($serie["airDateUtc"]);
-                LogSonarr::debug("air date timestamp for " . $episodeTitle . " is " . $airDateEpisode);
                 if ($stopSearch == false && $airDateEpisode > $anteriorDate) {
-                    LogSonarr::debug("airDate for " . $episodeTitle . " is after the anterior date");
                     // We can add the episode
                     $seriesId = $serie["seriesId"];
                     $seasonNumber = $serie["seasonNumber"];
@@ -207,7 +204,6 @@ class sonarrApiWrapper
                     );
                     array_push($missingEpisodesList, $episodeImage);
                 } else if ($stopSearch == false) {
-                    LogSonarr::debug("airDate for " . $episodeTitle . " is before the anterior date, stop searching");
                     $stopSearch = true;
                 }
             }
@@ -218,6 +214,8 @@ class sonarrApiWrapper
     }
     public function getDownladedEpisodesFormattedList($context, $rules, $separator, $formattor, $groupEpisode, $separatorEpisodes)
     {
+        LogSonarr::info('---------------------------');
+        LogSonarr::info('START GET DDL EPISODES');
         $ddlEpisodesList = $this->getDownloadedEpisodesArray($rules);
         $ddlEpisodesList = sonarrUtils::getEpisodesMoviesList($ddlEpisodesList, $groupEpisode, $formattor, $separatorEpisodes);
         // Save RAW
@@ -233,6 +231,8 @@ class sonarrApiWrapper
         }
         // Save format
         $context->checkAndUpdateCmd('day_ddl_episodes', $dowloadedEpisodesList);
+        LogSonarr::info('---------------------------');
+        LogSonarr::info('END GET DDL EPISODES');
     }
 
     public function notifyEpisode($caller, $last_refresh_date, $context, $formattor, $groupEpisode, $separatorEpisodes)
