@@ -200,7 +200,8 @@ class sonarr extends eqLogic
       }
    }
 
-   public function searchMissing() {
+   public function searchMissing()
+   {
       // Depends of application
       $application = SonarrRadarrUtils::verifyConfiguration($this, 'application');
       if ($application == null) {
@@ -337,7 +338,7 @@ class sonarr extends eqLogic
                         $html = $html . $this->generateHtmlForDatas($ddlEpisodesList, $_version, $application, true);
                      }
                   } else {
-                     LogSonarr::error('missing cmd day_ddl_episodes');
+                     LogSonarr::error('missing cmd day_ddl_episodes_raw');
                   }
                   $html = $html . "</div>";
                }
@@ -357,34 +358,51 @@ class sonarr extends eqLogic
                }
             }
          } else {
-            $url = $this->getConfiguration('radarrUrl');
-            $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
             if ($cmd->getLogicalId() == "day_movies") {
-               $html = $html . $this->addCmdName($cmd, $_version, "Films à venir");
-               $futurMoviesRules = $this->getConfigurationFor($this, "dayFutureMovies", "maxFutureMovies");
-               $futurMoviesRules["numberMax"] = 3;
-               $futurMovieList = $radarrApiWrapper->getFutureMoviesArray($futurMoviesRules);
-               if ($condensed == 0) {
-                  $html = $html . $this->generateHtmlForDatas($futurMovieList, $_version, $application, false);
+               $futurMovRawCmd = $this->getCmd(null, 'day_movies_raw');
+               if ($futurMovRawCmd != null) {
+                  $html = $html . $this->addCmdName($cmd, $_version, "Films à venir");
+                  $futurMoviesList = json_decode($futurMovRawCmd->execCmd(), true);
+                  if (is_array($futurMoviesList)) {
+                     $futurMoviesList = sonarrUtils::applyMaxToArray($futurMoviesList, 3);
+                     if ($condensed == 0) {
+                        $html = $html . $this->generateHtmlForDatas($futurMoviesList, $_version, $application, false);
+                     } else {
+                        $html = $html . $this->generateHtmlForDatasCondensed($futurMoviesList, $_version, $application, true);
+                     }
+                  }
                } else {
-                  $html = $html . $this->generateHtmlForDatasCondensed($futurMovieList, $_version, $application, true);
+                  LogSonarr::error('missing cmd day_movies_raw');
                }
                $html = $html . "</div>";
             }
             if ($condensed == 0) {
                if ($cmd->getLogicalId() == "day_ddl_movies") {
-                  $html = $html . $this->addCmdName($cmd, $_version, "Films téléchargés");
-                  $downloadMoviesRules = $this->getConfigurationFor($this, "dayDownloadedMovies", "maxDownloadedMovies");
-                  $downloadMoviesRules["numberMax"] = 3;
-                  $ddlMovieList = $radarrApiWrapper->getDownloadedMoviesArray($downloadMoviesRules);
-                  $html = $html . $this->generateHtmlForDatas($ddlMovieList, $_version, $application, true);
+                  $ddlMovRawCmd = $this->getCmd(null, 'day_ddl_movies_raw');
+                  if ($ddlMovRawCmd != null) {
+                     $html = $html . $this->addCmdName($cmd, $_version, "Films téléchargés");
+                     $ddlMoviesList = json_decode($ddlMovRawCmd->execCmd(), true);
+                     if (is_array($ddlMoviesList)) {
+                        $ddlMoviesList = sonarrUtils::applyMaxToArray($ddlMoviesList, 3);
+                        $html = $html . $this->generateHtmlForDatas($ddlMoviesList, $_version, $application, true);
+                     }
+                  } else {
+                     LogSonarr::error('missing cmd day_ddl_movies_raw');
+                  }
                   $html = $html . "</div>";
                }
                if ($cmd->getLogicalId() == "day_missing_movies") {
-                  $html = $html . $this->addCmdName($cmd, $_version, "Films manquants");
-                  $missingMovieRules["numberMax"] = 3;
-                  $missingMovieList = $radarrApiWrapper->getMissingMoviesArray($missingMovieRules);
-                  $html = $html . $this->generateHtmlForDatas($missingMovieList, $_version, $application, false);
+                  $missingMovRawCmd = $this->getCmd(null, 'day_missing_movies_raw');
+                  if ($missingMovRawCmd != null) {
+                     $html = $html . $this->addCmdName($cmd, $_version, "Films manquants");
+                     $missingMoviesList = json_decode($missingMovRawCmd->execCmd(), true);
+                     if (is_array($missingMoviesList)) {
+                        $missingMoviesList = sonarrUtils::applyMaxToArray($missingMoviesList, 3);
+                        $html = $html . $this->generateHtmlForDatas($missingMoviesList, $_version, $application, false);
+                     }
+                  } else {
+                     LogSonarr::error('missing cmd day_missing_movies_raw');
+                  }
                   $html = $html . "</div>";
                }
             }
