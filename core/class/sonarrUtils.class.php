@@ -175,14 +175,10 @@ class sonarrUtils
                 array_push($listFormattedObject, $object);
             }
         } else {
-            if ($formattor != null) {
-                foreach ($listObject as $object) {
-                    $formattedTitle = sonarrUtils::formatEpisode($object["serie"], $object["season"], $object["episode"], $formattor);
-                    $object['title'] = $formattedTitle;
-                    array_push($listFormattedObject, $object);
-                }
-            } else {
-                return $listObject;
+            foreach ($listObject as $object) {
+                $formattedTitle = sonarrUtils::formatEpisode($object["serie"], $object["season"], $object["episode"], $formattor);
+                $object['title'] = $formattedTitle;
+                array_push($listFormattedObject, $object);
             }
         }
         return $listFormattedObject;
