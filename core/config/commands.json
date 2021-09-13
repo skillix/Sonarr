@@ -216,6 +216,14 @@
             "isHistorized": 0
         },
         {
+            "logicalId": "day_ddl_movies_raw",
+            "name": "Films téléchargés raw",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
             "logicalId": "day_movies",
             "name": "Films à venir",
             "type": "info",
@@ -224,8 +232,24 @@
             "isHistorized": 0
         },
         {
+            "logicalId": "day_movies_raw",
+            "name": "Films à venir raw",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
             "logicalId": "day_missing_movies",
             "name": "Films manquants",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "day_missing_movies_raw",
+            "name": "Films manquants raw",
             "type": "info",
             "subtype": "string",
             "isVisible": 1,

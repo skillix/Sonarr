@@ -69,16 +69,19 @@ function addCmdToTable(_cmd) {
   var table = '';
   if (_cmd.logicalId == 'day_episodes' ||
     _cmd.logicalId == 'day_episodes_raw' ||
-    _cmd.logicalId == 'day_movies') {
+    _cmd.logicalId == 'day_movies' ||
+    _cmd.logicalId == 'day_movies_raw') {
     table = '#table_cmdFuture';
   } else if (_cmd.logicalId == 'day_ddl_episodes' ||
     _cmd.logicalId == 'day_ddl_episodes_raw' ||
     _cmd.logicalId == 'last_episode' ||
-    _cmd.logicalId == 'day_ddl_movies') {
+    _cmd.logicalId == 'day_ddl_movies' ||
+    _cmd.logicalId == 'day_ddl_movies_raw') {
     table = '#table_cmdDownloaded';
   } else if (_cmd.logicalId == 'day_missing_episodes' ||
     _cmd.logicalId == 'day_missing_episodes_raw' ||
-    _cmd.logicalId == 'day_missing_movies') {
+    _cmd.logicalId == 'day_missing_movies' ||
+    _cmd.logicalId == 'day_missing_movies_raw') {
     table = '#table_cmdMissing';
   } else if (_cmd.logicalId == 'notification' ||
     _cmd.logicalId == 'notificationHTML') {

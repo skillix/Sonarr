@@ -26,43 +26,41 @@ class radarrApiWrapper
         LogSonarr::info('start REFRESH RADARR');
         $separator = $context->getSeparator();
         LogSonarr::info('selected separator: ' . $separator);
+        
         LogSonarr::info('getting futures movies, will look for selected rule');
         $futurMoviesRules = $context->getConfigurationFor($context, "dayFutureMovies", "maxFutureMovies");
-        $futurMovieList = $this->getFutureMoviesFormattedList($separator, $futurMoviesRules);
-        if ($futurMovieList == "") {
-            LogSonarr::info('no future movies');
-        }
-        LogSonarr::info('futur movie list: ' . $futurMovieList);
-        $context->checkAndUpdateCmd('day_movies', $futurMovieList);
+        $this->getFutureMoviesFormattedList($context, $separator, $futurMoviesRules);
+        
         LogSonarr::info('getting missings movies');
-        $missingMoviesList = $this->getMissingMoviesFormattedList($separator);
-        if ($missingMoviesList == "") {
-            LogSonarr::info('no missing movies');
-        }
-        $context->checkAndUpdateCmd('day_missing_movies', $missingMoviesList);
+        $this->getMissingMoviesFormattedList($context, $separator);
+        
         LogSonarr::info('getting last downloaded movies, will look for selected rules');
         $downloadMoviesRules = $context->getConfigurationFor($context, "dayDownloadedMovies", "maxDownloadedMovies");
-        $downloadMoviesList = $this->getDownladedMoviesFormattedList($downloadMoviesRules, $separator);
-        if ($downloadMoviesList == "") {
-            LogSonarr::info('no downloaded movies');
-        }
-        $context->checkAndUpdateCmd('day_ddl_movies', $downloadMoviesList);
+        $downloadMoviesList = $this->getDownladedMoviesFormattedList($context, $downloadMoviesRules, $separator);
+        
         LogSonarr::info('notify for last downloaded movies');
         $last_refresh_date = $context->getCmd(null, 'last_episode')->getValueDate();
         $this->notifyMovie('radarr', $last_refresh_date, $context);
         LogSonarr::info('stop REFRESH RADARR');
     }
 
-    public function getFutureMoviesFormattedList($separator, $rules)
+    public function getFutureMoviesFormattedList($context, $separator, $rules)
     {
         $futurMoviesListStr = '';
         $futurMoviesList = $this->getFutureMoviesArray($rules);
         LogSonarr::info('Number of futur movies' . count($futurMoviesList));
+        // SAVE RAW
+        $context->checkAndUpdateCmd('day_movies_raw', json_encode($futurMoviesList));
+        // FORMAT LIST
         foreach ($futurMoviesList as $futurMovie) {
             LogSonarr::info($futurMovie["title"] . ' is missing');
             $futurMoviesListStr = $this->utils->formatList($futurMoviesListStr, $futurMovie["title"], $separator);
         }
-        return $futurMoviesListStr;
+        if ($futurMoviesListStr == "") {
+            LogSonarr::info('no future movies');
+        }
+        LogSonarr::info('futur movie list: ' . $futurMoviesListStr);
+        $context->checkAndUpdateCmd('day_movies', $futurMoviesListStr);
     }
     public function getFutureMoviesArray($rules)
     {
@@ -124,14 +122,20 @@ class radarrApiWrapper
         }
         return $liste_movie;
     }
-    public function getMissingMoviesFormattedList($separator)
+    public function getMissingMoviesFormattedList($context, $separator)
     {
         $missingMoviesListStr = "";
         $missingMoviesList = $this->getMissingMoviesArray(null);
+        // SAVE RAW
+        $context->checkAndUpdateCmd('day_missing_movies_raw', json_encode($missingMoviesList));
+        // FORMAT LIST
         foreach ($missingMoviesList as $missingMovie) {
             $missingMoviesListStr = $this->utils->formatList($missingMoviesListStr, $missingMovie["title"], $separator);
         }
-        return $missingMoviesListStr;
+        if ($missingMoviesList == "") {
+            LogSonarr::info('no missing movies');
+        }
+        $context->checkAndUpdateCmd('day_missing_movies', $missingMoviesList);
     }
 
     public function getMissingMoviesArray($rules)
@@ -203,14 +207,21 @@ class radarrApiWrapper
         return $liste_movie;
     }
 
-    public function getDownladedMoviesFormattedList($rules, $separator)
+    public function getDownladedMoviesFormattedList($context, $rules, $separator)
     {
         $ddlMoviesList = $this->getDownloadedMoviesArray($rules);
+        // SAVE RAW
+        $context->checkAndUpdateCmd('day_ddl_movies_raw', json_encode($ddlMoviesList));
+        // FORMAT LIST
         $listOnlyTitle = [];
         foreach ($ddlMoviesList as $ddlObj) {
             array_push($listOnlyTitle, $ddlObj['title']);
         }
-        return implode($separator, $listOnlyTitle);
+        $downloadMoviesList = implode($separator, $listOnlyTitle);
+        if ($downloadMoviesList == "") {
+            LogSonarr::info('no downloaded movies');
+        }
+        $context->checkAndUpdateCmd('day_ddl_movies', $downloadMoviesList);
     }
 
     public function getDownloadedMoviesArray($rules)
