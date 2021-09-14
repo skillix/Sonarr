@@ -26,18 +26,18 @@ class radarrApiWrapper
         LogSonarr::info('start REFRESH RADARR');
         $separator = $context->getSeparator();
         LogSonarr::info('selected separator: ' . $separator);
-        
+
         LogSonarr::info('getting futures movies, will look for selected rule');
         $futurMoviesRules = $context->getConfigurationFor($context, "dayFutureMovies", "maxFutureMovies");
         $this->getFutureMoviesFormattedList($context, $separator, $futurMoviesRules);
-        
+
         LogSonarr::info('getting missings movies');
         $this->getMissingMoviesFormattedList($context, $separator);
-        
+
         LogSonarr::info('getting last downloaded movies, will look for selected rules');
         $downloadMoviesRules = $context->getConfigurationFor($context, "dayDownloadedMovies", "maxDownloadedMovies");
         $downloadMoviesList = $this->getDownladedMoviesFormattedList($context, $downloadMoviesRules, $separator);
-        
+
         LogSonarr::info('notify for last downloaded movies');
         $last_refresh_date = $context->getCmd(null, 'last_episode')->getValueDate();
         $this->notifyMovie('radarr', $last_refresh_date, $context);
@@ -71,6 +71,7 @@ class radarrApiWrapper
         $futureDate->add(new DateInterval('P' . $dayFutures . 'D'));
         $currentDate = $currentDate->format('Y-m-d');
         $futureDate = $futureDate->format('Y-m-d');
+        $currentDateTimeStp = strtotime($currentDate);
         // Server call
         LogSonarr::debug('fetching futures movies between ' . $currentDate . ' and ' . $futureDate);
         $calendar = $this->radarrApi->getCalendar($currentDate, $futureDate);
@@ -80,46 +81,52 @@ class radarrApiWrapper
         if ($calendar == NULL) {
             return "";
         }
-        $calendar = $this->utils->applyMaxRulesToArray($calendar, $rules);
         //Analyze datas
         foreach ($calendar as $movie) {
-            $movieToNotify = $movie["title"];
-            $moviesId = $movie["id"];
-            $ddl_date_str = $movie["inCinemas"];
-            $ddl_date_str = $this->utils->formatDate($ddl_date_str);
-            $downloaded = $movie["hasFile"];
+            $compareDate = $movie["digitalRelease"];
+            if ($compareDate == null) {
+                $compareDate = $movie["inCinemas"];
+            }
+            $compareDateTimeStp = strtotime($compareDate);
+            if ($compareDateTimeStp > $currentDateTimeStp) {
+                $compareDateStr = $this->utils->formatDate($compareDate);
+                $movieToNotify = $movie["title"];
+                $moviesId = $movie["id"];
+                $downloaded = $movie["hasFile"];
 
-            $size = $movie["sizeOnDisk"];
-            if ($size != null && $size != 0) {
-                $size = $this->utils->formatSize($size);
-            } else {
-                $size = "";
-            }
-            $quality = $movie["movieFile"]["quality"]["quality"]["resolution"];
-            if ($quality != null && $quality != 0) {
-                $quality = $quality . "p";
-            } else {
-                $quality = "";
-            }
-            $images = $movie["images"];
-            $urlImage = "";
-            foreach ($images as $image) {
-                if ($image["coverType"] == "poster") {
-                    $urlImage =  $image["url"];
+                $size = $movie["sizeOnDisk"];
+                if ($size != null && $size != 0) {
+                    $size = $this->utils->formatSize($size);
+                } else {
+                    $size = "";
                 }
+                $quality = $movie["movieFile"]["quality"]["quality"]["resolution"];
+                if ($quality != null && $quality != 0) {
+                    $quality = $quality . "p";
+                } else {
+                    $quality = "";
+                }
+                $images = $movie["images"];
+                $urlImage = "";
+                foreach ($images as $image) {
+                    if ($image["coverType"] == "poster") {
+                        $urlImage =  $image["url"];
+                    }
+                }
+                $this->saveImage($urlImage, $moviesId);
+                $movieObj = array(
+                    'title' => $movieToNotify,
+                    'image' => $urlImage,
+                    'seriesId' => $moviesId,
+                    'date' => $compareDateStr,
+                    'downloaded' => $downloaded,
+                    'size' => $size,
+                    'quality' => $quality,
+                );
+                array_push($liste_movie, $movieObj);
             }
-            $this->saveImage($urlImage, $moviesId);
-            $movieObj = array(
-                'title' => $movieToNotify,
-                'image' => $urlImage,
-                'seriesId' => $moviesId,
-                'date' => $ddl_date_str,
-                'downloaded' => $downloaded,
-                'size' => $size,
-                'quality' => $quality,
-            );
-            array_push($liste_movie, $movieObj);
         }
+        $liste_movie = $this->utils->applyMaxRulesToArray($liste_movie, $rules);
         return $liste_movie;
     }
     public function getMissingMoviesFormattedList($context, $separator)
@@ -162,7 +169,7 @@ class radarrApiWrapper
         // Now that we have find all the missing movies, we have to sort them
         function compare_movies($a, $b)
         {
-            return strtotime($b["inCinemas"]) - strtotime($a["inCinemas"]);
+            return strtotime($b["digitalRelease"]) - strtotime($a["digitalRelease"]);
         }
         usort($missingMoviesList, "compare_movies");
         if ($rules != null) {
@@ -171,7 +178,7 @@ class radarrApiWrapper
         foreach ($missingMoviesList as $movie) {
             $movieToNotify = $movie["title"];
             $moviesId = $movie["id"];
-            $ddl_date_str = $movie["inCinemas"];
+            $ddl_date_str = $movie["digitalRelease"];
             $ddl_date_str = $this->utils->formatDate($ddl_date_str);
 
             $size = $movie["sizeOnDisk"];
@@ -262,40 +269,23 @@ class radarrApiWrapper
                             LogSonarr::info('first run for notification');
                             $stopSearch = true;
                         }
-                        $movieToNotify = $movie["movie"]["title"];
-                        $moviesId = $movie["movie"]["id"];
+                        $movieId = $movie["movieId"];
                         $ddl_date_str = $this->utils->formatDate($ddl_date_str);
 
-                        $size = $movie["movie"]["sizeOnDisk"];
-                        if ($size != null && $size != 0) {
-                            $size = $this->utils->formatSize($size);
-                        } else {
-                            $size = "";
-                        }
+
                         $quality = $movie["quality"]["quality"]["resolution"];
                         if ($quality != null && $quality != 0) {
                             $quality = $quality . "p";
                         } else {
                             $quality = "";
                         }
-                        $images = $movie["movie"]["images"];
-                        $urlImage = "";
-                        foreach ($images as $image) {
-                            if ($image["coverType"] == "poster") {
-                                $urlImage =  $image["url"];
-                            }
-                        }
-                        $this->saveImage($urlImage, $moviesId);
                         $movieObj = array(
-                            'title' => $movieToNotify,
-                            'image' => $urlImage,
-                            'seriesId' => $moviesId,
+                            'seriesId' => $movieId,
                             'date' => $ddl_date_str,
-                            'size' => $size,
                             'quality' => $quality,
                         );
+                        $movieObj = $this->retrieveMovieInformation($movieId, $movieObj);
                         array_push($liste_movies, $movieObj);
-                        LogSonarr::info("found new film downladed :" . $movieToNotify);
                     } else {
                         LogSonarr::info("stop searching for new movies to notify");
                         $stopSearch = true;
@@ -306,9 +296,55 @@ class radarrApiWrapper
         }
         return $liste_movies;
     }
+
+    private function retrieveMovieInformation($movieId, $movieToComplete)
+    {
+        $movieJSON = $this->radarrApi->getMovies($movieId);
+        LogSonarr::debug('JSON FOR SPECIFIC MOVIE' . $movieJSON);
+        $movie = new Movie(json_decode($movieJSON, true));
+        $movieToComplete['title'] = $movie->title;
+        $movieToComplete['image'] = $movie->image;
+        $this->saveImage($movie->image, $movieId);
+        $size = $movie->size;
+        if ($size != null && $size != 0) {
+            $size = $this->utils->formatSize($size);
+        } else {
+            $size = "";
+        }
+        $movieToComplete['size'] = $size;
+        return $movieToComplete;
+    }
     private function saveImage($url, $imageName)
     {
         $img = '/var/www/html/plugins/sonarr/core/template/dashboard/imgs/radarr_' . $imageName . '.jpg';
         file_put_contents($img, file_get_contents($url));
+    }
+}
+
+class Movie
+{
+    public $title;
+    public $image;
+    public $size;
+
+
+    function __construct($data)
+    {
+        if (isset($data['title']))
+            $this->title = $data['title'];
+
+        if (isset($data['images'])) {
+            $images = $data['images'];
+            $urlImage = "";
+            foreach ($images as $image) {
+                if ($image["coverType"] == "poster") {
+                    $urlImage =  $image["remoteUrl"];
+                }
+            }
+            $this->image = $urlImage;
+        }
+
+        if (isset($data['sizeOnDisk']))
+            $this->size = $data['sizeOnDisk'];
     }
 }

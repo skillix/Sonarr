@@ -530,27 +530,27 @@ class radarrApi
         }
 
         if ( $params['type'] == 'get' ) {
-            $url = $this->url . '/api/' . $params['uri'] . '?' . http_build_query($params['data']);
+            $url = $this->url . '/api/v3/' . $params['uri'] . '?' . http_build_query($params['data']);
 
             return $client->get($url, $options);
         }
 
         if ( $params['type'] == 'put' ) {
-            $url = $this->url . '/api/' . $params['uri'];
+            $url = $this->url . '/api/v3/' . $params['uri'];
             $options['json'] = $params['data'];
             
             return $client->put($url, $options);
         }
 
         if ( $params['type'] == 'post' ) {
-            $url = $this->url . '/api/' . $params['uri'];
+            $url = $this->url . '/api/v3/' . $params['uri'];
             $options['json'] = $params['data'];
             
             return $client->post($url, $options);
         }
 
         if ( $params['type'] == 'delete' ) {
-            $url = $this->url . '/api/' . $params['uri'] . '?' . http_build_query($params['data']);
+            $url = $this->url . '/api/v3/' . $params['uri'] . '?' . http_build_query($params['data']);
 
             return $client->delete($url, $options);
         }
