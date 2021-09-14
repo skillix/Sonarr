@@ -632,6 +632,9 @@ class AddOptions
             if (isset($data['serie']))
                 $this->serie = $data['serie'];
 
+            if (isset($data['movie']))
+                $this->serie = $data['movie'];
+
             if (isset($data['profile']))
                 $this->profile = $data['profile'];
 
