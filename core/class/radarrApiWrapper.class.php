@@ -3,6 +3,7 @@
 require_once __DIR__  . '/radarrApi.class.php';
 require_once __DIR__  . '/sonarrUtils.class.php';
 require_once __DIR__  . '/Utils/LogSonarr.php';
+require_once __DIR__  . '/sonarrApiWrapper.class.php';
 
 class radarrApiWrapper
 {
@@ -314,10 +315,219 @@ class radarrApiWrapper
         $movieToComplete['size'] = $size;
         return $movieToComplete;
     }
+
     private function saveImage($url, $imageName)
     {
         $img = '/var/www/html/plugins/sonarr/core/template/dashboard/imgs/radarr_' . $imageName . '.jpg';
         file_put_contents($img, file_get_contents($url));
+    }
+
+    public function searchForMovie($context, $queryTerms)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START MOVIE SEARCH ' . $context->getName() . ' with terms: ' . $queryTerms);
+        // Check needed cmd
+        $searchResult = SonarrRadarrUtils::verifyCmd($context, 'search_result');
+        $searchResultRaw = SonarrRadarrUtils::verifyCmd($context, 'search_result_raw');
+        if ($searchResult == null || $searchResultRaw == null) {
+            return;
+        }
+        // Retrieve JSON
+        $listMoviesJSON = $this->radarrApi->getMoviesLookup($queryTerms);
+        LogSonarr::debug('JSON FOR SEARCH ' . $listMoviesJSON);
+        // Save RAW
+        $movies = new MoviesSearch($listMoviesJSON);
+        $searchResultRaw->event(json_encode($movies));
+        // Format list
+        $separator = $context->getSeparator();
+        $moviesStr = '';
+        foreach ($movies->movies as $movie) {
+            $str = $movie->title;
+            $moviesStr = $this->utils->formatList($moviesStr, $str, $separator);
+        }
+        if ($moviesStr == "") {
+            LogSonarr::info('no search results');
+        }
+        $searchResult->event($moviesStr);
+        LogSonarr::info('END MOVIE SEARCH ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+
+    public function getProfiles($context)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START GETTING PROFILES MOVIES ' . $context->getName());
+        $profilesResult = SonarrRadarrUtils::verifyCmd($context, 'profiles_result');
+        $profilesResultRaw = SonarrRadarrUtils::verifyCmd($context, 'profiles_result_raw');
+        if ($profilesResult == null || $profilesResultRaw == null) {
+            return;
+        }
+        $listProfilesJSON = $this->radarrApi->getProfiles();
+        LogSonarr::debug('JSON FOR PROFILES ' . $listProfilesJSON);
+        $profiles = new Profiles($listProfilesJSON);
+        $profilesResultRaw->event(json_encode($profiles));
+        // Format list
+        $separator = $context->getSeparator();
+        $profilesStr = '';
+        foreach ($profiles->profiles as $profile) {
+            $profilesStr = $this->utils->formatList($profilesStr, $profile->name, $separator);
+        }
+        if ($profilesStr == "") {
+            LogSonarr::info('no profiles');
+        }
+        $profilesResult->event($profilesStr);
+        LogSonarr::info('END GETTING PROFILES MOVIES ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+
+    public function getPaths($context)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START GETTING PATHS MOVIES ' . $context->getName());
+        $pathResult = SonarrRadarrUtils::verifyCmd($context, 'path_result');
+        $pathResultRaw = SonarrRadarrUtils::verifyCmd($context, 'path_result_raw');
+        if ($pathResult == null || $pathResultRaw == null) {
+            return;
+        }
+        $listPathsJSON = $this->radarrApi->getRootFolder();
+        LogSonarr::debug('JSON FOR PROFILES ' . $listPathsJSON);
+        $paths = new Paths($listPathsJSON);
+        $pathResultRaw->event(json_encode($paths));
+        // Format list
+        $separator = $context->getSeparator();
+        $pathsStr = '';
+        foreach ($paths->paths as $path) {
+            $pathsStr = $this->utils->formatList($pathsStr, $path->path, $separator);
+        }
+        if ($pathsStr == "") {
+            LogSonarr::info('no paths');
+        }
+        $pathResult->event($pathsStr);
+        LogSonarr::info('END GETTING PATHS MOVIES ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+
+    public function getRadarrTags($context)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START GETTING TAGS MOVIES ' . $context->getName());
+        $tagResult = SonarrRadarrUtils::verifyCmd($context, 'tags_result');
+        $tagResultRaw = SonarrRadarrUtils::verifyCmd($context, 'tags_result_raw');
+        if ($tagResult == null || $tagResultRaw == null) {
+            return;
+        }
+        $listTagsJSON = $this->radarrApi->getTags();
+        LogSonarr::debug('JSON FOR TAGS ' . $listTagsJSON);
+        $tags = new Tags($listTagsJSON);
+        $tagResultRaw->event(json_encode($tags));
+        // Format list
+        $separator = $context->getSeparator();
+        $tagsStr = '';
+        foreach ($tags->tags as $tag) {
+            $tagsStr = $this->utils->formatList($tagsStr, $tag->label, $separator);
+        }
+        if ($tagsStr == "") {
+            LogSonarr::info('no tags');
+        }
+        $tagResult->event($tagsStr);
+        LogSonarr::info('END GETTING TAGS MOVIES ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+
+    public function searchMissing($context)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START SEARCH MISSING MOVIES ' . $context->getName());
+        $this->radarrApi->postCommand('MissingMoviesSearch');
+        LogSonarr::info('STOP SEARCH MISSING ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+
+    public function addMovie($context, $_options)
+    {
+        LogSonarr::info('----------------------------------');
+        LogSonarr::info('START ADDING MOVIE ' . $context->getName());
+        $searchResultRawCmd = SonarrRadarrUtils::verifyCmd($context, 'search_result_raw');
+        $profilesResultRawCmd = SonarrRadarrUtils::verifyCmd($context, 'profiles_result_raw');
+        if ($searchResultRawCmd == null || $profilesResultRawCmd == null) {
+            return;
+        }
+        // To add a serie we have to find the profile
+        $json = $_options['message'];
+        if ($json == null) {
+            LogSonarr::error('NO message given, cannot ADD movie');
+            return;
+        }
+        $arrayOption = new AddOptions($json);
+        $movieTitle = $arrayOption->serie;
+        $profileString = $arrayOption->profile;
+        $path = $arrayOption->path;
+        if ($movieTitle == null || $profileString == null || $path == null) {
+            LogSonarr::error('NO movie or profile or path, cannot ADD movie');
+            return;
+        }
+        // On récupère la série dans la liste
+        $movieToAdd = null;
+        $searchResultToConvert = json_decode($searchResultRawCmd->execCmd(), true)['movies'];
+        $encodedMoviesRaw = new MoviesSearch(json_encode($searchResultToConvert));
+        foreach ($encodedMoviesRaw->movies as $movie) {
+            if ($movieTitle == $movie->title) {
+                $movieToAdd = $movie;
+            }
+        }
+        if ($movieToAdd == null) {
+            // La série n'a pas été trouvée
+            LogSonarr::error('CANNOT FOUND MOVIE TO ADD');
+            return;
+        }
+        $profileToAdd = null;
+        $encodedProfilesToConvert = json_decode($profilesResultRawCmd->execCmd(), true)['profiles'];
+        $encodedProfilesRaw = new Profiles(json_encode($encodedProfilesToConvert));
+        foreach ($encodedProfilesRaw->profiles as $profile) {
+            if ($profileString == $profile->name) {
+                $profileToAdd = $profile;
+            }
+        }
+        if ($profileToAdd == null) {
+            // La série n'a pas été trouvée
+            LogSonarr::error('CANNOT FOUND PROFILE TO ADD');
+            return;
+        }
+        // Check if optionnal parameters
+        $tagsToAdd = [];
+        $tagsWanted = $arrayOption->tags;
+        $tagsToAdd = SonarrRadarrUtils::retrieveTagsFromCmd($context, $tagsWanted);
+        $data = array(
+            'tmdbId' => $movieToAdd->tmdbId,
+            'title' => $movieToAdd->title,
+            'qualityProfileId' => $profileToAdd->id,
+            'titleSlug' => $movieToAdd->titleSlug,
+            'images' => $movieToAdd->images,
+            'rootFolderPath' => $path,
+            'tags' => $tagsToAdd,
+        );
+        $response = $this->radarrApi->postMovie($data);
+        LogSonarr::debug('JSON ADDING MOVIE ' . json_encode($response));
+        LogSonarr::info('END ADDING MOVIE ' . $context->getName());
+        LogSonarr::info('----------------------------------');
+    }
+}
+
+class MoviesSearch
+{
+    public $movies;
+
+    function __construct($dataJSON)
+    {
+        $data = json_decode($dataJSON, true);
+        if ($data != '' && $data != null) {
+            $array_movies = array();
+            foreach ($data as $value) {
+                $movie = new Movie($value);
+                array_push($array_movies, $movie);
+            }
+            $this->movies = $array_movies;
+        }
     }
 }
 
@@ -326,7 +536,8 @@ class Movie
     public $title;
     public $image;
     public $size;
-
+    public $tmdbId;
+    public $titleSlug;
 
     function __construct($data)
     {
@@ -346,5 +557,11 @@ class Movie
 
         if (isset($data['sizeOnDisk']))
             $this->size = $data['sizeOnDisk'];
+        
+        if (isset($data['tmdbId']))
+            $this->tmdbId = $data['tmdbId'];
+
+        if (isset($data['titleSlug']))
+            $this->titleSlug = $data['titleSlug'];
     }
 }

@@ -128,10 +128,18 @@ class sonarr extends eqLogic
          }
          $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
          $sonarrApiWrapper->searchForSerie($this, $_options['message']);
+      } else if ($application == 'radarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'radarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
+         $radarrApiWrapper->searchForMovie($this, $_options['message']);
       }
    }
 
-   public function addSerie($_options)
+   public function addSerieMovie($_options)
    {
       // Depends of application
       $application = SonarrRadarrUtils::verifyConfiguration($this, 'application');
@@ -146,6 +154,14 @@ class sonarr extends eqLogic
          }
          $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
          $sonarrApiWrapper->addSerie($this, $_options);
+      } else if ($application == 'radarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'radarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
+         $radarrApiWrapper->addMovie($this, $_options);
       }
    }
    public function getProfiles()
@@ -163,6 +179,14 @@ class sonarr extends eqLogic
          }
          $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
          $sonarrApiWrapper->getProfiles($this);
+      } else if ($application == 'radarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'radarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
+         $radarrApiWrapper->getProfiles($this);
       }
    }
    public function getPaths()
@@ -180,9 +204,17 @@ class sonarr extends eqLogic
          }
          $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
          $sonarrApiWrapper->getPaths($this);
+      } else if ($application == 'radarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'radarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
+         $radarrApiWrapper->getPaths($this);
       }
    }
-   public function getSonarrTags()
+   public function getSonarrRadarrTags()
    {
       // Depends of application
       $application = SonarrRadarrUtils::verifyConfiguration($this, 'application');
@@ -197,6 +229,14 @@ class sonarr extends eqLogic
          }
          $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
          $sonarrApiWrapper->getSonarrTags($this);
+      } else if ($application == 'radarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'radarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
+         $radarrApiWrapper->getRadarrTags($this);
       }
    }
 
@@ -215,6 +255,14 @@ class sonarr extends eqLogic
          }
          $sonarrApiWrapper = new sonarrApiWrapper($url, $apiKey);
          $sonarrApiWrapper->searchMissing($this);
+      } else if ($application == 'radarr') {
+         $apiKey = SonarrRadarrUtils::verifyConfiguration($this, 'apiKey');
+         $url = SonarrRadarrUtils::verifyConfiguration($this, 'radarrUrl');
+         if ($apiKey == null || $url == null) {
+            return;
+         }
+         $radarrApiWrapper = new radarrApiWrapper($url, $apiKey);
+         $radarrApiWrapper->searchMissing($this);
       }
    }
 
@@ -447,7 +495,7 @@ class sonarrCmd extends cmd
             $eqlogic->search($_options);
             break;
          case 'add_serie':
-            $eqlogic->addSerie($_options);
+            $eqlogic->addSerieMovie($_options);
             break;
          case 'get_profiles':
             $eqlogic->getProfiles();
@@ -456,7 +504,7 @@ class sonarrCmd extends cmd
             $eqlogic->getPaths();
             break;
          case 'get_tags':
-            $eqlogic->getSonarrTags();
+            $eqlogic->getSonarrRadarrTags();
             break;
          case 'search_missing':
             $eqlogic->searchMissing();

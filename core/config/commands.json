@@ -278,6 +278,117 @@
             "subtype": "string",
             "isVisible": 1,
             "isHistorized": 0
+        },
+        {
+            "logicalId": "search_action",
+            "name": "Recherche",
+            "type": "action",
+            "subtype": "message",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "search_result",
+            "name": "Résultats de la recherche",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "search_result_raw",
+            "name": "Résultats de la recherche raw",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "get_profiles",
+            "name": "Récupération des profils",
+            "type": "action",
+            "subtype": "other",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "profiles_result",
+            "name": "Liste des profils",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "profiles_result_raw",
+            "name": "Liste des profils raw",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "get_path",
+            "name": "Récupération des dossiers",
+            "type": "action",
+            "subtype": "other",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "path_result",
+            "name": "Liste des dossiers",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "path_result_raw",
+            "name": "Liste des dossiers raw",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },{
+            "logicalId": "get_tags",
+            "name": "Récupération des tags",
+            "type": "action",
+            "subtype": "other",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "tags_result",
+            "name": "Liste des tags",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "tags_result_raw",
+            "name": "Liste des tags raw",
+            "type": "info",
+            "subtype": "string",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "add_serie",
+            "name": "Ajout du film",
+            "type": "action",
+            "subtype": "message",
+            "isVisible": 1,
+            "isHistorized": 0
+        },
+        {
+            "logicalId": "search_missing",
+            "name": "Recherche des films manquants",
+            "type": "action",
+            "subtype": "other",
+            "isVisible": 1,
+            "isHistorized": 0
         }
     ]
 }

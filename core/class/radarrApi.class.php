@@ -392,7 +392,7 @@ class radarrApi
      */
     public function getProfiles()
     {
-        $uri = 'profile';
+        $uri = 'qualityProfile';
 
         try {
             $response = $this->_request(
@@ -472,6 +472,20 @@ class radarrApi
         }
 
         return $response->getBody()->getContents();
+    }
+
+    public function getTags($id=null)
+    {
+        $uri = 'tag';
+	    if ($id !== null) $uri.='/'.$id;
+
+        $response = [
+            'uri' => $uri,
+            'type' => 'get',
+            'data' => []
+        ];
+
+        return $this->processRequest($response);
     }
 
    

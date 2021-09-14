@@ -42,4 +42,22 @@ class SonarrRadarrUtils
         }
         return null;
     }
+    public static function retrieveTagsFromCmd($context, $tagsWanted)
+    {
+        $tagsToReturn = [];
+        $tagsResultRawCmd = SonarrRadarrUtils::verifyCmd($context, 'tags_result_raw');
+        if ($tagsResultRawCmd == null) {
+            return $tagsToReturn;
+        }
+        $tagsResultRaw = json_decode($tagsResultRawCmd->execCmd(), true)['tags'];
+        $tagsRaw = new Tags(json_encode($tagsResultRaw));
+        foreach ($tagsRaw->tags as $tagRaw) {
+            foreach ($tagsWanted as $tagWanted) {
+                if ($tagWanted == $tagRaw->label) {
+                    array_push($tagsToReturn, $tagRaw->id);
+                }
+            }
+        }
+        return $tagsToReturn;
+    }
 }

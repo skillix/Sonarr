@@ -470,7 +470,7 @@ class sonarrApiWrapper
         // Check if optionnal parameters
         $tagsToAdd = [];
         $tagsWanted = $arrayOption->tags;
-        $tagsToAdd = $this->retrieveTagsFromCmd($context, $tagsWanted);
+        $tagsToAdd = SonarrRadarrUtils::retrieveTagsFromCmd($context, $tagsWanted);
         $seriesType = $this->retrieveSeriesType($arrayOption->seriesType);
         $monitoringType = $this->retrieveMonitoreOptions($arrayOption->monitoringType);
         $data = array(
@@ -493,7 +493,7 @@ class sonarrApiWrapper
     public function getProfiles($context)
     {
         LogSonarr::info('----------------------------------');
-        LogSonarr::info('START GETTING PROFILES ' . $context->getName());
+        LogSonarr::info('START GETTING PROFILES SERIES ' . $context->getName());
         $profilesResult = SonarrRadarrUtils::verifyCmd($context, 'profiles_result');
         $profilesResultRaw = SonarrRadarrUtils::verifyCmd($context, 'profiles_result_raw');
         if ($profilesResult == null || $profilesResultRaw == null) {
@@ -510,17 +510,17 @@ class sonarrApiWrapper
             $profilesStr = $this->utils->formatList($profilesStr, $profile->name, $separator);
         }
         if ($profilesStr == "") {
-            LogSonarr::info('no search results');
+            LogSonarr::info('no profiles');
         }
         $profilesResult->event($profilesStr);
-        LogSonarr::info('END GETTING PROFILES ' . $context->getName());
+        LogSonarr::info('END GETTING PROFILES SERIES ' . $context->getName());
         LogSonarr::info('----------------------------------');
     }
 
     public function getPaths($context)
     {
         LogSonarr::info('----------------------------------');
-        LogSonarr::info('START GETTING PATHS ' . $context->getName());
+        LogSonarr::info('START GETTING PATHS SERIES ' . $context->getName());
         $pathResult = SonarrRadarrUtils::verifyCmd($context, 'path_result');
         $pathResultRaw = SonarrRadarrUtils::verifyCmd($context, 'path_result_raw');
         if ($pathResult == null || $pathResultRaw == null) {
@@ -540,14 +540,14 @@ class sonarrApiWrapper
             LogSonarr::info('no paths');
         }
         $pathResult->event($pathsStr);
-        LogSonarr::info('END GETTING PATHS ' . $context->getName());
+        LogSonarr::info('END GETTING PATHS SERIES ' . $context->getName());
         LogSonarr::info('----------------------------------');
     }
 
     public function getSonarrTags($context)
     {
         LogSonarr::info('----------------------------------');
-        LogSonarr::info('START GETTING TAGS ' . $context->getName());
+        LogSonarr::info('START GETTING TAGS SERIES ' . $context->getName());
         $tagResult = SonarrRadarrUtils::verifyCmd($context, 'tags_result');
         $tagResultRaw = SonarrRadarrUtils::verifyCmd($context, 'tags_result_raw');
         if ($tagResult == null || $tagResultRaw == null) {
@@ -567,36 +567,17 @@ class sonarrApiWrapper
             LogSonarr::info('no tags');
         }
         $tagResult->event($tagsStr);
-        LogSonarr::info('END GETTING TAGS ' . $context->getName());
+        LogSonarr::info('END GETTING TAGS SERIES ' . $context->getName());
         LogSonarr::info('----------------------------------');
     }
 
     public function searchMissing($context)
     {
         LogSonarr::info('----------------------------------');
-        LogSonarr::info('START SEARCH MISSING ' . $context->getName());
+        LogSonarr::info('START SEARCH MISSING SERIES ' . $context->getName());
         $this->sonarrApi->postCommand('missingEpisodeSearch');
-        LogSonarr::info('STOP SEARCH MISSING ' . $context->getName());
+        LogSonarr::info('STOP SEARCH MISSING SERIES ' . $context->getName());
         LogSonarr::info('----------------------------------');
-    }
-
-    public function retrieveTagsFromCmd($context, $tagsWanted)
-    {
-        $tagsToReturn = [];
-        $tagsResultRawCmd = SonarrRadarrUtils::verifyCmd($context, 'tags_result_raw');
-        if ($tagsResultRawCmd == null) {
-            return $tagsToReturn;
-        }
-        $tagsResultRaw = json_decode($tagsResultRawCmd->execCmd(), true)['tags'];
-        $tagsRaw = new Tags(json_encode($tagsResultRaw));
-        foreach ($tagsRaw->tags as $tagRaw) {
-            foreach ($tagsWanted as $tagWanted) {
-                if ($tagWanted == $tagRaw->label) {
-                    array_push($tagsToReturn, $tagRaw->id);
-                }
-            }
-        }
-        return $tagsToReturn;
     }
 
     public function retrieveSeriesType($seriesTypeWanted)
