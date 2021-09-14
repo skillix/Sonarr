@@ -2,7 +2,7 @@
 	"id" : "sonarr",
 	"name" : "Sonarr & Radarr",
 	"description" : {
-		"fr_FR": "Plugin permettant d'interconnecter Jeedom, Sonarr et Radarr. Le plugin permet de récupérer les épisodes / films téléchargés, les épisodes / films manquant, les épisodes / films à venir et enfin un système de notification pour les épisodes et films venant d'être téléchargés",
+		"fr_FR": "Plugin permettant d'interconnecter Jeedom, Sonarr et Radarr. Il est possible de récupérer les films / épisodes manquants, à venir et téléchargés. Le plugin permet également d'effectuer des recherches, ajouter un film / série et de raffraîchir les films / épisodes manquants. Enfin le plugin possède son propre système de notification HTML lorsque qu'un film ou un épisode est téléchargé",
 		"en_US": "This plugin allows the interaction between Sonarr, Radarr and Jeedom. This plugins retrieves the missing episodes / movies, the downloaded episodes / movies, the future releases and has it's own notification system when a movie or episode has been downloaded."
 	},
 	"licence" : "AGPL",
