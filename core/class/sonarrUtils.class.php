@@ -279,7 +279,8 @@ class sonarrUtils
             $formattedTitle = $this->formatTitleImg($titleImg);
             LogSonarr::info("send notification for " . $formattedTitle);
             $context->getCmd(null, 'notification')->event($formattedTitle);
-            $context->getCmd(null, 'last_episode')->event($titleImg["title"]);
+            $lastEp = $context->getCmd(null, 'last_episode');
+            $lastEp->event($titleImg["title"]);
             $notificationHTML = $this->formatHTMLNotification($caller, $titleImg["title"], $titleImg["quality"], $titleImg["size"], $titleImg["date"], $titleImg["image"]);
             $context->getCmd(null, 'notificationHTML')->event($notificationHTML);
             sleep(1);

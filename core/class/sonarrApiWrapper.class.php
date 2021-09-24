@@ -42,7 +42,7 @@ class sonarrApiWrapper
         $downloadedEpisodesRules = $context->getConfigurationFor($context, "dayDownloadedEpisodes", "maxDownloadedEpisodes");
         $this->getDownladedEpisodesFormattedList($context, $downloadedEpisodesRules, $separator, $formattor, $groupEpisode, $separatorEpisodes);
         LogSonarr::info('notify for last downloaded episodes');
-        $last_refresh_date = $context->getCmd(null, 'last_episode')->getValueDate();
+        $last_refresh_date = $context->getCmd(null, 'notificationHTML')->getValueDate();
         $this->notifyEpisode('sonarr', $last_refresh_date, $context, $formattor, $groupEpisode, $separatorEpisodes);
         LogSonarr::info('getting the monitored series');
         $liste_monitored_series = $this->getMonitoredSeries($separator);
