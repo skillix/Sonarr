@@ -37,7 +37,7 @@ class radarrApiWrapper
 
         LogSonarr::info('getting last downloaded movies, will look for selected rules');
         $downloadMoviesRules = $context->getConfigurationFor($context, "dayDownloadedMovies", "maxDownloadedMovies");
-        $downloadMoviesList = $this->getDownladedMoviesFormattedList($context, $downloadMoviesRules, $separator);
+        $this->getDownladedMoviesFormattedList($context, $downloadMoviesRules, $separator);
 
         LogSonarr::info('notify for last downloaded movies');
         $last_refresh_date = $context->getCmd(null, 'last_episode')->getValueDate();

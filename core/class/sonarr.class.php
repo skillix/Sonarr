@@ -111,6 +111,8 @@ class sonarr extends eqLogic
             $radarrApiWrapper->refreshRadarr($this);
          }
       }
+      // Refresh View
+      $this->refreshWidget();
    }
 
    public function search($_options)
@@ -347,11 +349,8 @@ class sonarr extends eqLogic
          return $replace;
       }
       $version = jeedom::versionAlias($_version);
-
       $application = $this->getConfiguration('application', '');
-
-      $apiKey = $this->getConfiguration('apiKey');
-
+      LogSonarr::info("REFRESH WIDGET FOR: " . $application);
       $html = '';
       foreach ($this->getCmd(null, null, true) as $cmd) {
          $condensed = $this->getConfiguration('condensedWidget');
