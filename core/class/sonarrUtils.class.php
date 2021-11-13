@@ -316,20 +316,21 @@ class sonarrUtils
             $application = "Radarr";
             $type = __("nouveau film", __FILE__);
         }
-        $HTML = $application . " " . __("vient de récupérer un ", __FILE__) . $type . ": <a href=\"" . $ddlObjPoster . "\">" . $ddlObjName . "</a>" . "\n\n";
+        $HTML = $application . " " . __("vient de récupérer un ", __FILE__) . $type . " " . $ddlObjName . "\n\n";
         if ($ddlObjQuality != '' && $ddlObjSize != '') {
-            $HTML = $HTML . "<b>" . __("Qualité", __FILE__) . " \t " . __("Poids", __FILE__) . " </b> \n";
+            $HTML = $HTML . __("Qualité", __FILE__) . " \t " . __("Poids", __FILE__) . "  \n";
             $HTML = $HTML . $ddlObjQuality . " \t " . $ddlObjSize . "\n\n";
         } else if ($ddlObjQuality != '') {
-            $HTML = $HTML . "<b>" . __("Qualité", __FILE__) . "</b> \n";
+            $HTML = $HTML  . __("Qualité", __FILE__) . " \n";
             $HTML = $HTML . $ddlObjQuality . "\n\n";
         } else if ($ddlObjSize != '') {
-            $HTML = $HTML . "<b>" . __("Poids", __FILE__) . "</b> \n";
+            $HTML = $HTML . __("Poids", __FILE__) . " \n";
             $HTML = $HTML . $ddlObjSize . "\n\n";
         }
         if ($ddlObjDate != '') {
-            $HTML = $HTML . __("Date de téléchargement", __FILE__) . ": <b>" . $ddlObjDate . "</b>\n\n";
+            $HTML = $HTML . __("Date de téléchargement", __FILE__) . ": " . $ddlObjDate . "\n\n";
         }
+        $HTML = $HTML . $ddlObjPoster;
         return $HTML;
     }
     public function formatTitleImg($titleImg)
