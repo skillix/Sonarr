@@ -352,7 +352,7 @@ class radarrApi
      * @return array|object|string
      * @throws InvalidException
      */
-    public function getHistory($page = 1, $pageSize = 10, $sortKey = 'movie.title', $sortDir = 'asc')
+    public function getHistory($page = 1, $pageSize = 10, $sortKey = 'movie.title', $sortDir = 'descending')
     {
         $uri = 'history';
 
@@ -365,7 +365,7 @@ class radarrApi
                         'page' => $page,
                         'pageSize' => $pageSize,
                         'sortKey' => $sortKey,
-                        'sortDir' => $sortDir
+                        'sortDirection' => $sortDir
                     ]
                 ]
             );

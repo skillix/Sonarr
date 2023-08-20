@@ -159,7 +159,7 @@ class radarrApiWrapper
         // Analyze datas
         $missingMoviesList = [];
         foreach ($movies as $movie) {
-            if ($movie["status"] == "released" && $movie["hasFile"] == false) {
+            if ($movie["status"] == "released" && $movie["hasFile"] == false && $movie["monitored"] == true) {
                 //Episode is missing
                 array_push($missingMoviesList, $movie);
             }
