@@ -111,7 +111,7 @@ class radarrApiWrapper
                 $urlImage = "";
                 foreach ($images as $image) {
                     if ($image["coverType"] == "poster") {
-                        $urlImage =  $image["url"];
+                        $urlImage =  $image["remoteUrl"]; // modif Tonio : was "url" https://community.jeedom.com/t/retours-sur-test-plugin/132675/3
                     }
                 }
                 $this->saveImage($urlImage, $moviesId);
